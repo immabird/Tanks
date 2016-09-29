@@ -51,21 +51,15 @@ public class Server {
 	 * Starts the welcome socket which waits for clients to try and connect
 	 */
 	private void welcomeSocket(int port) {
-		try(ServerSocket ss = new ServerSocket(port);) { // Creates server socket "ss"
+		try(ServerSocket ss = new ServerSocket(port)) { // Creates server socket "ss"
 			isOn = true;
 			while(isOn) {
-				new Thread(new Runnable() {	// Creates a new thread to handle each client
-						@Override
-						public void run() {
-							try(Socket cs = ss.accept()) {	// Accepts new client
-								handleClient(cs);
-							} catch(Exception ex) {
-								System.out.println("An error has occured while trying to accept a client");
-								ex.printStackTrace();
-							}
-						}
-					}).start();
-				
+				try(Socket cs = ss.accept()) {	// Accepts new client
+					handleClient(cs);
+				} catch(Exception ex) {
+					System.out.println("An error has occured while trying to accept a client");
+					ex.printStackTrace();
+				}
 			}
 		} catch(Exception ex) {
 			isOn = false;
@@ -80,34 +74,39 @@ public class Server {
 	 * @param Socket
 	 */
 	private void handleClient(Socket cs) {
-		try(BufferedReader br = new BufferedReader(new InputStreamReader(cs.getInputStream()))) { // "br" is used to read messages from the client
-		try(PrintWriter pr = new PrintWriter(cs.getOutputStream())) {	// "pr" is used to write messages to the client
-			boolean online = true;	// Determines whether the client is still active
-			writers.add(pr);
-			
-			while(online) {
-				String data = br.readLine();
-				String[] splitData = data.split(" ");
-				
-				switch(splitData[0]) {	// The first word in the message contains the status code which is interpreted here
-					case "quit":	// Signals the client is leaving
-						messageAll(pr,"quit");
-						online = false;
-						break;
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try(BufferedReader br = new BufferedReader(new InputStreamReader(cs.getInputStream()))) { // "br" is used to read messages from the client
+				try(PrintWriter pr = new PrintWriter(cs.getOutputStream())) {	// "pr" is used to write messages to the client
+					boolean online = true;	// Determines whether the client is still active
+					writers.add(pr);
+					
+					while(online) {
+						String data = br.readLine();
+						String[] splitData = data.split(" ");
 						
-					// TODO: add more handling cases
+						switch(splitData[0]) {	// The first word in the message contains the status code which is interpreted here
+							case "quit":	// Signals the client is leaving
+								messageAll(pr,"quit");
+								online = false;
+								break;
+									
+							// TODO: add more handling cases
+									
+							default: // Sends the clients positional data to the other players
+								messageAll(pr,data);
+								break;
+						}
+					}
 						
-					default: // Sends the clients positional data to the other players
-						messageAll(pr,data);
-						break;
+					writers.remove(pr); // Removes the client from the "mailing list" after their session has terminated
+				}} catch(Exception ex) {
+					System.out.println("An exception was thrown by a client.");
+					ex.printStackTrace();
 				}
 			}
-			
-			writers.remove(pr); // Removes the client from the "mailing list" after their session has terminated
-		}} catch(Exception ex) {
-			System.out.println("An exception was thrown by a client.");
-			ex.printStackTrace();
-		}
+		}).start();
 	}
 	
 	/**
