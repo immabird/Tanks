@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.HashMap;
 
 /**
  * @author Bradley Rawson Jr
@@ -78,12 +79,11 @@ public class Client {
 								online = false;
 								break;
 								
-							case "quit":
-								
+							case "message":
 								break;
 								
-							case "data":
-								
+							default:
+								handleTanks(data);
 								break;
 						}
 					}
@@ -93,6 +93,28 @@ public class Client {
 				}
 			}
 		}).start();
+	}
+	
+	private HashMap<String,Tank> tanks = new HashMap<String,Tank>();
+	
+	private void handleTanks(String data) {
+		String[] splitData = data.split(" ");
+		if(splitData[1].equals("quit")) {
+			tanks.get(splitData[0]).delete();
+			tanks.remove(splitData[0]);
+		} else {
+			if(splitData[1].equals("message")) {
+				System.out.println(splitData[2]);
+				// TODO: make this message print somewhere useful
+			} else {
+				if(!tanks.containsKey(splitData[0])) {
+					tanks.put(splitData[0], new Tank(splitData[0],splitData[2]));
+				} else {
+					tanks.get(splitData[0]).setPosition(splitData[2]);;
+				}
+			}
+		}
+		
 	}
 
 }
