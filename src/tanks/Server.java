@@ -24,12 +24,24 @@ public class Server {
 	private LinkedList<PrintWriter> writers = new LinkedList<PrintWriter>();
 	
 	/**
+	 * Provides access the the isOn variable
+	 * 
+	 * @return The servers state
+	 */
+	public boolean isOn() {
+		return isOn;
+	}
+	
+	/**
 	 * Creates a thread for the server to run on and retrieves the port which
 	 * it passes along to the welcome socket
 	 * 
 	 * @param port
 	 */
-	public Server(int port) {
+	public void start(int port) {
+		if (!writers.isEmpty()) {
+			writers.clear();
+		}
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -39,12 +51,27 @@ public class Server {
 	}
 	
 	/**
-	 * Provides access the the isOn variable
-	 * 
-	 * @return The servers state
+	 * Creates a thread for the server to run on and retrieves the port which
+	 * it passes along to the welcome socket
 	 */
-	public boolean isOn() {
-		return isOn;
+	public void start() {
+		if (!writers.isEmpty()) {
+			writers.clear();
+		}
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				welcomeSocket(1650);
+			}
+		}).start();
+	}
+	
+	/**
+	 * Stops the server.
+	 */
+	public void stop() {
+		messageAll(null,"server closing");
+		isOn = false;
 	}
 
 	/**
@@ -82,19 +109,17 @@ public class Server {
 					boolean online = true;	// Determines whether the client is still active
 					writers.add(pr);
 					
-					while(online) {
+					while(online && isOn) {
 						String data = br.readLine();
 						String[] splitData = data.split(" ");
 						
-						switch(splitData[0]) {	// The first word in the message contains the status code which is interpreted here
+						switch(splitData[1]) {	// The second word in the message contains the status code which is interpreted here
 							case "quit":	// Signals the client is leaving
-								messageAll(pr,"quit");
+								messageAll(pr, splitData[0] + " quit");
 								online = false;
 								break;
 									
-							// TODO: add more handling cases
-									
-							default: // Sends the clients positional data to the other players
+							case "data": // Sends the clients positional data to the other players
 								messageAll(pr,data);
 								break;
 						}
