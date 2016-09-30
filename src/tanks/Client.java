@@ -11,7 +11,7 @@ import java.util.HashMap;
  */
 public class Client {
 	private String ip = "localhost";
-	private int port = 1650;
+	private int port = 25565;
 	
 	private boolean online = false;
 	private String name = "User";
@@ -55,7 +55,11 @@ public class Client {
 	}
 	
 	public void write(String data) {
-		writer.write(name + " " + data);
+		if(writer == null) {
+			System.out.println("Writer is null");
+		} else {
+			writer.write(name + " " + data);
+		}
 	}
 	
 	/**
@@ -69,22 +73,29 @@ public class Client {
 				try(BufferedReader br = new BufferedReader(new InputStreamReader(cs.getInputStream()))) { // "br" is used to read messages from the server
 				try(PrintWriter pr = new PrintWriter(cs.getOutputStream())) {	// "pr" is used to write messages to the server
 					writer = pr;
+					write("hi");
 					
+					if(writer == null) {
+						System.out.println("null");
+					}
 					while(online) {
 						String data = br.readLine();
-						String[] splitData = data.split(" ");
-						
-						switch(splitData[1]) {	// The first word in the message contains the status code which is interpreted here
-							case "closing":
-								online = false;
-								break;
+						if(data != null) {
+							System.out.println(data);
+							String[] splitData = data.split(" ");
+							
+							switch(splitData[1]) {	// The first word in the message contains the status code which is interpreted here
+								case "closing":
+									online = false;
+									break;
 								
-							case "message":
-								break;
+								case "message":
+									break;
 								
-							default:
-								handleTanks(data);
-								break;
+								default:
+									handleTanks(data);
+									break;
+							}
 						}
 					}
 				}}} catch(Exception ex) {
