@@ -12,7 +12,13 @@ public class GUI extends Application {
 	private Server server;
 	
 	public static void main(String[] args) {
-		launch(args);
+		Server s = new Server();
+		s.start();
+		Client c = new Client("Brad");
+		c.start();
+		c.write("quit");
+		
+		//launch(args);
 	}
 
 	public void start(Stage primaryStage) {

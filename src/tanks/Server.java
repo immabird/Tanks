@@ -61,7 +61,7 @@ public class Server {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				welcomeSocket(1650);
+				welcomeSocket(25565);
 			}
 		}).start();
 	}
@@ -81,7 +81,8 @@ public class Server {
 		try(ServerSocket ss = new ServerSocket(port)) { // Creates server socket "ss"
 			isOn = true;
 			while(isOn) {
-				try(Socket cs = ss.accept()) {	// Accepts new client
+				try {
+					Socket cs = ss.accept();	// Accepts new client
 					handleClient(cs);
 				} catch(Exception ex) {
 					System.out.println("An error has occured while trying to accept a client");
