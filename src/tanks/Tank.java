@@ -3,9 +3,9 @@ package tanks;
 public class Tank {
 	private String name;
 	
-	public Tank(String tanksName, String data) {
+	public Tank(String tanksName) {
 		name = tanksName;
-		setPosition(data);
+		setPosition("");
 	}
 	
 	public String getName() {

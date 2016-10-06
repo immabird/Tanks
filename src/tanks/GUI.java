@@ -16,7 +16,7 @@ public class GUI extends Application {
 		s.start();
 		Client c = new Client("Brad");
 		c.start();
-		c.write("quit");
+		c.write("print hello");
 		
 		//launch(args);
 	}
