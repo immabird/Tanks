@@ -67,10 +67,11 @@ public class Server {
 			public void run() {
 				try(ObjectInputStream read = new ObjectInputStream(clientSocket.getInputStream())
 				;ObjectOutputStream write = new ObjectOutputStream(clientSocket.getOutputStream())) {
+					writers.add(write);
 					boolean clientIsOnline = true;	// Determines whether the client is still active
-					writers.add(write); 
+					Package data;
 					while(clientIsOnline && serverIsOnline) {
-						Package data = (Package)read.readObject();
+						data = (Package)read.readObject();
 						// TODO Implement more checks in the Package class for the server
 						messageAllClients(write,data);
 					}
