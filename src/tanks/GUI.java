@@ -12,9 +12,9 @@ public class GUI extends Application {
 	private Server server;
 	
 	public static void main(String[] args) {
-		Server s = new Server();
+		Server s = new Server(25565);
 		s.start();
-		Client c = new Client("Brad");
+		Client c = new Client("Brad","localhost",25565);
 		c.start();
 		c.write("print hello");
 		
