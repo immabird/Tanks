@@ -69,7 +69,7 @@ public class GUI extends Application {
 	
 	public void start(Stage stage) {
 		try {
-			FXMLLoader loader = new FXMLLoader(getClass().getResource("SettingsWindow.fxml"));
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("MainMenu.fxml"));
 			Parent root = loader.load();
 			Scene scene = new Scene(root);
 			stage.setScene(scene);
