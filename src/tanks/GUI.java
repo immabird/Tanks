@@ -17,17 +17,7 @@ import javafx.scene.control.TextField;
 public class GUI extends Application {
 	
 	public static void main(String[] args) {
-<<<<<<< HEAD
 		launch(args);
-=======
-		Server s = new Server(25565);
-		s.start();
-		Client c = new Client("Brad","localhost",25565);
-		c.start();
-		c.write("print hello");
-		
-		//launch(args);
->>>>>>> refs/remotes/origin/master
 	}
 	
 	private static int port = 25565;
