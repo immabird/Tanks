@@ -146,6 +146,10 @@ public class GUI extends Application {
 		settingsScene = new Scene(new AnchorPane(pane));
 	}
 	
+	private void createGameScene() {
+		
+	}
+	
 	public void start(Stage stage) {
 		try(Scanner sc = new Scanner(new File("settings.txt"))) {
 			name = sc.nextLine();
@@ -156,10 +160,10 @@ public class GUI extends Application {
 		try {
 			createMainMenuScene();
 			createSettingsScene();
+			createGameScene();
 			stage.setScene(mainMenuScene);
 			stage.setTitle("Tanks");
 			stage.show();
-			
 			stage.setOnCloseRequest(EventHandler -> {
 				try(PrintWriter pr = new PrintWriter(new File("settings.txt"))) {
 					pr.println(name);
