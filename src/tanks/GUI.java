@@ -39,7 +39,7 @@ public class GUI extends Application {
 	final private int WINDOW_HEIGHT = 600;
 	final private int WINDOW_WIDTH = 800;
 	final private int BUTTON_HEIGHT = 20;
-	final private int BUTTON_WIDTH = 110;
+	final private int BUTTON_WIDTH = 120;
 	private Scene mainMenuScene;
 	private Scene settingsScene;
 	
