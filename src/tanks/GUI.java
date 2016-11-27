@@ -15,7 +15,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 
@@ -40,6 +40,10 @@ public class GUI extends Application {
 	final private int WINDOW_WIDTH = 800;
 	final private int BUTTON_HEIGHT = 20;
 	final private int BUTTON_WIDTH = 120;
+	//How far away elements should be vertically from the one another
+	final private int VERT_SPACING_BTN_ELEMENTS = 20;
+	//How far away elements should be horizontally from the one another
+	final private int HOR_SPACING_BTN_ELEMENTS = 7;
 	private Scene mainMenuScene;
 	private Scene settingsScene;
 	
@@ -55,29 +59,32 @@ public class GUI extends Application {
 				Button button = (Button) node;
 				
 				switch(button.getText()) {
-				case"Start Game":
-					startClient();
-					break;
-				case"Start Server":
-					startServer();
-					break;
-				case"Settings":
-					stage.setScene(settingsScene);
-					break;
-				case"Done":
-					HBox hBox = (HBox) button.getParent().getParent();
-					VBox vBox = (VBox) hBox.getChildren().get(1);
-					GUI.name = ((TextField)vBox.getChildren().get(0)).getText();
-					GUI.ip = ((TextField)vBox.getChildren().get(1)).getText();
-					try {
-						GUI.port = Integer.parseInt(((TextField)vBox.getChildren().get(2)).getText());
-					} catch(Exception ex) {}
+					case"Start Game":
+						startClient();
+						break;
+					case"Start Server":
+						startServer();
+						break;
+					case"Settings":
+						stage.setScene(settingsScene);
+						break;
+					case"Done":
+						//Go up chain to get VBox of the fields
+						VBox vBoxOfAllElements = (VBox) button.getParent();
+						HBox hBoxOfInputs = (HBox) vBoxOfAllElements.getChildren().get(1);
+						VBox vBoxOfFields = (VBox) hBoxOfInputs.getChildren().get(1);
 					
-					stage.setScene(mainMenuScene);
-					break;
-				}
-			}
-		});
+						GUI.name = ((TextField)vBoxOfFields.getChildren().get(0)).getText();
+						GUI.ip = ((TextField)vBoxOfFields.getChildren().get(1)).getText();
+						try {
+							GUI.port = Integer.parseInt(((TextField)vBoxOfFields.getChildren().get(2)).getText());
+						} catch(Exception ex) {}
+					
+						stage.setScene(mainMenuScene);
+						break;
+				} //end switch
+			}//end handle
+		}); //end setOnAction
 		return button;
 	}
 	
@@ -87,12 +94,13 @@ public class GUI extends Application {
 		title.setFont(TITLE_FONT);
 		
 		// Makes all the buttons and adds them to a VBox
-		VBox vBox = new VBox();
+		VBox vBox = new VBox(VERT_SPACING_BTN_ELEMENTS);
 		vBox.setAlignment(Pos.CENTER);
 		vBox.getChildren().addAll(title,newButton("Start Game"),newButton("Start Server"),newButton("Settings"));
 		
-		// Puts the VBox in a Pane
-		Pane pane = new Pane(vBox);
+		// Puts the VBox in a Pane and centers it
+		StackPane pane = new StackPane(vBox);
+		StackPane.setAlignment(vBox, Pos.CENTER);
 		pane.setPrefSize(WINDOW_WIDTH,WINDOW_HEIGHT);
 		
 		// Creates the scene
@@ -122,26 +130,27 @@ public class GUI extends Application {
 		Label portLabel = new Label("Port:");
 		portLabel.setFont(FONT);
 		
-		VBox vBox1 = new VBox();
+		VBox vBox1 = new VBox(15 + VERT_SPACING_BTN_ELEMENTS);
 		vBox1.setAlignment(Pos.CENTER);
-		vBox1.getChildren().addAll(nameLabel,ipLabel,portLabel,newButton("Done"));
+		vBox1.getChildren().addAll(nameLabel,ipLabel,portLabel);
 		
-		VBox vBox2 = new VBox();
+		VBox vBox2 = new VBox(VERT_SPACING_BTN_ELEMENTS);
 		vBox2.setAlignment(Pos.CENTER);
 		vBox2.getChildren().addAll(nameField,ipField,portField);
 		
-		HBox hBox = new HBox();
+		HBox hBox = new HBox(HOR_SPACING_BTN_ELEMENTS);
 		hBox.setAlignment(Pos.CENTER);
 		hBox.getChildren().addAll(vBox1,vBox2);
 		
-		VBox vBox3 = new VBox();
+		VBox vBox3 = new VBox(VERT_SPACING_BTN_ELEMENTS);
 		vBox3.setAlignment(Pos.CENTER);
-		vBox3.getChildren().addAll(title,hBox);
+		vBox3.getChildren().addAll(title,hBox,newButton("Done"));
 		
-		// Puts the VBox in a Pane
-		Pane pane = new Pane(vBox3);
+		// Puts the VBox in a StackPane and centers it
+		StackPane pane = new StackPane(vBox3);
+		StackPane.setAlignment(vBox3, Pos.CENTER);
 		pane.setPrefSize(WINDOW_WIDTH,WINDOW_HEIGHT);
-				
+		
 		// Creates the scene
 		settingsScene = new Scene(new AnchorPane(pane));
 	}
