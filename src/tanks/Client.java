@@ -1,13 +1,10 @@
 package tanks;
 
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Queue;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -116,7 +113,7 @@ class Client extends Application{
 						if(data.getTank() != null)
 							data.getTank().updatePosition();
 						packages.add(data);
-						System.out.println(name + " read in:" + data.getName() + " " + data.getTank());
+						System.out.println(name + " read in:" + data.getName() + " ");
 					}
 				} catch(Exception ex) {
 					connectedToServer = false;

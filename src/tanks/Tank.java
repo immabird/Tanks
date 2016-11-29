@@ -16,16 +16,19 @@ public class Tank extends Rectangle implements Serializable {
 	
 	private static final long serialVersionUID = 3327759244053487144L;
 	private String name;
-	private int bodyAngle = 0;
-	private boolean w = false;
-	private boolean a = false;
-	private boolean s = false;
-	private boolean d = false;
-	private double xPos = 0;
-	private double yPos = 0;
+	private volatile int bodyAngle = 0;
+	private volatile boolean w;
+	private volatile boolean a;
+	private volatile boolean s;
+	private volatile boolean d;
+	private volatile double xPos;
+	private volatile double yPos;
 	
 	public Tank(String tanksName, Client myself) {
 		name = tanksName;
+		xPos = 0;
+		yPos = 0;
+		w = a = s = d = false;
 		setHeight(GUI_SETTINGS.TANK_HEIGHT);
 		setWidth(GUI_SETTINGS.TANK_WIDTH);
 		
@@ -111,7 +114,6 @@ public class Tank extends Rectangle implements Serializable {
 						xPos = getX();
 						yPos = getY();
 						myself.writeTank();
-						System.out.println(xPos + " " + yPos);
 					}
 				});
 				
@@ -200,5 +202,9 @@ public class Tank extends Rectangle implements Serializable {
 	
 	public String getName() {
 		return name;
+	}
+	
+	public String getPos() {
+		return xPos + " " + yPos;
 	}
 }
