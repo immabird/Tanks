@@ -3,9 +3,6 @@ package tanks;
 import java.io.Serializable;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import com.sun.glass.ui.Application;
-
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
@@ -113,15 +110,10 @@ public class Tank extends Rectangle implements Serializable {
 					public void run() {
 						xPos = getX();
 						yPos = getY();
+						myself.writeTank();
+						System.out.println(xPos + " " + yPos);
 					}
 				});
-				
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						myself.writeTank();
-					}
-				}).start();
 				
 			}
 		},0,10);
