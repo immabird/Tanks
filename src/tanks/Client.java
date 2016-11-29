@@ -28,17 +28,24 @@ class Client extends Application{
 	//Stuff for sending/receiving from the server
 	private Queue<Package> packages = new ConcurrentLinkedQueue<>();
 	private ObjectOutputStream write;
+	//GUI's stage
+	private Stage stage;
+	//GUI's pane
+	private Pane pane;
 	
 	/**Makes a new Client given the String, IP, and the client's name
-	 * @param anIp
-	 * @param aPort
-	 */
+	 * @param anIp  The IP address of the Server
+	 * @param aPort  The Port that the server is using
+	 * @param name  The name of the Client*/
 	public Client(String anIp, int aPort, String name) {
 		//Connecting to the server
 		ip = anIp;
 		port = aPort;
 		this.name = name;
-		start();
+		/*UNCOMMENT THIS TO HAVE THE NETWORKING ACTUALLY WORK
+		 *I'M GOING TO FORGET TO DO THIS
+		 *NEEDS MORE CAPITAL LETTERS SO I CAN SEE IT!!!!!!!!!!!!!!*/
+		connect();
 		
 		//Starting up GUI
 		try {
@@ -48,23 +55,24 @@ class Client extends Application{
 		}
 	}
 	
+	/**@return true if the client is connected to the server*/
 	public boolean isConnected() {
 		return connectedToServer;
 	}
 	
-	public Package getNextPackage() {
+	/**@return the next package from the Queue*/
+	private Package getNextPackage() {
 		return packages.remove();
 	}
 	
-	public void start() {
-		connect(); // Starts the connection to the server
-	}
-	
+	/**Disconnects from the server and closes the GUI*/
 	public void stop() {
 		connectedToServer = false;
+		stage.close();
 	}
 	
-	public void write() {
+	/**Sends a Package to the Server*/
+	public void write(Package data) {
 		int i = 0;
 		while(!connectedToServer && i < 500) {
 			try {
@@ -75,7 +83,6 @@ class Client extends Application{
 			i++;
 		}
 		try {
-			Package data = new Package(myTank);
 			write.writeObject(data); // Sends a package to the server
 		} catch(Exception ex) {
 			System.out.println("An attempt to write the server has failed.");
@@ -83,12 +90,20 @@ class Client extends Application{
 		}
 	}
 	
+	/**Sends the Client's Tank to the Server*/
+	public void writeTank(){
+		write(new Package(myTank));
+	}
+	
+	/**Connects to the server and keeps listening for packages*/
 	private void connect() {
 		new Thread(new Runnable() {
 			public void run() {
-				try(Socket clientSocket = new Socket(ip,port) // Connects the the server
-				;ObjectInputStream read = new ObjectInputStream(clientSocket.getInputStream()) // Opens input stream
-				;ObjectOutputStream aWriter = new ObjectOutputStream(clientSocket.getOutputStream())) { // Opens output stream
+				try(
+						 Socket clientSocket = new Socket(ip,port) // Connects the the server
+						;ObjectInputStream read = new ObjectInputStream(clientSocket.getInputStream()) // Opens input stream
+						;ObjectOutputStream aWriter = new ObjectOutputStream(clientSocket.getOutputStream()) // Opens output stream
+				) {
 					write = aWriter;
 					connectedToServer = true; // Client is offically connected
 					Package data;
@@ -105,20 +120,33 @@ class Client extends Application{
 		}).start();
 	}
 	
+	/**Make a thread to update all of the other player's info*/
 	private void updateOtherPlayers(){
 		new Thread(new Runnable(){
-
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub
+				while(connectedToServer){
+					if(!packages.isEmpty()){//there's a package to get
+						Package currentP = packages.poll();
+						Tank currentTFromList = tanks.get(currentP.getName());
+						Tank currentTFromP = currentP.getTank();
+						if(currentTFromList == null){ //Tank isn't in the hashmap yet
+							tanks.put(currentP.getName(), currentTFromP);
+							pane.getChildren().add(currentTFromP); //This might cause errors due to reference stuff, not really sure
+						}
+						else{//just update the tank in the map
+							currentTFromList = currentTFromP; //This might cause errors due to reference stuff, not really sure
+						}
+					}
+				}
 			}
-			
 		}).start();
 	}
 
 	/**Makes a new Tank for this client*/
 	private void makeNewTank(){
-		myTank = new Tank("myTank");
+		myTank = new Tank(name);
+		//Makes sure that your tank is the focus
 		Platform.runLater(new Runnable(){
 			@Override
 			public void run() {
@@ -128,14 +156,21 @@ class Client extends Application{
 	}
 	
 	@Override
+	/**Starts up the GUI window*/
 	public void start(Stage primaryStage) throws Exception {
-		Pane pane = new Pane();
+		//Setup the pane
+		pane = new Pane();
 		pane.setPrefSize(GUI_SETTINGS.GAME_WINDOW_SIZE, GUI_SETTINGS.GAME_WINDOW_SIZE);
+		//Add the player's tank to the pane
 		makeNewTank();
 		pane.getChildren().add(myTank);
+		updateOtherPlayers();
 		
+		//Show the pane
 		Scene scene = new Scene(new AnchorPane(pane));
+		primaryStage.setTitle(GUI_SETTINGS.MENU_TITLE + " | Player: " + name);
 		primaryStage.setScene(scene);
 		primaryStage.show();
+		stage = primaryStage; //Have a class reference to the stage
 	}
 }
