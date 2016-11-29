@@ -2,10 +2,11 @@ package tanks;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -26,18 +27,20 @@ class Client extends Application{
 	// Keeps track of the connection with the server
 	private boolean connectedToServer = false;
 	//Stuff for sending/receiving from the server
-	private Queue<Package> packages = new ConcurrentLinkedQueue<>();
+	private LinkedList<Package> packages = new LinkedList<>();
 	private ObjectOutputStream write;
 	//GUI's stage
 	private Stage stage;
 	//GUI's pane
 	private Pane pane;
+	private Package p = null;
 	
 	/**Makes a new Client given the String, IP, and the client's name
 	 * @param anIp  The IP address of the Server
 	 * @param aPort  The Port that the server is using
 	 * @param name  The name of the Client*/
 	public Client(String anIp, int aPort, String name) {
+		System.out.println(Integer.toHexString(packages.hashCode()));
 		//Connecting to the server
 		ip = anIp;
 		port = aPort;
@@ -60,11 +63,6 @@ class Client extends Application{
 		return connectedToServer;
 	}
 	
-	/**@return the next package from the Queue*/
-	private Package getNextPackage() {
-		return packages.remove();
-	}
-	
 	/**Disconnects from the server and closes the GUI*/
 	public void stop() {
 		connectedToServer = false;
@@ -84,6 +82,7 @@ class Client extends Application{
 		}
 		try {
 			write.writeObject(data); // Sends a package to the server
+			//write.flush();
 		} catch(Exception ex) {
 			System.out.println("An attempt to write the server has failed.");
 			ex.printStackTrace();
@@ -97,19 +96,22 @@ class Client extends Application{
 	
 	/**Connects to the server and keeps listening for packages*/
 	private void connect() {
+		System.out.println(Integer.toHexString(packages.hashCode()));
 		new Thread(new Runnable() {
 			public void run() {
 				try(
 						 Socket clientSocket = new Socket(ip,port) // Connects the the server
-						;ObjectInputStream read = new ObjectInputStream(clientSocket.getInputStream()) // Opens input stream
 						;ObjectOutputStream aWriter = new ObjectOutputStream(clientSocket.getOutputStream()) // Opens output stream
+						;ObjectInputStream read = new ObjectInputStream(clientSocket.getInputStream()) // Opens input stream
 				) {
 					write = aWriter;
 					connectedToServer = true; // Client is offically connected
 					Package data;
 					while(connectedToServer) { // Reads in the data from the server
 						data = (Package)read.readObject();
+						p = data;
 						packages.add(data);
+						System.out.println(p);
 					}
 				} catch(Exception ex) {
 					connectedToServer = false;
@@ -122,20 +124,21 @@ class Client extends Application{
 	
 	/**Make a thread to update all of the other player's info*/
 	private void updateOtherPlayers(){
+		System.out.println(Integer.toHexString(packages.hashCode()));
 		new Thread(new Runnable(){
 			@Override
 			public void run() {
+				System.out.println(p);
 				while(connectedToServer){
-					if(!packages.isEmpty()){//there's a package to get
-						Package currentP = packages.poll();
-						Tank currentTFromList = tanks.get(currentP.getName());
-						Tank currentTFromP = currentP.getTank();
-						if(currentTFromList == null){ //Tank isn't in the hashmap yet
-							tanks.put(currentP.getName(), currentTFromP);
-							pane.getChildren().add(currentTFromP); //This might cause errors due to reference stuff, not really sure
+					if(p != null){//!packages.isEmpty()){//there's a package to get
+						System.out.println("new player! updatePlayers");
+						Package currentP = p;//packages.removeFirst();
+						if(!tanks.containsKey(currentP.getName())){ //Tank isn't in the hashmap yet
+							tanks.put(currentP.getName(), currentP.getTank());
+							pane.getChildren().add(tanks.get(currentP.getName()));
 						}
 						else{//just update the tank in the map
-							currentTFromList = currentTFromP; //This might cause errors due to reference stuff, not really sure
+							tanks.replace(currentP.getName(), currentP.getTank());
 						}
 					}
 				}
@@ -153,6 +156,7 @@ class Client extends Application{
 				myTank.requestFocus();
 			}
 		});
+		writeTank();
 	}
 	
 	@Override
