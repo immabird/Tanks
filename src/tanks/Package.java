@@ -10,8 +10,15 @@ public class Package implements Serializable {
 	private Tank tank;
 	private String name;
 	
+	
 	public Package(Tank t){
 		setTank(t);
+	}
+	
+	/**Used to set up a leave message*/
+	public Package(String name){
+		tank = null;
+		this.name = name;
 	}
 	
 	public void setTank(Tank aTank) {
