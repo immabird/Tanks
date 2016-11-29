@@ -6,15 +6,31 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
 
+import javafx.application.Application;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+
 /** 
  * The main job of the server is to relay data between all of the clients during the game
  * The server is also responsible for organizing the users
  */
-public class Server {
+public class Server extends Application{
 	
 	private int port; // Stores the port number that the server will start on.
 	public Server(int thePort) {
 		port = thePort; // Initializes the port
+		
+		try {
+			start(new Stage());
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 	
 	private boolean serverIsOnline = false; // Keeps the sate of the server
@@ -22,8 +38,34 @@ public class Server {
 		return serverIsOnline; // Returns the state of the server
 	}
 	
-	public void start() {
+	private Label numberOfPlayers;
+	private int playerCount = 0;
+	private void updateNumberOfPlayers(int add) {
+		playerCount += add;
+		numberOfPlayers.setText("Players: " + playerCount);
+	}
+	@Override
+	public void start(Stage stage) throws Exception {
 		welcomeSocket(); // Starts the welcome socket
+		
+		Label title = new Label("Server");
+		title.setFont(GUI_SETTINGS.TITLE_FONT);
+		
+		Label numberOfPlayers = new Label("Players: 0");
+		numberOfPlayers.setFont(GUI_SETTINGS.FONT);
+		
+		VBox v1 = new VBox();
+		v1.getChildren().addAll(title,numberOfPlayers);
+		v1.setAlignment(Pos.TOP_CENTER);
+		
+		StackPane pane = new StackPane(v1);
+		pane.setPrefSize(GUI_SETTINGS.SERVER_WIDTH,GUI_SETTINGS.SERVER_HEIGHT);
+		StackPane.setAlignment(v1,Pos.TOP_CENTER);
+		
+		Scene serverScene = new Scene(new AnchorPane(pane));
+		stage.setTitle(GUI_SETTINGS.MENU_TITLE);
+		stage.setScene(serverScene);
+		stage.show();
 	}
 	
 	public void stop() {
@@ -69,6 +111,7 @@ public class Server {
 				;ObjectOutputStream write = new ObjectOutputStream(clientSocket.getOutputStream())) {
 					writers.add(write);
 					boolean clientIsOnline = true;	// Determines whether the client is still active
+					updateNumberOfPlayers(1);
 					Package data;
 					while(clientIsOnline && serverIsOnline) {
 						data = (Package)read.readObject();
@@ -76,9 +119,11 @@ public class Server {
 						messageAllClients(write,data);
 					}
 					writers.remove(write); // Removes the client from the "mailing list" after their session has terminated
+					updateNumberOfPlayers(-1);
 				} catch(Exception ex) {
 					System.out.println("One of the clients threads has crashed.");
 					ex.printStackTrace();
+					updateNumberOfPlayers(-1);
 				}
 				try {
 					clientSocket.close();
@@ -89,4 +134,5 @@ public class Server {
 			}
 		}).start();
 	}
+	
 }
