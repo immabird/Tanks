@@ -5,6 +5,8 @@ import java.util.TimerTask;
 
 import javafx.application.Platform;
 import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
+import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -28,6 +30,16 @@ public class Tank extends Rectangle {
 		t.schedule(new TimerTask() {
 			@Override
 			public void run() {
+				
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						if(!getParent().intersects(getBoundsInParent())) {
+							System.out.println("hi");
+						}
+					}
+				});
+				
 				if(w) {
 					Platform.runLater(new Runnable() {
 						@Override
@@ -127,6 +139,12 @@ public class Tank extends Rectangle {
 				event.consume();
 			}
 		});
+	}
+	
+	public boolean colision(Tank t) {
+		Bounds them = t.getBoundsInParent();
+		Bounds me = this.getBoundsInParent();
+		return me.contains(them);
 	}
 	
 	public String getName() {
