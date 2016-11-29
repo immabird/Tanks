@@ -18,7 +18,7 @@ public class Tank extends Rectangle {
 		setOnKeyPressed(new EventHandler<KeyEvent>() {
 			@Override
 			public void handle(KeyEvent event) {
-				String key = event.getCharacter();
+				String key = event.getText();
 				switch(key) {
 				case"w":
 					setX(Math.cos(Math.toRadians(bodyAngle))+getX());

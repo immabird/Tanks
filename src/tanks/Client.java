@@ -3,15 +3,31 @@ package tanks;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
-class Client {
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.scene.Scene;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
+
+class Client extends Application{
 
 	private String ip;
 	private int port;
 	public Client(String anIp, int aPort) {
 		ip = anIp;
 		port = aPort;
+		try {
+			start(new Stage());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private boolean connectedToServer = false; // Keeps track of the connection with the server
@@ -19,7 +35,7 @@ class Client {
 		return connectedToServer;
 	}
 	
-	Queue<Package> packages;
+	Queue<Package> packages = new ConcurrentLinkedQueue<>();
 	public Package getNextPackage() {
 		return packages.remove();
 	}
@@ -71,5 +87,40 @@ class Client {
 				}
 			}
 		}).start();
+	}
+	
+	private ArrayList<Tank> tanks = new ArrayList<>();
+	
+	private void updateOtherPlayers(){
+		new Thread(new Runnable(){
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+			}
+			
+		}).start();
+	}
+
+	private void setupPlayer(){
+		tanks.add(0, new Tank("My Tank"));
+		Platform.runLater(new Runnable(){
+			@Override
+			public void run() {
+				tanks.get(0).requestFocus();
+			}
+		});
+	}
+	
+	@Override
+	public void start(Stage primaryStage) throws Exception {
+		Pane pane = new Pane();
+		pane.setPrefSize(GUI_SETTINGS.GAME_WINDOW_SIZE, GUI_SETTINGS.GAME_WINDOW_SIZE);
+		setupPlayer();
+		pane.getChildren().add(tanks.get(0));
+		
+		Scene scene = new Scene(new AnchorPane(pane));
+		primaryStage.setScene(scene);
+		primaryStage.show();
 	}
 }
