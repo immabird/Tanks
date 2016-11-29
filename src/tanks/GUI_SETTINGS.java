@@ -22,6 +22,6 @@ public final class GUI_SETTINGS {
 	//Game window should be square, height and width size
 	final static public int GAME_WINDOW_SIZE = 1000;
 	//The size of the tank
-	final static public int TANK_WIDTH = 152;
-	final static public int TANK_HEIGHT = 38;
+	final static public int TANK_WIDTH = 108;
+	final static public int TANK_HEIGHT = 72;
 }
