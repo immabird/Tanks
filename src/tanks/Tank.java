@@ -115,7 +115,7 @@ public class Tank extends Rectangle implements Serializable {
 						yPos = getY();
 						
 						try {
-							Application.GetApplication().getClass().getMethod("writeTank").invoke(null,null);
+							//Application.GetApplication().getClass().getMethod("writeTank").invoke(null,null);
 						} catch(Exception ex) {
 							ex.printStackTrace();
 						}
