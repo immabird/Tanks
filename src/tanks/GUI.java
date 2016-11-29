@@ -22,15 +22,13 @@ public class GUI extends Application {
 	private static int port = 25565;
 	private static String ip = "localhost";
 	private static String name = "Brad";
-	private static Client client;
-	private static Server server;
 	
 	public void startClient() {
-		client = new Client(ip,port,name);
+		new Client(ip,port,name);
 	}
 	
 	public void startServer() {
-		server = new Server(port);
+		new Server(port);
 	}
 	
 	
