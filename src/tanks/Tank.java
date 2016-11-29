@@ -168,6 +168,12 @@ public class Tank extends Rectangle implements Serializable{
 			}
 		});
 		
+		//setOnMouseDragged(new EventHandler<MouseEvent>() {
+			//@Override
+			//public void handle(MouseEvent event) {
+				//event.consume();
+			//}
+		//});
 	}
 	
 	public boolean colision(Node node) {
