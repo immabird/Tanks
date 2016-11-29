@@ -8,6 +8,7 @@ import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -35,15 +36,9 @@ public class Tank extends Rectangle implements Serializable{
 		t.schedule(new TimerTask() {
 			@Override
 			public void run() {
-				
-				Platform.runLater(new Runnable() {
-					@Override
-					public void run() {
-						if(!getParent().intersects(getBoundsInParent())) {
-							System.out.println("hi");
-						}
-					}
-				});
+				if(!isFocused()) {
+					w = a = s = d = false;
+				}
 				
 				if(w) {
 					Platform.runLater(new Runnable() {
@@ -59,8 +54,13 @@ public class Tank extends Rectangle implements Serializable{
 					Platform.runLater(new Runnable() {
 						@Override
 						public void run() {
-							bodyAngle = Math.floorMod((bodyAngle - 1),360);
-							setRotate(bodyAngle);
+							if(s) {
+								bodyAngle = Math.floorMod((bodyAngle + 1),360);
+								setRotate(bodyAngle);
+							} else {
+								bodyAngle = Math.floorMod((bodyAngle - 1),360);
+								setRotate(bodyAngle);
+							}
 						}
 					});
 				}
@@ -79,11 +79,34 @@ public class Tank extends Rectangle implements Serializable{
 					Platform.runLater(new Runnable() {
 						@Override
 						public void run() {
-							bodyAngle = Math.floorMod((bodyAngle + 1),360);
-							setRotate(bodyAngle);
+							if(s) {
+								bodyAngle = Math.floorMod((bodyAngle - 1),360);
+								setRotate(bodyAngle);
+							} else {
+								bodyAngle = Math.floorMod((bodyAngle + 1),360);
+								setRotate(bodyAngle);
+							}
 						}
 					});
 				}
+				
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						Bounds window = getParent().getParent().getBoundsInParent();
+						Bounds tank = getBoundsInParent();
+						if(tank.getMaxX() >= window.getMaxX()) {
+							setX(getX() - 1);
+						} else if(tank.getMaxY() >= window.getMaxY()) {
+							setY(getY() - 1);
+						} else if(tank.getMinX() <= window.getMinX()) {
+							setX(getX() + 1);
+						} else if(tank.getMinY() <= window.getMinY()) {
+							setY(getY() + 1);
+						}
+					}
+				});
+				
 			}
 		},0,10);
 		
@@ -92,7 +115,6 @@ public class Tank extends Rectangle implements Serializable{
 			public void handle(KeyEvent event) {
 				KeyCode keyCode = event.getCode();
 				String key = keyCode.getName();
-				System.out.println(key);
 				switch(key) {
 				case"W":
 					w = true;
@@ -144,12 +166,11 @@ public class Tank extends Rectangle implements Serializable{
 				event.consume();
 			}
 		});
+		
 	}
 	
-	public boolean colision(Tank t) {
-		Bounds them = t.getBoundsInParent();
-		Bounds me = this.getBoundsInParent();
-		return me.contains(them);
+	public boolean colision(Node node) {
+		return this.getBoundsInParent().intersects(node.getBoundsInParent());
 	}
 	
 	public String getName() {
