@@ -3,17 +3,14 @@ package tanks;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 class Client extends Application{
@@ -89,7 +86,8 @@ class Client extends Application{
 		}).start();
 	}
 	
-	private ArrayList<Tank> tanks = new ArrayList<>();
+	private HashMap<String, Tank> tanks = new HashMap<>();
+	private Tank myTank;
 	
 	private void updateOtherPlayers(){
 		new Thread(new Runnable(){
@@ -103,11 +101,11 @@ class Client extends Application{
 	}
 
 	private void setupPlayer(){
-		tanks.add(0, new Tank("My Tank"));
+		myTank = new Tank("myTank");
 		Platform.runLater(new Runnable(){
 			@Override
 			public void run() {
-				tanks.get(0).requestFocus();
+				myTank.requestFocus();
 			}
 		});
 	}
