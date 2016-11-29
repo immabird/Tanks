@@ -1,5 +1,6 @@
 package tanks;
 
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -112,10 +113,10 @@ class Client extends Application{
 					Package data;
 					while(connectedToServer) { // Reads in the data from the server
 						data = (Package)read.readObject();
-						System.out.println(name + " read in:" + data.getName() + " " + data.getTank());
 						if(data.getTank() != null)
 							data.getTank().updatePosition();
 						packages.add(data);
+						System.out.println(name + " read in:" + data.getName() + " " + data.getTank());
 					}
 				} catch(Exception ex) {
 					connectedToServer = false;
@@ -136,7 +137,7 @@ class Client extends Application{
 						System.out.println("new player! updatePlayers");
 						Package currentP = packages.removeFirst();
 						if(currentP.getTank() == null){ //someone is leaving
-							Tank removed = tanks.remove(currentP.getName()); //not sure if removing it from the hashmap will remove it from the pane
+							Tank removed = tanks.remove(currentP.getName());
 							//Take the take off of the pane
 							Platform.runLater(new Runnable(){
 								@Override
@@ -175,7 +176,7 @@ class Client extends Application{
 
 	/**Makes a new Tank for this client*/
 	private void makeNewTank(){
-		myTank = new Tank(name);
+		myTank = new Tank(name, this);
 		//Makes sure that your tank is the focus
 		Platform.runLater(new Runnable(){
 			@Override
