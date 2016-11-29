@@ -17,6 +17,8 @@ public final class GUI_SETTINGS {
 	//How far away elements should be horizontally from the one another
 	final static public int HOR_SPACING_BTN_ELEMENTS = 7;
 	
+	final static public String MENU_TITLE = "Tanks";
+	
 	//Game window should be square, height and width size
 	final static public int GAME_WINDOW_SIZE = 1000;
 	//The size of the tank

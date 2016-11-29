@@ -157,7 +157,7 @@ public class GUI extends Application {
 			createMainMenuScene();
 			createSettingsScene();
 			stage.setScene(mainMenuScene);
-			stage.setTitle("Tanks");
+			stage.setTitle(GUI_SETTINGS.MENU_TITLE);
 			stage.show();
 			stage.setOnCloseRequest(EventHandler -> {
 				try(PrintWriter pr = new PrintWriter(new File("settings.txt"))) {
