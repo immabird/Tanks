@@ -116,14 +116,17 @@ public class Server extends Application{
 	private void clientSockets(Socket clientSocket) {
 		new Thread(new Runnable() {
 			public void run() {
-				try( ObjectInputStream read = new ObjectInputStream(clientSocket.getInputStream())
-					;ObjectOutputStream write = new ObjectOutputStream(clientSocket.getOutputStream())) {
+				try( 	ObjectOutputStream write = new ObjectOutputStream(clientSocket.getOutputStream())
+						;ObjectInputStream read = new ObjectInputStream(clientSocket.getInputStream())
+					) {
 					writers.add(write);
 					boolean clientIsOnline = true;	// Determines whether the client is still active
 					updateNumberOfPlayers(1);
 					Package data;
 					while(clientIsOnline && serverIsOnline) {
 						data = (Package)read.readObject();
+						if(data.getTank() == null)
+							clientIsOnline = false;
 						// TODO Implement more checks in the Package class for the server
 						messageAllClients(write,data);
 					}
