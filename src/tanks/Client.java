@@ -27,20 +27,18 @@ class Client extends Application{
 	// Keeps track of the connection with the server
 	private boolean connectedToServer = false;
 	//Stuff for sending/receiving from the server
-	private LinkedList<Package> packages = new LinkedList<>();
+	private volatile LinkedList<Package> packages = new LinkedList<>();
 	private ObjectOutputStream write;
 	//GUI's stage
 	private Stage stage;
 	//GUI's pane
 	private Pane pane;
-	private Package p = null;
 	
 	/**Makes a new Client given the String, IP, and the client's name
 	 * @param anIp  The IP address of the Server
 	 * @param aPort  The Port that the server is using
 	 * @param name  The name of the Client*/
 	public Client(String anIp, int aPort, String name) {
-		System.out.println(Integer.toHexString(packages.hashCode()));
 		//Connecting to the server
 		ip = anIp;
 		port = aPort;
@@ -94,9 +92,14 @@ class Client extends Application{
 		write(new Package(myTank));
 	}
 	
+	/**Sends a message to the server letting it know that it is leaving*/
+	private void sendLeaveMessage(){
+		write(new Package(name));
+		System.out.println(name + " just sent leave message.");
+	}
+	
 	/**Connects to the server and keeps listening for packages*/
 	private void connect() {
-		System.out.println(Integer.toHexString(packages.hashCode()));
 		new Thread(new Runnable() {
 			public void run() {
 				try(
@@ -105,17 +108,18 @@ class Client extends Application{
 						;ObjectInputStream read = new ObjectInputStream(clientSocket.getInputStream()) // Opens input stream
 				) {
 					write = aWriter;
-					connectedToServer = true; // Client is offically connected
+					connectedToServer = true; // Client is officially connected
 					Package data;
 					while(connectedToServer) { // Reads in the data from the server
 						data = (Package)read.readObject();
-						p = data;
+						System.out.println(name + " read in:" + data.getName() + " " + data.getTank());
+						if(data.getTank() != null)
+							data.getTank().updatePosition();
 						packages.add(data);
-						System.out.println(p);
 					}
 				} catch(Exception ex) {
 					connectedToServer = false;
-					System.out.println("The connection the the server has failed.");
+					System.out.println(name + "'s connection the the server has failed.");
 					ex.printStackTrace();
 				}
 			}
@@ -124,18 +128,26 @@ class Client extends Application{
 	
 	/**Make a thread to update all of the other player's info*/
 	private void updateOtherPlayers(){
-		System.out.println(Integer.toHexString(packages.hashCode()));
 		new Thread(new Runnable(){
 			@Override
-			public void run() {
-				System.out.println(p);
+			public void run() {	
 				while(connectedToServer){
-					if(p != null){//!packages.isEmpty()){//there's a package to get
+					if(!packages.isEmpty()){//there's a package to get
 						System.out.println("new player! updatePlayers");
-						Package currentP = p;//packages.removeFirst();
-						if(!tanks.containsKey(currentP.getName())){ //Tank isn't in the hashmap yet
+						Package currentP = packages.removeFirst();
+						if(currentP.getTank() == null){ //someone is leaving
+							tanks.remove(currentP.getName()); //not sure if removing it from the hashmap will remove it from the pane
+							System.out.println("removed");
+						}
+						else if(!tanks.containsKey(currentP.getName())){ //Tank isn't in the hashmap yet
+							System.out.println("New tank in the hashmap" + currentP.getTank());
 							tanks.put(currentP.getName(), currentP.getTank());
-							pane.getChildren().add(tanks.get(currentP.getName()));
+							Platform.runLater(new Runnable(){
+								public void run(){
+									pane.getChildren().add(tanks.get(currentP.getName()));
+									System.out.println(pane.getChildren());
+								}
+							});
 						}
 						else{//just update the tank in the map
 							tanks.replace(currentP.getName(), currentP.getTank());
@@ -175,6 +187,10 @@ class Client extends Application{
 		primaryStage.setTitle(GUI_SETTINGS.MENU_TITLE + " | Player: " + name);
 		primaryStage.setScene(scene);
 		primaryStage.show();
+		primaryStage.setOnCloseRequest(e -> {
+			sendLeaveMessage();
+			stop();
+		});
 		stage = primaryStage; //Have a class reference to the stage
 	}
 }
