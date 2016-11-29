@@ -3,22 +3,17 @@ package tanks;
 import java.io.Serializable;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
 
-public class Tank extends Rectangle implements Serializable{
+public class Tank extends Rectangle implements Serializable {
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 3327759244053487144L;
 	private String name;
 	private int bodyAngle = 0;
@@ -26,6 +21,8 @@ public class Tank extends Rectangle implements Serializable{
 	private boolean a = false;
 	private boolean s = false;
 	private boolean d = false;
+	private double xPos = 0;
+	private double yPos = 0;
 	
 	public Tank(String tanksName) {
 		name = tanksName;
@@ -108,6 +105,13 @@ public class Tank extends Rectangle implements Serializable{
 					}
 				});
 				
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						xPos = getX();
+						yPos = getY();
+					}
+				});
 			}
 		},0,10);
 		
@@ -168,14 +172,21 @@ public class Tank extends Rectangle implements Serializable{
 			}
 		});
 		
-		Platform.runLater(new Runnable(){
-			public void run(){
-				getParent().getParent().setOnMouseDragged(new EventHandler<MouseEvent>() {
-					@Override
-					public void handle(MouseEvent event) {
-						w = a = s = d = false;
-					}
-				});
+	}
+	
+	/**
+	 * Updates the position of the tank when it is mysteriously lost in transit.
+	 * Use this after sending a tank through an ObjectOutputStream.
+	 */
+	public void updatePosition() {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				setX(xPos);
+				setY(yPos);
+				setRotate(bodyAngle);
+				setHeight(GUI_SETTINGS.TANK_HEIGHT);
+				setWidth(GUI_SETTINGS.TANK_WIDTH);
 			}
 		});
 	}
