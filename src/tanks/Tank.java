@@ -27,7 +27,7 @@ public class Tank extends Rectangle implements Serializable {
 	private double xPos = 0;
 	private double yPos = 0;
 	
-	public Tank(String tanksName) {
+	public Tank(String tanksName, Client myself) {
 		name = tanksName;
 		setHeight(GUI_SETTINGS.TANK_HEIGHT);
 		setWidth(GUI_SETTINGS.TANK_WIDTH);
@@ -113,14 +113,15 @@ public class Tank extends Rectangle implements Serializable {
 					public void run() {
 						xPos = getX();
 						yPos = getY();
-						
-						try {
-							//Application.GetApplication().getClass().getMethod("writeTank").invoke(null,null);
-						} catch(Exception ex) {
-							ex.printStackTrace();
-						}
 					}
 				});
+				
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						myself.writeTank();
+					}
+				}).start();
 				
 			}
 		},0,10);
