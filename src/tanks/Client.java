@@ -136,12 +136,19 @@ class Client extends Application{
 						System.out.println("new player! updatePlayers");
 						Package currentP = packages.removeFirst();
 						if(currentP.getTank() == null){ //someone is leaving
-							tanks.remove(currentP.getName()); //not sure if removing it from the hashmap will remove it from the pane
-							System.out.println("removed");
+							Tank removed = tanks.remove(currentP.getName()); //not sure if removing it from the hashmap will remove it from the pane
+							//Take the take off of the pane
+							Platform.runLater(new Runnable(){
+								@Override
+								public void run() {
+									pane.getChildren().remove(removed);
+								}
+							});
 						}
 						else if(!tanks.containsKey(currentP.getName())){ //Tank isn't in the hashmap yet
 							System.out.println("New tank in the hashmap" + currentP.getTank());
 							tanks.put(currentP.getName(), currentP.getTank());
+							//Add the new tank to the pane
 							Platform.runLater(new Runnable(){
 								public void run(){
 									pane.getChildren().add(tanks.get(currentP.getName()));
@@ -150,7 +157,15 @@ class Client extends Application{
 							});
 						}
 						else{//just update the tank in the map
-							tanks.replace(currentP.getName(), currentP.getTank());
+							Tank oldTank = tanks.replace(currentP.getName(), currentP.getTank());
+							//Update the pane/GUI with new position
+							Platform.runLater(new Runnable(){
+								@Override
+								public void run() {
+									pane.getChildren().remove(oldTank);
+									pane.getChildren().add(tanks.get(currentP.getName()));
+								}
+							});
 						}
 					}
 				}
