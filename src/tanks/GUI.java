@@ -26,7 +26,7 @@ public class GUI extends Application {
 	private static Server server;
 	
 	public void startClient() {
-		client = new Client(ip,port);
+		client = new Client(ip,port,name);
 	}
 	
 	public void startServer() {
@@ -66,6 +66,7 @@ public class GUI extends Application {
 					
 						GUI.name = ((TextField)vBoxOfFields.getChildren().get(0)).getText();
 						GUI.ip = ((TextField)vBoxOfFields.getChildren().get(1)).getText();
+						GUI.name = ((TextField)vBoxOfFields.getChildren().get(2)).getText();
 						try {
 							GUI.port = Integer.parseInt(((TextField)vBoxOfFields.getChildren().get(2)).getText());
 						} catch(Exception ex) {}

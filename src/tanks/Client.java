@@ -14,12 +14,33 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 class Client extends Application{
-
+	//Where the server is
 	private String ip;
 	private int port;
-	public Client(String anIp, int aPort) {
+	//The client's name
+	private String name;
+	//Hashmap of all other client tanks on the server
+	private HashMap<String, Tank> tanks = new HashMap<>();
+	//This Client's Tank
+	private Tank myTank;
+	// Keeps track of the connection with the server
+	private boolean connectedToServer = false;
+	//Stuff for sending/receiving from the server
+	private Queue<Package> packages = new ConcurrentLinkedQueue<>();
+	private ObjectOutputStream write;
+	
+	/**Makes a new Client given the String, IP, and the client's name
+	 * @param anIp
+	 * @param aPort
+	 */
+	public Client(String anIp, int aPort, String name) {
+		//Connecting to the server
 		ip = anIp;
 		port = aPort;
+		this.name = name;
+		start();
+		
+		//Starting up GUI
 		try {
 			start(new Stage());
 		} catch (Exception e) {
@@ -27,12 +48,10 @@ class Client extends Application{
 		}
 	}
 	
-	private boolean connectedToServer = false; // Keeps track of the connection with the server
 	public boolean isConnected() {
 		return connectedToServer;
 	}
 	
-	Queue<Package> packages = new ConcurrentLinkedQueue<>();
 	public Package getNextPackage() {
 		return packages.remove();
 	}
@@ -45,8 +64,7 @@ class Client extends Application{
 		connectedToServer = false;
 	}
 	
-	private ObjectOutputStream write;
-	public void write(Package data) {
+	public void write() {
 		int i = 0;
 		while(!connectedToServer && i < 500) {
 			try {
@@ -57,6 +75,7 @@ class Client extends Application{
 			i++;
 		}
 		try {
+			Package data = new Package(myTank);
 			write.writeObject(data); // Sends a package to the server
 		} catch(Exception ex) {
 			System.out.println("An attempt to write the server has failed.");
@@ -86,9 +105,6 @@ class Client extends Application{
 		}).start();
 	}
 	
-	private HashMap<String, Tank> tanks = new HashMap<>();
-	private Tank myTank;
-	
 	private void updateOtherPlayers(){
 		new Thread(new Runnable(){
 
@@ -100,7 +116,8 @@ class Client extends Application{
 		}).start();
 	}
 
-	private void setupPlayer(){
+	/**Makes a new Tank for this client*/
+	private void makeNewTank(){
 		myTank = new Tank("myTank");
 		Platform.runLater(new Runnable(){
 			@Override
@@ -114,8 +131,8 @@ class Client extends Application{
 	public void start(Stage primaryStage) throws Exception {
 		Pane pane = new Pane();
 		pane.setPrefSize(GUI_SETTINGS.GAME_WINDOW_SIZE, GUI_SETTINGS.GAME_WINDOW_SIZE);
-		setupPlayer();
-		pane.getChildren().add(tanks.get(0));
+		makeNewTank();
+		pane.getChildren().add(myTank);
 		
 		Scene scene = new Scene(new AnchorPane(pane));
 		primaryStage.setScene(scene);
