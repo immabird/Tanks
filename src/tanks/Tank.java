@@ -97,10 +97,11 @@ public class Tank extends Rectangle implements Serializable{
 						Bounds tank = getBoundsInParent();
 						if(tank.getMaxX() >= window.getMaxX()) {
 							setX(getX() - 1);
-						} else if(tank.getMaxY() >= window.getMaxY()) {
-							setY(getY() - 1);
 						} else if(tank.getMinX() <= window.getMinX()) {
 							setX(getX() + 1);
+						}
+						if(tank.getMaxY() >= window.getMaxY()) {
+							setY(getY() - 1);
 						} else if(tank.getMinY() <= window.getMinY()) {
 							setY(getY() + 1);
 						}
