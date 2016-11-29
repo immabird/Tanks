@@ -1,6 +1,12 @@
 package tanks;
 
-public class Package {
+import java.io.Serializable;
+
+public class Package implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7693361748336431191L;
 	private Tank tank;
 	private String name;
 	

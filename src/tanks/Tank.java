@@ -1,5 +1,6 @@
 package tanks;
 
+import java.io.Serializable;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -12,8 +13,12 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
 
-public class Tank extends Rectangle {
+public class Tank extends Rectangle implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3327759244053487144L;
 	private String name;
 	private int bodyAngle = 0;
 	private boolean w = false;

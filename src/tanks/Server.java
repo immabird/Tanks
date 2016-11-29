@@ -1,5 +1,6 @@
 package tanks;
 
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
@@ -7,6 +8,7 @@ import java.net.Socket;
 import java.util.LinkedList;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -42,16 +44,20 @@ public class Server extends Application{
 	private int playerCount = 0;
 	private void updateNumberOfPlayers(int add) {
 		playerCount += add;
-		numberOfPlayers.setText("Players: " + playerCount);
+		Platform.runLater(new Runnable(){//change the label on the javafx thread
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				numberOfPlayers.setText("Players: " + playerCount);
+			}	
+		});
 	}
 	@Override
 	public void start(Stage stage) throws Exception {
-		welcomeSocket(); // Starts the welcome socket
-		
 		Label title = new Label("Server");
 		title.setFont(GUI_SETTINGS.TITLE_FONT);
 		
-		Label numberOfPlayers = new Label("Players: 0");
+		numberOfPlayers = new Label("Players: 0");
 		numberOfPlayers.setFont(GUI_SETTINGS.FONT);
 		
 		VBox v1 = new VBox();
@@ -66,6 +72,8 @@ public class Server extends Application{
 		stage.setTitle(GUI_SETTINGS.MENU_TITLE);
 		stage.setScene(serverScene);
 		stage.show();
+		
+		welcomeSocket(); // Starts the welcome socket
 	}
 	
 	public void stop() {
@@ -79,6 +87,7 @@ public class Server extends Application{
 			for (ObjectOutputStream writer: writers) { // Prints the message to all the clients except for the sender
 				if(!writer.equals(client)) { // Does not send the message back to the sender.
 					writer.writeObject(clientsData); // Sends the message
+					//writer.flush();
 				}
 			}
 		} catch(Exception ex) {
@@ -107,8 +116,8 @@ public class Server extends Application{
 	private void clientSockets(Socket clientSocket) {
 		new Thread(new Runnable() {
 			public void run() {
-				try(ObjectInputStream read = new ObjectInputStream(clientSocket.getInputStream())
-				;ObjectOutputStream write = new ObjectOutputStream(clientSocket.getOutputStream())) {
+				try( ObjectInputStream read = new ObjectInputStream(clientSocket.getInputStream())
+					;ObjectOutputStream write = new ObjectOutputStream(clientSocket.getOutputStream())) {
 					writers.add(write);
 					boolean clientIsOnline = true;	// Determines whether the client is still active
 					updateNumberOfPlayers(1);
