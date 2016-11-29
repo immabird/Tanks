@@ -34,23 +34,14 @@ public class GUI extends Application {
 		server = new Server(port);
 	}
 	
-	final private Font TITLE_FONT = new Font(46);
-	final private Font FONT = new Font(16);
-	final private int WINDOW_HEIGHT = 600;
-	final private int WINDOW_WIDTH = 800;
-	final private int BUTTON_HEIGHT = 20;
-	final private int BUTTON_WIDTH = 120;
-	//How far away elements should be vertically from the one another
-	final private int VERT_SPACING_BTN_ELEMENTS = 20;
-	//How far away elements should be horizontally from the one another
-	final private int HOR_SPACING_BTN_ELEMENTS = 7;
+	
 	private Scene mainMenuScene;
 	private Scene settingsScene;
 	
 	private Button newButton(String name) {
 		Button button = new Button(name);
-		button.setFont(FONT);
-		button.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+		button.setFont(GUI_SETTINGS.FONT);
+		button.setPrefSize(GUI_SETTINGS.BUTTON_WIDTH, GUI_SETTINGS.BUTTON_HEIGHT);
 		button.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -91,17 +82,17 @@ public class GUI extends Application {
 	private void createMainMenuScene() {
 		// Makes the title
 		Label title = new Label("Welcome To Tanks!");
-		title.setFont(TITLE_FONT);
+		title.setFont(GUI_SETTINGS.TITLE_FONT);
 		
 		// Makes all the buttons and adds them to a VBox
-		VBox vBox = new VBox(VERT_SPACING_BTN_ELEMENTS);
+		VBox vBox = new VBox(GUI_SETTINGS.VERT_SPACING_BTN_ELEMENTS);
 		vBox.setAlignment(Pos.CENTER);
 		vBox.getChildren().addAll(title,newButton("Start Game"),newButton("Start Server"),newButton("Settings"));
 		
 		// Puts the VBox in a Pane and centers it
 		StackPane pane = new StackPane(vBox);
 		StackPane.setAlignment(vBox, Pos.CENTER);
-		pane.setPrefSize(WINDOW_WIDTH,WINDOW_HEIGHT);
+		pane.setPrefSize(GUI_SETTINGS.WINDOW_WIDTH,GUI_SETTINGS.WINDOW_HEIGHT);
 		
 		// Creates the scene
 		mainMenuScene = new Scene(new AnchorPane(pane));
@@ -110,53 +101,49 @@ public class GUI extends Application {
 	private void createSettingsScene() {
 		// Makes the title
 		Label title = new Label("Settings!");
-		title.setFont(TITLE_FONT);
+		title.setFont(GUI_SETTINGS.TITLE_FONT);
 		
 		TextField nameField = new TextField(name);
-		nameField.setFont(FONT);
+		nameField.setFont(GUI_SETTINGS.FONT);
 		
 		TextField ipField = new TextField(ip);
-		ipField.setFont(FONT);
+		ipField.setFont(GUI_SETTINGS.FONT);
 		
 		TextField portField = new TextField(""+port);
-		portField.setFont(FONT);
+		portField.setFont(GUI_SETTINGS.FONT);
 		
 		Label nameLabel = new Label("Name:");
-		nameLabel.setFont(FONT);
+		nameLabel.setFont(GUI_SETTINGS.FONT);
 		
 		Label ipLabel = new Label("IP:");
-		ipLabel.setFont(FONT);
+		ipLabel.setFont(GUI_SETTINGS.FONT);
 		
 		Label portLabel = new Label("Port:");
-		portLabel.setFont(FONT);
+		portLabel.setFont(GUI_SETTINGS.FONT);
 		
-		VBox vBox1 = new VBox(15 + VERT_SPACING_BTN_ELEMENTS);
+		VBox vBox1 = new VBox(15 + GUI_SETTINGS.VERT_SPACING_BTN_ELEMENTS);
 		vBox1.setAlignment(Pos.CENTER);
 		vBox1.getChildren().addAll(nameLabel,ipLabel,portLabel);
 		
-		VBox vBox2 = new VBox(VERT_SPACING_BTN_ELEMENTS);
+		VBox vBox2 = new VBox(GUI_SETTINGS.VERT_SPACING_BTN_ELEMENTS);
 		vBox2.setAlignment(Pos.CENTER);
 		vBox2.getChildren().addAll(nameField,ipField,portField);
 		
-		HBox hBox = new HBox(HOR_SPACING_BTN_ELEMENTS);
+		HBox hBox = new HBox(GUI_SETTINGS.HOR_SPACING_BTN_ELEMENTS);
 		hBox.setAlignment(Pos.CENTER);
 		hBox.getChildren().addAll(vBox1,vBox2);
 		
-		VBox vBox3 = new VBox(VERT_SPACING_BTN_ELEMENTS);
+		VBox vBox3 = new VBox(GUI_SETTINGS.VERT_SPACING_BTN_ELEMENTS);
 		vBox3.setAlignment(Pos.CENTER);
 		vBox3.getChildren().addAll(title,hBox,newButton("Done"));
 		
 		// Puts the VBox in a StackPane and centers it
 		StackPane pane = new StackPane(vBox3);
 		StackPane.setAlignment(vBox3, Pos.CENTER);
-		pane.setPrefSize(WINDOW_WIDTH,WINDOW_HEIGHT);
+		pane.setPrefSize(GUI_SETTINGS.WINDOW_WIDTH,GUI_SETTINGS.WINDOW_HEIGHT);
 		
 		// Creates the scene
 		settingsScene = new Scene(new AnchorPane(pane));
-	}
-	
-	private void createGameScene() {
-		
 	}
 	
 	public void start(Stage stage) {
@@ -169,7 +156,6 @@ public class GUI extends Application {
 		try {
 			createMainMenuScene();
 			createSettingsScene();
-			createGameScene();
 			stage.setScene(mainMenuScene);
 			stage.setTitle("Tanks");
 			stage.show();
