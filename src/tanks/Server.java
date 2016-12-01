@@ -122,7 +122,7 @@ public class Server extends Application{
 					Package data;
 					while(clientIsOnline && serverIsOnline) {
 						data = (Package)read.readObject();
-						if("replace with something meaningfull later" == null)
+						if(data.isLeaving())
 							clientIsOnline = false;
 						// TODO Implement more checks in the Package class for the server
 						messageAllClients(write,data);

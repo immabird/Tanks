@@ -188,5 +188,10 @@ public class Tank extends Rectangle {
 		data.addTankData(getRotate(),getX(),getY());
 		return data;
 	}
+
+	
+	public boolean equals(Tank t){
+		return t.getName().equals(this.getName()) &&t.getX() == this.getX() && t.getY() == this.getY() && t.getRotate() == this.getRotate();
+	}
 	
 }

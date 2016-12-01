@@ -14,10 +14,17 @@ public class Package implements Serializable {
 	private double rotate = 0;
 	private double x = 0;
 	private double y = 0;
+	private boolean isLeaving = false;
 	
-	/**Used to set up a leave message*/
+	/**Sends the name because Brad used a bad constructor and I had to fix his mess*/
 	public Package(String name){
 		this.name = name;
+	}
+	
+	/**Used to set up a leave message*/
+	public Package(String name, boolean isLeaving){
+		this.name = name;
+		this.isLeaving = isLeaving;
 	}
 	
 	public void addTankData(double rotate, double x, double y) {
@@ -40,5 +47,9 @@ public class Package implements Serializable {
 	
 	public double getY() {
 		return y;
+	}
+	
+	public boolean isLeaving(){
+		return isLeaving;
 	}
 }

@@ -91,7 +91,7 @@ class Client extends Application{
 	
 	/**Sends a message to the server letting it know that it is leaving*/
 	private void sendLeaveMessage(){
-		write(new Package(name));
+		write(new Package(name, true));
 		System.out.println(name + " just sent leave message.");
 	}
 	
@@ -130,7 +130,7 @@ class Client extends Application{
 					if(!packages.isEmpty()){//there's a package to get
 						System.out.println("new player! updatePlayers");
 						Package currentP = packages.removeFirst();
-						if("replace this with something meaningful later" == null){ //someone is leaving
+						if(currentP.isLeaving()){ //someone is leaving
 							Tank removed = tanks.remove(currentP.getName());
 							//Take the take off of the pane
 							Platform.runLater(new Runnable(){
@@ -152,7 +152,11 @@ class Client extends Application{
 							});
 						}
 						else{//just update the tank in the map
-							Tank oldTank = tanks.replace(currentP.getName(), new Tank(currentP.getName(),currentP.getRotate(),currentP.getX(),currentP.getY()));
+							Tank oldTank = tanks.get(currentP.getName());
+							Tank newTank = new Tank(currentP.getName(),currentP.getRotate(),currentP.getX(),currentP.getY());
+							if(oldTank.equals(newTank))
+								continue;
+							tanks.replace(currentP.getName(), oldTank, newTank);
 							//Update the pane/GUI with new position
 							Platform.runLater(new Runnable(){
 								@Override
