@@ -21,7 +21,7 @@ class Client extends Application{
 	//Hashmap of all other client tanks on the server
 	private volatile HashMap<String, Tank> tanks = new HashMap<>();
 	//This Client's Tank
-	private Tank myTank;
+	private volatile Tank myTank;
 	// Keeps track of the connection with the server
 	private boolean connectedToServer = false;
 	//Stuff for sending/receiving from the server
@@ -86,13 +86,13 @@ class Client extends Application{
 	
 	/**Sends the Client's Tank to the Server*/
 	public void writeTank(){
-		write(myTank.getPackage());
+		if(connectedToServer)
+			write(myTank.getPackage());
 	}
 	
 	/**Sends a message to the server letting it know that it is leaving*/
 	private void sendLeaveMessage(){
 		write(new Package(name, true));
-		System.out.println(name + " just sent leave message.");
 	}
 	
 	/**Connects to the server and keeps listening for packages*/
@@ -110,7 +110,6 @@ class Client extends Application{
 					while(connectedToServer) { // Reads in the data from the server
 						data = (Package)read.readObject();
 						packages.add(data);
-						System.out.println(name + " read in:" + data.getName());
 					}
 				} catch(Exception ex) {
 					connectedToServer = false;
@@ -126,9 +125,8 @@ class Client extends Application{
 		new Thread(new Runnable(){
 			@Override
 			public void run() {	
-				while(connectedToServer){
+				while(true){
 					if(!packages.isEmpty()){//there's a package to get
-						System.out.println("new player! updatePlayers");
 						Package currentP = packages.removeFirst();
 						if(currentP.isLeaving()){ //someone is leaving
 							Tank removed = tanks.remove(currentP.getName());
@@ -141,13 +139,11 @@ class Client extends Application{
 							});
 						}
 						else if(!tanks.containsKey(currentP.getName())){ //Tank isn't in the hashmap yet
-							System.out.println("New tank in the hashmap" + currentP.getName());
 							tanks.put(currentP.getName(), new Tank(currentP.getName(), currentP.getRotate(),currentP.getX(),currentP.getY()));
 							//Add the new tank to the pane
 							Platform.runLater(new Runnable(){
 								public void run(){
 									pane.getChildren().add(tanks.get(currentP.getName()));
-									System.out.println(pane.getChildren());
 								}
 							});
 						}
@@ -161,8 +157,9 @@ class Client extends Application{
 							Platform.runLater(new Runnable(){
 								@Override
 								public void run() {
-									pane.getChildren().remove(oldTank);
-									pane.getChildren().add(tanks.get(currentP.getName()));
+									//THIS IS REALLY SKETCHY MAYBE TRY TO BE GOOD AND ACTUALLY FIX BAD CODE
+									if(pane.getChildren().remove(oldTank))
+										pane.getChildren().add(tanks.get(currentP.getName()));
 								}
 							});
 						}
