@@ -44,7 +44,6 @@ public class Server extends Application{
 		Platform.runLater(new Runnable(){//change the label on the javafx thread
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub
 				numberOfPlayers.setText("Players: " + playerCount);
 			}	
 		});
@@ -84,7 +83,6 @@ public class Server extends Application{
 			for (ObjectOutputStream writer: writers) { // Prints the message to all the clients except for the sender
 				if(!writer.equals(client)) { // Does not send the message back to the sender.
 					writer.writeObject(clientsData); // Sends the message
-					//writer.flush();
 				}
 			}
 		} catch(Exception ex) {
@@ -122,8 +120,10 @@ public class Server extends Application{
 					Package data;
 					while(clientIsOnline && serverIsOnline) {
 						data = (Package)read.readObject();
-						if(data.isLeaving())
+						if(data.isLeaving()){
+							System.out.println(data.getName() + " is leaving (Server)");
 							clientIsOnline = false;
+						}
 						// TODO Implement more checks in the Package class for the server
 						messageAllClients(write,data);
 					}
