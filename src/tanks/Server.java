@@ -1,19 +1,16 @@
 package tanks;
 
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
-
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -125,7 +122,7 @@ public class Server extends Application{
 					Package data;
 					while(clientIsOnline && serverIsOnline) {
 						data = (Package)read.readObject();
-						if(data.getTank() == null)
+						if("replace with something meaningfull later" == null)
 							clientIsOnline = false;
 						// TODO Implement more checks in the Package class for the server
 						messageAllClients(write,data);

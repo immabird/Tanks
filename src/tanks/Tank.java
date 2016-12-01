@@ -1,6 +1,5 @@
 package tanks;
 
-import java.io.Serializable;
 import java.util.Timer;
 import java.util.TimerTask;
 import javafx.application.Platform;
@@ -12,25 +11,28 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
 
-public class Tank extends Rectangle implements Serializable {
+public class Tank extends Rectangle {
 	
-	private static final long serialVersionUID = 3327759244053487144L;
-	private String name;
-	private volatile int bodyAngle = 0;
-	private volatile boolean w;
-	private volatile boolean a;
-	private volatile boolean s;
-	private volatile boolean d;
-	private volatile double xPos;
-	private volatile double yPos;
+	private String name = "Player";
+	private boolean w = false;
+	private boolean a = false;
+	private boolean s = false;
+	private boolean d = false;
 	
-	public Tank(String tanksName, Client myself) {
-		name = tanksName;
-		xPos = 0;
-		yPos = 0;
-		w = a = s = d = false;
+	public Tank(String name,double bodyAngle,double xPos,double yPos) {
 		setHeight(GUI_SETTINGS.TANK_HEIGHT);
 		setWidth(GUI_SETTINGS.TANK_WIDTH);
+		
+		this.name = name;
+		setRotate(bodyAngle);
+		setX(xPos);
+		setY(yPos);
+	}
+	
+	public Tank(String name, Client myself) {
+		setHeight(GUI_SETTINGS.TANK_HEIGHT);
+		setWidth(GUI_SETTINGS.TANK_WIDTH);
+		this.name = name;
 		
 		Timer t = new Timer();
 		t.schedule(new TimerTask() {
@@ -44,8 +46,8 @@ public class Tank extends Rectangle implements Serializable {
 					Platform.runLater(new Runnable() {
 						@Override
 						public void run() {
-							setX(Math.cos(Math.toRadians(bodyAngle))+getX());
-							setY(Math.sin(Math.toRadians(bodyAngle))+getY());
+							setX(Math.cos(Math.toRadians(getRotate()))+getX());
+							setY(Math.sin(Math.toRadians(getRotate()))+getY());
 						}
 					});
 				}
@@ -55,11 +57,9 @@ public class Tank extends Rectangle implements Serializable {
 						@Override
 						public void run() {
 							if(s) {
-								bodyAngle = Math.floorMod((bodyAngle + 1),360);
-								setRotate(bodyAngle);
+								setRotate(Math.floorMod((int) (getRotate() + 1),360));
 							} else {
-								bodyAngle = Math.floorMod((bodyAngle - 1),360);
-								setRotate(bodyAngle);
+								setRotate(Math.floorMod((int) (getRotate() - 1),360));
 							}
 						}
 					});
@@ -69,8 +69,8 @@ public class Tank extends Rectangle implements Serializable {
 					Platform.runLater(new Runnable() {
 						@Override
 						public void run() {
-							setX(Math.cos(Math.toRadians(bodyAngle))*(-1)+getX());
-							setY(Math.sin(Math.toRadians(bodyAngle))*(-1)+getY());
+							setX(Math.cos(Math.toRadians(getRotate()))*(-1)+getX());
+							setY(Math.sin(Math.toRadians(getRotate()))*(-1)+getY());
 						}
 					});
 				}
@@ -80,11 +80,9 @@ public class Tank extends Rectangle implements Serializable {
 						@Override
 						public void run() {
 							if(s) {
-								bodyAngle = Math.floorMod((bodyAngle - 1),360);
-								setRotate(bodyAngle);
+								setRotate(Math.floorMod((int) (getRotate() - 1),360));
 							} else {
-								bodyAngle = Math.floorMod((bodyAngle + 1),360);
-								setRotate(bodyAngle);
+								setRotate(Math.floorMod((int) (getRotate() + 1),360));
 							}
 						}
 					});
@@ -111,8 +109,6 @@ public class Tank extends Rectangle implements Serializable {
 				Platform.runLater(new Runnable() {
 					@Override
 					public void run() {
-						xPos = getX();
-						yPos = getY();
 						myself.writeTank();
 					}
 				});
@@ -179,23 +175,6 @@ public class Tank extends Rectangle implements Serializable {
 		
 	}
 	
-	/**
-	 * Updates the position of the tank when it is mysteriously lost in transit.
-	 * Use this after sending a tank through an ObjectOutputStream.
-	 */
-	public void updatePosition() {
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				setX(xPos);
-				setY(yPos);
-				setRotate(bodyAngle);
-				setHeight(GUI_SETTINGS.TANK_HEIGHT);
-				setWidth(GUI_SETTINGS.TANK_WIDTH);
-			}
-		});
-	}
-	
 	public boolean colision(Node node) {
 		return this.getBoundsInParent().intersects(node.getBoundsInParent());
 	}
@@ -203,8 +182,11 @@ public class Tank extends Rectangle implements Serializable {
 	public String getName() {
 		return name;
 	}
-	
-	public String getPos() {
-		return xPos + " " + yPos;
+
+	public Package getPackage() {
+		Package data = new Package(name);
+		data.addTankData(getRotate(),getX(),getY());
+		return data;
 	}
+	
 }

@@ -19,7 +19,7 @@ class Client extends Application{
 	//The client's name
 	private String name;
 	//Hashmap of all other client tanks on the server
-	private HashMap<String, Tank> tanks = new HashMap<>();
+	private volatile HashMap<String, Tank> tanks = new HashMap<>();
 	//This Client's Tank
 	private Tank myTank;
 	// Keeps track of the connection with the server
@@ -78,7 +78,6 @@ class Client extends Application{
 		}
 		try {
 			write.writeObject(data); // Sends a package to the server
-			//write.flush();
 		} catch(Exception ex) {
 			System.out.println("An attempt to write the server has failed.");
 			ex.printStackTrace();
@@ -87,7 +86,7 @@ class Client extends Application{
 	
 	/**Sends the Client's Tank to the Server*/
 	public void writeTank(){
-		write(new Package(myTank));
+		write(myTank.getPackage());
 	}
 	
 	/**Sends a message to the server letting it know that it is leaving*/
@@ -110,10 +109,8 @@ class Client extends Application{
 					Package data;
 					while(connectedToServer) { // Reads in the data from the server
 						data = (Package)read.readObject();
-						if(data.getTank() != null)
-							data.getTank().updatePosition();
 						packages.add(data);
-						System.out.println(name + " read in:" + data.getName() + " ");
+						System.out.println(name + " read in:" + data.getName());
 					}
 				} catch(Exception ex) {
 					connectedToServer = false;
@@ -133,7 +130,7 @@ class Client extends Application{
 					if(!packages.isEmpty()){//there's a package to get
 						System.out.println("new player! updatePlayers");
 						Package currentP = packages.removeFirst();
-						if(currentP.getTank() == null){ //someone is leaving
+						if("replace this with something meaningful later" == null){ //someone is leaving
 							Tank removed = tanks.remove(currentP.getName());
 							//Take the take off of the pane
 							Platform.runLater(new Runnable(){
@@ -144,8 +141,8 @@ class Client extends Application{
 							});
 						}
 						else if(!tanks.containsKey(currentP.getName())){ //Tank isn't in the hashmap yet
-							System.out.println("New tank in the hashmap" + currentP.getTank());
-							tanks.put(currentP.getName(), currentP.getTank());
+							System.out.println("New tank in the hashmap" + currentP.getName());
+							tanks.put(currentP.getName(), new Tank(currentP.getName(), currentP.getRotate(),currentP.getX(),currentP.getY()));
 							//Add the new tank to the pane
 							Platform.runLater(new Runnable(){
 								public void run(){
@@ -155,7 +152,7 @@ class Client extends Application{
 							});
 						}
 						else{//just update the tank in the map
-							Tank oldTank = tanks.replace(currentP.getName(), currentP.getTank());
+							Tank oldTank = tanks.replace(currentP.getName(), new Tank(currentP.getName(),currentP.getRotate(),currentP.getX(),currentP.getY()));
 							//Update the pane/GUI with new position
 							Platform.runLater(new Runnable(){
 								@Override
