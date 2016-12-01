@@ -6,22 +6,35 @@ import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.layout.Pane;
 
-public class Tank extends Rectangle {
+public class Tank extends ImageView {
 	
 	private String name = "Player";
 	private boolean w = false;
 	private boolean a = false;
 	private boolean s = false;
 	private boolean d = false;
+	private int rotateSpeedMultiplier = 1;
+	private int movementSpeedMultiplier = 1;
+	
+	private Cannon cannon;
 	
 	public Tank(String name,double bodyAngle,double xPos,double yPos) {
-		setHeight(GUI_SETTINGS.TANK_HEIGHT);
-		setWidth(GUI_SETTINGS.TANK_WIDTH);
+		setImage(new Image(getClass().getResource("Photoshop/TankBody.png").toExternalForm()));
+		cannon = new Cannon(0,xPos,yPos);
+		
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				((Pane) getParent()).getChildren().add(cannon);
+			}
+		});
 		
 		this.name = name;
 		setRotate(bodyAngle);
@@ -30,89 +43,100 @@ public class Tank extends Rectangle {
 	}
 	
 	public Tank(String name, Client myself) {
-		setHeight(GUI_SETTINGS.TANK_HEIGHT);
-		setWidth(GUI_SETTINGS.TANK_WIDTH);
-		this.name = name;
 		
+		setImage(new Image(getClass().getResource("Photoshop/TankBody.png").toExternalForm()));
+		cannon = new Cannon();
+		
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				((Pane) getParent()).getChildren().add(cannon);
+			}
+		});
+		
+		this.name = name;
 		Timer t = new Timer();
 		t.schedule(new TimerTask() {
 			@Override
 			public void run() {
 				if(!isFocused()) {
 					w = a = s = d = false;
-				}
+				} else {
+					
+					double newRotate = getRotate();
+					double newX = getX();
+					double newY = getY();
 				
-				if(w) {
-					Platform.runLater(new Runnable() {
-						@Override
-						public void run() {
-							setX(Math.cos(Math.toRadians(getRotate()))+getX());
-							setY(Math.sin(Math.toRadians(getRotate()))+getY());
+					if(w) {
+						newX += (Math.cos(Math.toRadians(getRotate()))) * movementSpeedMultiplier;
+						newY += (Math.sin(Math.toRadians(getRotate()))) * movementSpeedMultiplier;
+					}
+				
+					if(a) {
+						if(s) {
+							newRotate = (Math.floorMod((int) (getRotate() + 1),360)) * rotateSpeedMultiplier;
+						} else {
+							newRotate = (Math.floorMod((int) (getRotate() - 1),360)) * rotateSpeedMultiplier;
 						}
-					});
-				}
+					}
+		
+		
+					if(s) {
+						newX -= (Math.cos(Math.toRadians(getRotate()))) * movementSpeedMultiplier;
+						newY -= (Math.sin(Math.toRadians(getRotate()))) * movementSpeedMultiplier;
+					}
+			
+					if(d) {
+						if(s) {
+							newRotate = (Math.floorMod((int) (getRotate() - 1),360)) * rotateSpeedMultiplier;
+						} else {
+							newRotate = (Math.floorMod((int) (getRotate() + 1),360)) * rotateSpeedMultiplier;
+						}
+					}
 				
-				if(a) {
+					final double finalRotate = newRotate;
+					final double finalX = newX;
+					final double finalY = newY;
+					
 					Platform.runLater(new Runnable() {
 						@Override
 						public void run() {
-							if(s) {
-								setRotate(Math.floorMod((int) (getRotate() + 1),360));
-							} else {
-								setRotate(Math.floorMod((int) (getRotate() - 1),360));
+							boolean hasChanged = false;
+							if(finalRotate != getRotate()) {
+								setRotate(finalRotate);
+								hasChanged = true;
+							}
+							if(finalX != getX()) {
+								setX(finalX);
+								cannon.setX(finalX);
+								hasChanged = true;
+							}
+							if(finalY != getY()) {
+								setY(finalY);
+								cannon.setY(finalY);
+								hasChanged = true;
+							}
+						
+							if(hasChanged) {
+								Bounds window = getParent().getParent().getBoundsInParent();
+								Bounds tank = getBoundsInParent();
+							
+								if(tank.getMaxX() >= window.getMaxX()) {
+									setX(getX() - 1);
+								} else if(tank.getMinX() <= window.getMinX()) {
+									setX(getX() + 1);
+								}
+								if(tank.getMaxY() >= window.getMaxY()) {
+									setY(getY() - 1);
+								} else if(tank.getMinY() <= window.getMinY()) {
+									setY(getY() + 1);
+								}
+						
+								myself.writeTank();
 							}
 						}
 					});
 				}
-				
-				if(s) {
-					Platform.runLater(new Runnable() {
-						@Override
-						public void run() {
-							setX(Math.cos(Math.toRadians(getRotate()))*(-1)+getX());
-							setY(Math.sin(Math.toRadians(getRotate()))*(-1)+getY());
-						}
-					});
-				}
-				
-				if(d) {
-					Platform.runLater(new Runnable() {
-						@Override
-						public void run() {
-							if(s) {
-								setRotate(Math.floorMod((int) (getRotate() - 1),360));
-							} else {
-								setRotate(Math.floorMod((int) (getRotate() + 1),360));
-							}
-						}
-					});
-				}
-				
-				Platform.runLater(new Runnable() {
-					@Override
-					public void run() {
-						Bounds window = getParent().getParent().getBoundsInParent();
-						Bounds tank = getBoundsInParent();
-						if(tank.getMaxX() >= window.getMaxX()) {
-							setX(getX() - 1);
-						} else if(tank.getMinX() <= window.getMinX()) {
-							setX(getX() + 1);
-						}
-						if(tank.getMaxY() >= window.getMaxY()) {
-							setY(getY() - 1);
-						} else if(tank.getMinY() <= window.getMinY()) {
-							setY(getY() + 1);
-						}
-					}
-				});
-				
-				Platform.runLater(new Runnable() {
-					@Override
-					public void run() {
-						myself.writeTank();
-					}
-				});
-				
 			}
 		},0,10);
 		
@@ -192,6 +216,22 @@ public class Tank extends Rectangle {
 	
 	public boolean equals(Tank t){
 		return t.getName().equals(this.getName()) &&t.getX() == this.getX() && t.getY() == this.getY() && t.getRotate() == this.getRotate();
+	}
+	
+	private class Cannon extends ImageView {
+		
+		public Cannon(double angle,double x,double y) {
+			setRotate(angle);
+			setX(x);
+			setY(y);
+			
+			setImage(new Image(getClass().getResource("Photoshop/TopTank.png").toExternalForm()));
+		}
+		
+		public Cannon() {
+			setImage(new Image(getClass().getResource("Photoshop/TopTank.png").toExternalForm()));
+		}
+		
 	}
 	
 }
