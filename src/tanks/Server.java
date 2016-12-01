@@ -83,9 +83,10 @@ public class Server extends Application{
 			@Override
 			public void run() {
 				while(true){
-					if(!sendingQueue.isEmpty() && !clientsQueue.isEmpty() && isSomethingToSend){
-						Package clientsData = sendingQueue.poll();
-						ObjectOutputStream client = clientsQueue.poll();
+					if(!sendingQueue.isEmpty()  && isSomethingToSend){
+						ClientPackageNode node = sendingQueue.poll();
+						Package clientsData = node.p;
+						ObjectOutputStream client = node.o;
 						try {
 							for (ObjectOutputStream writer: writers) { // Prints the message to all the clients except for the sender
 								if(!writer.equals(client)) { // Does not send the message back to the sender.
@@ -127,8 +128,7 @@ public class Server extends Application{
 		}).start();
 	}
 	
-	private volatile LinkedList<Package> sendingQueue = new LinkedList<Package>();
-	private volatile LinkedList<ObjectOutputStream> clientsQueue = new LinkedList<ObjectOutputStream>();
+	private volatile LinkedList<ClientPackageNode> sendingQueue = new LinkedList<>();
 	private volatile boolean isSomethingToSend = false;
 	private void clientSockets(Socket clientSocket) {
 		new Thread(new Runnable() {
@@ -145,8 +145,7 @@ public class Server extends Application{
 						if(data.isLeaving())
 							clientIsOnline = false;
 						// TODO Implement more checks in the Package class for the server
-						sendingQueue.add(data);
-						clientsQueue.add(write);
+						sendingQueue.add(new ClientPackageNode(write, data));
 						isSomethingToSend = true;
 					}
 					writers.remove(write); // Removes the client from the "mailing list" after their session has terminated
@@ -165,5 +164,16 @@ public class Server extends Application{
 			}
 		}).start();
 	}
+	
+	/**Container to hold the writer for who sent the package and their package*/
+	private class ClientPackageNode{
+		private Package p;
+		private ObjectOutputStream o;
+		
+		private ClientPackageNode(ObjectOutputStream client, Package pack){
+			p = pack;
+			o = client;
+		}
+	}//end ClientPackageNode class
 	
 }

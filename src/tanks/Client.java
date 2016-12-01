@@ -125,11 +125,7 @@ class Client extends Application{
 		new Thread(new Runnable(){
 			@Override
 			public void run() {	
-				try {
-					Thread.sleep(100); //IMPROVE THIS
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+				while(!connectedToServer){}//make sure to wait until its actually connected
 				while(connectedToServer){
 					if(!packages.isEmpty()){//there's a package to get
 						Package currentP = packages.removeFirst();
@@ -145,6 +141,7 @@ class Client extends Application{
 						}
 						else if(!tanks.containsKey(currentP.getName())){ //Tank isn't in the hashmap yet
 							tanks.put(currentP.getName(), new Tank(currentP.getName(), currentP.getRotate(),currentP.getX(),currentP.getY()));
+							writeTank(); //Send out position once a new player joins
 							//Add the new tank to the pane
 							Platform.runLater(new Runnable(){
 								public void run(){
