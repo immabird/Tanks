@@ -26,7 +26,7 @@ class Client extends Application{
 	private boolean connectedToServer = false;
 	//Stuff for sending/receiving from the server
 	private volatile LinkedList<Package> packages = new LinkedList<>();
-	private ObjectOutputStream write;
+	private volatile ObjectOutputStream write;
 	//GUI's stage
 	private Stage stage;
 	//GUI's pane

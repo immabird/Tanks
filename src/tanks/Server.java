@@ -73,22 +73,40 @@ public class Server extends Application{
 	}
 	
 	public void stop() {
-		messageAllClients(null,null); // Tells all the clients that the server is closing
+		sendingQueue.add(null); // Tells all the clients that the server is closing
 		serverIsOnline = false; // Sets the state of the server to off
 	}
 	
-	private LinkedList<ObjectOutputStream> writers = new LinkedList<ObjectOutputStream>(); // Stores the PrintWriters of all the clients
-	private void messageAllClients(ObjectOutputStream client,Package clientsData) {
-		try {
-			for (ObjectOutputStream writer: writers) { // Prints the message to all the clients except for the sender
-				if(!writer.equals(client)) { // Does not send the message back to the sender.
-					writer.writeObject(clientsData); // Sends the message
+	private volatile LinkedList<ObjectOutputStream> writers = new LinkedList<ObjectOutputStream>(); // Stores the PrintWriters of all the clients
+	private void messageAllClients() {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while(true){
+					if(!sendingQueue.isEmpty() && !clientsQueue.isEmpty() && isSomethingToSend){
+						Package clientsData = sendingQueue.poll();
+						ObjectOutputStream client = clientsQueue.poll();
+						try {
+							for (ObjectOutputStream writer: writers) { // Prints the message to all the clients except for the sender
+								if(!writer.equals(client)) { // Does not send the message back to the sender.
+									writer.writeObject(clientsData); // Sends the message
+								}
+							}
+						} catch(Exception ex) {
+							System.out.println("Failed to send the package to all the clients.");
+							ex.printStackTrace();
+						}
+					}
+					else{
+						isSomethingToSend = false;
+						try{
+							Thread.sleep(10);
+						}catch(Exception ex){}
+					}
 				}
 			}
-		} catch(Exception ex) {
-			System.out.println("Failed to send the package to all the clients.");
-			ex.printStackTrace();
-		}
+		}).start();
+		
 	}
 
 	private void welcomeSocket() {
@@ -96,6 +114,7 @@ public class Server extends Application{
 			public void run() {
 				try(ServerSocket welcomeSocket = new ServerSocket(port)) { // Creates welcome socket
 					serverIsOnline = true; // Server has officially started
+					messageAllClients();
 					while(serverIsOnline) {
 						clientSockets(welcomeSocket.accept()); // Accepts new clients
 					}
@@ -108,6 +127,9 @@ public class Server extends Application{
 		}).start();
 	}
 	
+	private volatile LinkedList<Package> sendingQueue = new LinkedList<Package>();
+	private volatile LinkedList<ObjectOutputStream> clientsQueue = new LinkedList<ObjectOutputStream>();
+	private volatile boolean isSomethingToSend = false;
 	private void clientSockets(Socket clientSocket) {
 		new Thread(new Runnable() {
 			public void run() {
@@ -120,12 +142,12 @@ public class Server extends Application{
 					Package data;
 					while(clientIsOnline && serverIsOnline) {
 						data = (Package)read.readObject();
-						if(data.isLeaving()){
-							System.out.println(data.getName() + " is leaving (Server)");
+						if(data.isLeaving())
 							clientIsOnline = false;
-						}
 						// TODO Implement more checks in the Package class for the server
-						messageAllClients(write,data);
+						sendingQueue.add(data);
+						clientsQueue.add(write);
+						isSomethingToSend = true;
 					}
 					writers.remove(write); // Removes the client from the "mailing list" after their session has terminated
 					updateNumberOfPlayers(-1);
