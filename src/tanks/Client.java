@@ -125,7 +125,12 @@ class Client extends Application{
 		new Thread(new Runnable(){
 			@Override
 			public void run() {	
-				while(true){
+				try {
+					Thread.sleep(100); //IMPROVE THIS
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				while(connectedToServer){
 					if(!packages.isEmpty()){//there's a package to get
 						Package currentP = packages.removeFirst();
 						if(currentP.isLeaving()){ //someone is leaving
@@ -201,6 +206,7 @@ class Client extends Application{
 		primaryStage.setOnCloseRequest(e -> {
 			sendLeaveMessage();
 			stop();
+			primaryStage.close();
 		});
 		stage = primaryStage; //Have a class reference to the stage
 	}
