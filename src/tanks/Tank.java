@@ -213,7 +213,14 @@ public class Tank extends ImageView {
 		return data;
 	}
 
+	/**Takes in a package and edits the data of the tank*/
+	public void updateFromPackage(Package p){
+		setX(p.getX());
+		setY(p.getY());
+		setRotate(p.getRotate());
+	}
 	
+	/**@return true if the tank has the same name, x and y pos, and rotation angle*/
 	public boolean equals(Tank t){
 		return t.getName().equals(this.getName()) &&t.getX() == this.getX() && t.getY() == this.getY() && t.getRotate() == this.getRotate();
 	}

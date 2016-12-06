@@ -23,10 +23,12 @@ class Client extends Application{
 	//This Client's Tank
 	private volatile Tank myTank;
 	// Keeps track of the connection with the server
-	private boolean connectedToServer = false;
+	private volatile boolean connectedToServer = false;
+	//Turns true to let everything know that the attempt to connect to the server failed
+	private volatile boolean connectionTimedOut = false;
 	//Stuff for sending/receiving from the server
 	private volatile LinkedList<Package> packages = new LinkedList<>();
-	private volatile ObjectOutputStream write;
+	private ObjectOutputStream write;
 	//GUI's stage
 	private Stage stage;
 	//GUI's pane
@@ -41,9 +43,6 @@ class Client extends Application{
 		ip = anIp;
 		port = aPort;
 		this.name = name;
-		/*UNCOMMENT THIS TO HAVE THE NETWORKING ACTUALLY WORK
-		 *I'M GOING TO FORGET TO DO THIS
-		 *NEEDS MORE CAPITAL LETTERS SO I CAN SEE IT!!!!!!!!!!!!!!*/
 		connect();
 		
 		//Starting up GUI
@@ -113,8 +112,15 @@ class Client extends Application{
 					}
 				} catch(Exception ex) {
 					connectedToServer = false;
+					connectionTimedOut = true;
 					System.out.println(name + "'s connection the the server has failed.");
 					ex.printStackTrace();
+					Platform.runLater(new Runnable(){ //close the window
+						@Override
+						public void run() {
+							stage.close();
+						}
+					});
 				}
 			}
 		}).start();
@@ -125,8 +131,14 @@ class Client extends Application{
 		new Thread(new Runnable(){
 			@Override
 			public void run() {	
-				while(!connectedToServer){}//make sure to wait until its actually connected
+				//Wait for the server to connect, if timed out just quit
+				while(!connectedToServer && !connectionTimedOut) {}
+				
+				//Connected to the server, start reading through packets and updating
 				while(connectedToServer){
+					//Sleep the thread for a millisecond every cycle so it doesn't use 40% CPU Usage
+					try{Thread.sleep(1);}catch(Exception ex){}
+					
 					if(!packages.isEmpty()){//there's a package to get
 						Package currentP = packages.removeFirst();
 						if(currentP.isLeaving()){ //someone is leaving
@@ -150,18 +162,11 @@ class Client extends Application{
 							});
 						}
 						else{//just update the tank in the map
-							Tank oldTank = tanks.get(currentP.getName());
-							Tank newTank = new Tank(currentP.getName(),currentP.getRotate(),currentP.getX(),currentP.getY());
-							if(oldTank.equals(newTank))
-								continue;
-							tanks.replace(currentP.getName(), oldTank, newTank);
-							//Update the pane/GUI with new position
 							Platform.runLater(new Runnable(){
 								@Override
 								public void run() {
-									//THIS IS REALLY SKETCHY MAYBE TRY TO BE GOOD AND ACTUALLY FIX BAD CODE
-									if(pane.getChildren().remove(oldTank))
-										pane.getChildren().add(tanks.get(currentP.getName()));
+									// TODO Auto-generated method stub
+									tanks.get(currentP.getName()).updateFromPackage(currentP);
 								}
 							});
 						}
