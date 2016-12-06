@@ -1,3 +1,3 @@
-Brad
+andrew12
 localhost
-25565
+7777

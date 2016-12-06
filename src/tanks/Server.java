@@ -68,7 +68,6 @@ public class Server extends Application{
 		numberOfPlayers.setFont(GUI_SETTINGS.FONT);
 		
 		playersList = new PlayersList();
-		playersList.setFont(GUI_SETTINGS.FONT);
 		
 		VBox v1 = new VBox();
 		v1.getChildren().addAll(title,numberOfPlayers,playersList);
@@ -97,10 +96,12 @@ public class Server extends Application{
 		sendingQueue.add(null); // Tells all the clients that the server is closing
 		serverIsOnline = false; // Sets the state of the server to off
 		try {
-			welcomeSocket.close();
+			if(welcomeSocket != null) //just in case server doesn't connect
+				welcomeSocket.close();
 		} catch (IOException e) {
 			System.out.println("Closing the welcome socket failed");
 			e.printStackTrace();
+			stage.close();
 		}
 	}
 	
@@ -109,8 +110,8 @@ public class Server extends Application{
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				while(true){
-					if(!sendingQueue.isEmpty()  && isSomethingToSend){
+				while(serverIsOnline){
+					if(!sendingQueue.isEmpty() && isSomethingToSend){
 						ClientPackageNode node = sendingQueue.poll();
 						Package clientsData = node.p;
 						ObjectOutputStream client = node.o;
@@ -211,51 +212,87 @@ public class Server extends Application{
 		}
 	}//end ClientPackageNode class
 	
-	private class PlayersList extends Label{
+	/**Extends VBox to hold the PlayersList*/
+	private class PlayersList extends VBox{
 		private volatile ArrayList<String> names;
-		private volatile boolean changeHeader = false;
+		private volatile Label title;
+		private volatile Label players;
+		private volatile boolean show = false;
 		
+		/**Makes a new PlayersList*/
 		private PlayersList(){
-			super("");
+			super();
 			names = new ArrayList<>();
-			setTextAlignment(TextAlignment.CENTER);
-			setManaged(false); //Don't have label included in layout calcs
+			
+			title = new Label("Connected Players: ");
+			title.setTextAlignment(TextAlignment.CENTER);
+			title.setFont(GUI_SETTINGS.FONT);
+			title.setStyle("-fx-font-weight: bold");
+			title.setManaged(false);
+			title.setVisible(false);
+			
+			//Set up players 
+			players = new Label("");
+			players.setTextAlignment(TextAlignment.CENTER);
+			players.setFont(GUI_SETTINGS.FONT);
+			players.setManaged(false);
+			
+			getChildren().add(title);
+			getChildren().add(players);
+			setAlignment(Pos.CENTER);
 		}
 		
+		/**Add a new player to the list*/
 		private void add(String name){
 			if(names.size() == 0)
-				changeHeader = true;
+				show = true;
 			names.add(name);
 			Platform.runLater(new Runnable(){
 				@Override
 				public void run() {
-					if(changeHeader){
-						setText("Connected Players: ");
-						changeHeader = false;
-						setManaged(true); //Have label included in layout calcs
+					if(show){
+						title.setVisible(true);
+						title.setManaged(true);
+						players.setVisible(true);
+						players.setManaged(true);
+						setManaged(true);
 					}
-					setText(getText() + "\n" + name);
+					updatePlayersLabel();
 					stage.sizeToScene();
 				}
 			});
 		}
 		
+		/**Remove a player from the list*/
 		private void remove(String name){
 			names.remove(name);
 			if(names.size() == 0)
-				changeHeader = true;
+				show = false;
 			Platform.runLater(new Runnable(){
 				@Override
 				public void run() {
-					setText(getText().replace("\n" + name, ""));
-					if(changeHeader){
-						setText("");
-						changeHeader = false;
-						setManaged(false); //Don't have label included in layout calcs
+					if(!show){
+						title.setVisible(false);
+						title.setManaged(false);
+						players.setVisible(false);
+						players.setVisible(false);
+						players.setText("");
+						setManaged(false);
 					}
+					else //don't update if there are no players
+						updatePlayersLabel();
 					stage.sizeToScene();
 				}
 			});
+		}
+		
+		/**Rewrite the players label*/
+		private void updatePlayersLabel(){
+			players.setText("");
+			for(String name : names){
+				players.setText(players.getText() + name + "\n");
+			}
+			players.setText(players.getText().substring(0, players.getText().length() - 1));
 		}
 	}//end PlayersList class
 	

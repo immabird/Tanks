@@ -43,7 +43,6 @@ public class Tank extends ImageView {
 	}
 	
 	public Tank(String name, Client myself) {
-		
 		setImage(new Image(getClass().getResource("Photoshop/TankBody.png").toExternalForm()));
 		cannon = new Cannon();
 		
