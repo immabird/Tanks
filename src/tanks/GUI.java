@@ -22,13 +22,14 @@ public class GUI extends Application {
 	private static int port = 25565;
 	private static String ip = "localhost";
 	private static String name = "Brad";
+	private Stage stage;
 	
 	public void startClient() {
 		new Client(ip,port,name);
 	}
 	
 	public void startServer() {
-		new Server(port);
+		new Server(port, stage.getX(), stage.getWidth(), stage.getY());
 	}
 	
 	
@@ -156,6 +157,7 @@ public class GUI extends Application {
 			stage.setScene(mainMenuScene);
 			stage.setTitle(GUI_SETTINGS.MENU_TITLE);
 			stage.show();
+			this.stage = stage;
 			stage.setOnCloseRequest(EventHandler -> {
 				try(PrintWriter pr = new PrintWriter(new File("settings.txt"))) {
 					pr.println(name);
