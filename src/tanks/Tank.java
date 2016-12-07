@@ -3,6 +3,7 @@ package tanks;
 import java.util.Timer;
 import java.util.TimerTask;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
@@ -27,15 +28,15 @@ public class Tank extends ImageView {
 	private volatile Cannon cannon;
 	private Point mouse = new Point(0,0);
 	
-	public Tank(String name,double bodyAngle,double xPos,double yPos, double cannonAngle, Image tankPic) {
-		setImage(tankPic);
+	public Tank(String name,double bodyAngle,double xPos,double yPos, double cannonAngle, String color) {
+		setImage(GUI_SETTINGS.getBodyImage(color));
 		this.name = name;
 		setRotate(bodyAngle);
 		setX(xPos);
 		setY(yPos);
 		
 		//Determines the offset needed to center the head
-		cannon = new Cannon(cannonAngle,xPos,yPos);
+		cannon = new Cannon(cannonAngle,xPos,yPos,color);
 		Point cannonCenter = getCenter(cannon);
 		Point tankCenter = getCenter(this);
 		cannon.setOffsetX(tankCenter.getX() - cannonCenter.getX());
@@ -51,9 +52,9 @@ public class Tank extends ImageView {
 		});
 	}
 	
-	public Tank(String name, Client myself, Image tankPic) {
-		setImage(tankPic);
-		cannon = new Cannon(0,getX(),getY());
+	public Tank(String name, Client myself, String color) {
+		setImage(GUI_SETTINGS.getBodyImage(color));
+		cannon = new Cannon(0,getX(),getY(),color);
 		
 		//Determines the offset needed to center the head
 		Point cannonCenter = getCenter(cannon);
@@ -117,7 +118,9 @@ public class Tank extends ImageView {
 					Platform.runLater(new Runnable() {
 						@Override
 						public void run() {
+							boolean colision = false;
 							boolean hasChanged = false;
+							
 							if(finalRotate != getRotate()) {
 								setRotate(finalRotate);
 								hasChanged = true;
@@ -129,6 +132,20 @@ public class Tank extends ImageView {
 							if(finalY != getY()) {
 								setY(finalY);
 								hasChanged = true;
+							}
+							
+							ObservableList<Node> children = ((Pane) getParent()).getChildren();
+							for(Node tank : children) {
+								if(tank instanceof Tank && !((Tank) tank).getName().equals(name)) {
+									Bounds it = tank.getBoundsInParent();
+									Bounds me = getBoundsInParent();
+									if(me.intersects(it)) {
+										colision = true;
+									}
+								}
+							}
+							if(colision) {
+								System.out.println("hi");
 							}
 							
 							if(hasChanged) {
@@ -250,10 +267,6 @@ public class Tank extends ImageView {
 		return center;
 	}
 	
-	public boolean colision(Node node) {
-		return this.getBoundsInParent().intersects(node.getBoundsInParent());
-	}
-	
 	public String getName() {
 		return name;
 	}
@@ -287,9 +300,8 @@ public class Tank extends ImageView {
 		private double offsetX = 0;
 		private double offsetY = 0;
 		
-		public Cannon(double angle,double x,double y) {
-			setImage(new Image(getClass().getResource("Photoshop/TopTank.png").toExternalForm()));
-			System.out.println("Cannon: x:" + x + " y:" + y);
+		public Cannon(double angle,double x,double y,String color) {
+			setImage(GUI_SETTINGS.getTopImage(color));
 			setRotate(angle);
 			setX(x);
 			setY(y);
@@ -305,17 +317,10 @@ public class Tank extends ImageView {
 		
 		public void setCenterX(double x) {
 			setX(x + offsetX);
-			//System.out.println("X:" + x);
 		}
 		
 		public void setCenterY(double y) {
 			setY(y + offsetY);
-			//System.out.println("Y:" + y);
-		}
-
-		@SuppressWarnings("unused")
-		public Cannon() {
-			setImage(new Image(getClass().getResource("Photoshop/TopTank.png").toExternalForm()));
 		}
 		
 	}
