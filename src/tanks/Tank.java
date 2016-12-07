@@ -27,15 +27,15 @@ public class Tank extends ImageView {
 	private volatile Cannon cannon;
 	private Point mouse = new Point(0,0);
 	
-	public Tank(String name,double bodyAngle,double xPos,double yPos) {
-		setImage(new Image(getClass().getResource("Photoshop/TankBody.png").toExternalForm()));
+	public Tank(String name,double bodyAngle,double xPos,double yPos, double cannonAngle, Image tankPic) {
+		setImage(tankPic);
 		this.name = name;
 		setRotate(bodyAngle);
 		setX(xPos);
 		setY(yPos);
 		
 		//Determines the offset needed to center the head
-		cannon = new Cannon(0,xPos,yPos);
+		cannon = new Cannon(cannonAngle,xPos,yPos);
 		Point cannonCenter = getCenter(cannon);
 		Point tankCenter = getCenter(this);
 		cannon.setOffsetX(tankCenter.getX() - cannonCenter.getX());
@@ -51,8 +51,8 @@ public class Tank extends ImageView {
 		});
 	}
 	
-	public Tank(String name, Client myself) {
-		setImage(new Image(getClass().getResource("Photoshop/TankBody.png").toExternalForm()));
+	public Tank(String name, Client myself, Image tankPic) {
+		setImage(tankPic);
 		cannon = new Cannon(0,getX(),getY());
 		
 		//Determines the offset needed to center the head
@@ -124,12 +124,10 @@ public class Tank extends ImageView {
 							}
 							if(finalX != getX()) {
 								setX(finalX);
-								cannon.setCenterX(finalX);
 								hasChanged = true;
 							}
 							if(finalY != getY()) {
 								setY(finalY);
-								cannon.setCenterY(finalY);
 								hasChanged = true;
 							}
 							
@@ -138,16 +136,18 @@ public class Tank extends ImageView {
 								Bounds tank = getBoundsInParent();
 								
 								if(tank.getMaxX() > window.getWidth()) {
-									setX(getX() - 1);
+									setX(getX() - 1 * movementSpeedMultiplier);
 								} else if(tank.getMinX() < 0) {
-									setX(getX() + 1);
+									setX(getX() + 1 * movementSpeedMultiplier);
 								}
 								if(tank.getMaxY() > window.getHeight()) {
-									setY(getY() - 1);
+									setY(getY() - 1 * movementSpeedMultiplier);
 								} else if(tank.getMinY() < 0) {
-									setY(getY() + 1);
+									setY(getY() + 1 * movementSpeedMultiplier);
 								}
 								
+								cannon.setCenterX(finalX);
+								cannon.setCenterY(finalY);
 								Point cannonCenter = getCenter(cannon);
 								cannon.setRotate(getAngle(cannonCenter.getX(),cannonCenter.getY(),mouse.getX(),mouse.getY()));
 							}
