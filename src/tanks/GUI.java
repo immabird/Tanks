@@ -13,6 +13,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -79,8 +81,7 @@ public class GUI extends Application {
 	
 	private void createMainMenuScene() {
 		// Makes the title
-		Label title = new Label("Welcome To Tanks!");
-		title.setFont(GUI_SETTINGS.TITLE_FONT);
+		ImageView title = new ImageView(new Image(getClass().getResource("Photoshop/Title.png").toExternalForm()));
 		
 		// Makes all the buttons and adds them to a VBox
 		VBox vBox = new VBox(GUI_SETTINGS.VERT_SPACING_BTN_ELEMENTS);
@@ -98,8 +99,7 @@ public class GUI extends Application {
 	
 	private void createSettingsScene() {
 		// Makes the title
-		Label title = new Label("Settings!");
-		title.setFont(GUI_SETTINGS.TITLE_FONT);
+		ImageView title = new ImageView(new Image(getClass().getResource("Photoshop/SettingsTitle.png").toExternalForm()));
 		
 		TextField nameField = new TextField(name);
 		nameField.setFont(GUI_SETTINGS.FONT);
