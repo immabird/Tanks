@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.StreamCorruptedException;
+import java.net.Inet4Address;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.LinkedList;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -65,13 +67,17 @@ public class Server extends Application{
 		Label title = new Label("Server");
 		title.setFont(GUI_SETTINGS.TITLE_FONT);
 		
+		Label IPport = new Label("IP Address: " + Inet4Address.getLocalHost().getHostAddress() + "\nPort: " + port);
+		IPport.setFont(GUI_SETTINGS.FONT);
+		IPport.setTextAlignment(TextAlignment.CENTER);
+		
 		numberOfPlayers = new Label("Players: 0");
 		numberOfPlayers.setFont(GUI_SETTINGS.FONT);
 		
 		playersList = new PlayersList();
 		
 		VBox v1 = new VBox();
-		v1.getChildren().addAll(title,numberOfPlayers,playersList);
+		v1.getChildren().addAll(title,IPport,numberOfPlayers,playersList);
 		v1.setAlignment(Pos.TOP_CENTER);
 		
 		StackPane pane = new StackPane(v1);
@@ -116,16 +122,7 @@ public class Server extends Application{
 						ClientPackageNode node = getNextNode();
 						Package clientsData = node.p;
 						ObjectOutputStream client = node.o;
-						try {
-							for (ObjectOutputStream writer: writers) { // Prints the message to all the clients except for the sender
-								if(!writer.equals(client)) { // Does not send the message back to the sender.
-									writer.writeObject(clientsData); // Sends the message
-								}
-							}
-						} catch(Exception ex) {
-							System.out.println("Failed to send the package to all the clients.");
-							ex.printStackTrace();
-						}
+						sendStuff(clientsData, client);
 					}
 					else{
 						isSomethingToSend = false;
@@ -139,16 +136,36 @@ public class Server extends Application{
 		
 	}
 	
+	/**Synchronized method to add a new node to the sending queue*/
 	private synchronized void addNextNode(ClientPackageNode c){
 		sendingQueue.add(c);
 	}
 	
+	/**Synchronized method to get the next node in the sending queue*/
 	private synchronized ClientPackageNode getNextNode(){
 		return sendingQueue.poll();
 	}
 	
+	/**Synchronized method to check if the sending queue is empty*/
 	private synchronized boolean sendingQueueIsEmpty(){
 		return sendingQueue.isEmpty();
+	}
+	
+	/**Synchronized method to send a message*/
+	private void sendStuff(Package clientsData, ObjectOutputStream client){
+		try {
+			for (ObjectOutputStream writer: writers) { // Prints the message to all the clients except for the sender
+				if(!writer.equals(client)) { // Does not send the message back to the sender.
+					writer.writeObject(clientsData); // Sends the message
+				}
+			}
+		} catch(ConcurrentModificationException ex){
+			sendStuff(clientsData, client);
+		}
+		catch(Exception ex) {
+			System.out.println("Failed to send the package to all the clients.");
+			ex.printStackTrace();
+		}
 	}
 
 	private void welcomeSocket() {
