@@ -16,6 +16,7 @@ import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
@@ -51,6 +52,7 @@ public class Server extends Application{
 		return serverIsOnline; // Returns the state of the server
 	}
 	
+	private Label numOfPlayersLbl;
 	private Label numberOfPlayers;
 	private PlayersList playersList;
 	private int playerCount = 0;
@@ -59,7 +61,7 @@ public class Server extends Application{
 		Platform.runLater(new Runnable(){//change the label on the javafx thread
 			@Override
 			public void run() {
-				numberOfPlayers.setText("Players: " + playerCount);
+				numberOfPlayers.setText("" + playerCount);
 			}	
 		});
 	}
@@ -72,20 +74,46 @@ public class Server extends Application{
 		String nets = "";
 		while(interfaces.hasMoreElements()){
 			NetworkInterface net = interfaces.nextElement();
-			if(net.getInetAddresses().hasMoreElements() && net.getInetAddresses().nextElement().getHostAddress().length() < 20 && !net.getName().equals("lo"))
+			if(net.getInetAddresses().hasMoreElements() && net.getInetAddresses().nextElement().getHostAddress().length() <= 15 && !net.getName().equals("lo"))
 				nets += net.getName() + " " + net.getInetAddresses().nextElement().getHostAddress() + "\n";
 		}
-		Label IPport = new Label("IP Addresses:\n" + nets + "Port: " + port);
-		IPport.setFont(GUI_SETTINGS.FONT);
-		IPport.setTextAlignment(TextAlignment.CENTER);
+		Label IP = new Label("IP Addresses:");
+		IP.setFont(GUI_SETTINGS.FONT);
+		IP.setStyle("-fx-font-weight: bold");
+		IP.setTextAlignment(TextAlignment.CENTER);
 		
-		numberOfPlayers = new Label("Players: 0");
+		Label ipAddresses = new Label(nets);
+		ipAddresses.setFont(GUI_SETTINGS.FONT);
+		ipAddresses.setTextAlignment(TextAlignment.CENTER);
+		
+		Label portLbl = new Label("Port: ");
+		portLbl.setFont(GUI_SETTINGS.FONT);
+		portLbl.setStyle("-fx-font-weight: bold");
+		portLbl.setTextAlignment(TextAlignment.CENTER);
+		Label portNumLbl = new Label(""+port);
+		portNumLbl.setFont(GUI_SETTINGS.FONT);
+		portNumLbl.setTextAlignment(TextAlignment.CENTER);
+		HBox portBox = new HBox();
+		portBox.setAlignment(Pos.CENTER);
+		portBox.getChildren().addAll(portLbl, portNumLbl);
+		
+		VBox ipAndPort = new VBox();
+		ipAndPort.setAlignment(Pos.CENTER);
+		ipAndPort.getChildren().addAll(IP, ipAddresses, portBox);
+		
+		numOfPlayersLbl = new Label("Players: ");
+		numOfPlayersLbl.setFont(GUI_SETTINGS.FONT);
+		numOfPlayersLbl.setStyle("-fx-font-weight: bold");
+		numberOfPlayers = new Label("0");
 		numberOfPlayers.setFont(GUI_SETTINGS.FONT);
+		HBox numPlayersBox = new HBox();
+		numPlayersBox.setAlignment(Pos.CENTER);
+		numPlayersBox.getChildren().addAll(numOfPlayersLbl, numberOfPlayers);
 		
 		playersList = new PlayersList();
 		
 		VBox v1 = new VBox();
-		v1.getChildren().addAll(title,IPport,numberOfPlayers,playersList);
+		v1.getChildren().addAll(title,ipAndPort,numPlayersBox,playersList);
 		v1.setAlignment(Pos.TOP_CENTER);
 		
 		StackPane pane = new StackPane(v1);
@@ -216,7 +244,6 @@ public class Server extends Application{
 								addedName = true;
 							}
 							if(data.isLeaving()){
-								System.out.println("leave message");
 								clientIsOnline = false;
 								playersList.remove(data.getName());
 							}
@@ -229,7 +256,6 @@ public class Server extends Application{
 					}
 					writers.remove(write); // Removes the client from the "mailing list" after their session has terminated
 					updateNumberOfPlayers(-1);
-					System.out.println("writer removed");
 				}
 				catch(Exception ex) {
 					System.out.println("One of the clients threads has crashed.");
