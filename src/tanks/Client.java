@@ -112,7 +112,7 @@ class Client extends Application{
 					Package data;
 					while(connectedToServer) { // Reads in the data from the server
 						data = (Package)read.readObject();
-						packages.add(data);
+						addPackage(data);
 					}
 				} catch(Exception ex) {
 					connectedToServer = false;
@@ -140,9 +140,10 @@ class Client extends Application{
 				
 				//Connected to the server, start reading through packets and updating
 				while(connectedToServer){
-					if(!packages.isEmpty()){//there's a package to get
-						Package currentP = packages.removeFirst();
+					if(!packagesIsEmpty()){//there's a package to get
+						Package currentP = getPackage();
 						if(currentP.isLeaving()){ //someone is leaving
+							System.out.println("someone left");
 							Tank removed = tanks.remove(currentP.getName());
 							//Take the take off of the pane
 							Platform.runLater(new Runnable(){
@@ -180,6 +181,18 @@ class Client extends Application{
 				}
 			}
 		}).start();
+	}
+	
+	private synchronized Package getPackage(){
+		return packages.poll();
+	}
+	
+	private synchronized void addPackage(Package p){
+		packages.add(p);
+	}
+	
+	private synchronized boolean packagesIsEmpty(){
+		return packages.isEmpty();
 	}
 
 	/**Makes a new Tank for this client*/

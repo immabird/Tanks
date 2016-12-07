@@ -112,7 +112,7 @@ public class Server extends Application{
 			@Override
 			public void run() {
 				while(serverIsOnline){
-					if(!sendingQueue.isEmpty() && isSomethingToSend){
+					if(!sendingQueueIsEmpty() && isSomethingToSend){
 						ClientPackageNode node = getNextNode();
 						Package clientsData = node.p;
 						ObjectOutputStream client = node.o;
@@ -145,6 +145,10 @@ public class Server extends Application{
 	
 	private synchronized ClientPackageNode getNextNode(){
 		return sendingQueue.poll();
+	}
+	
+	private synchronized boolean sendingQueueIsEmpty(){
+		return sendingQueue.isEmpty();
 	}
 
 	private void welcomeSocket() {
