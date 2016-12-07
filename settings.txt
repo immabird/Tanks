@@ -1,5 +1,5 @@
-and
+Brad1
 localhost
 7777
-Blue
 Red
+Blue

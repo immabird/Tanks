@@ -149,8 +149,7 @@ class Client extends Application{
 							Platform.runLater(new Runnable(){
 								@Override
 								public void run() {
-									pane.getChildren().remove(removed);
-									pane.getChildren().remove(removed.getCannon());
+									pane.getChildren().removeAll(removed.getComponents());
 								}
 							});
 						}

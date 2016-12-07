@@ -32,6 +32,9 @@ public final class GUI_SETTINGS {
 	final static public int SERVER_HEIGHT = 100;
 	final static public int SERVER_WIDTH = 200;
 	
+	//Tanks name plate
+	final static public Font NAME_FONT = new Font(24);
+	
 	final public static Image getBodyImage(String color){
 		return new Image("imgs/Tank Body "+color+".png");
 	}

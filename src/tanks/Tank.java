@@ -8,12 +8,14 @@ import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 
 public class Tank extends ImageView {
 	
@@ -26,52 +28,18 @@ public class Tank extends ImageView {
 	private int rotateSpeedMultiplier = 1;
 	private int movementSpeedMultiplier = 1;
 	private volatile Cannon cannon;
+	private volatile Label namePlate;
+	private double namePlateOffsetX = 0;
+	private double namePlateOffsetY = 0;
 	private Point mouse = new Point(0,0);
 	
 	public Tank(String name,double bodyAngle,double xPos,double yPos, double cannonAngle, String color) {
-		setImage(GUI_SETTINGS.getBodyImage(color));
-		this.name = name;
-		setRotate(bodyAngle);
-		setX(xPos);
-		setY(yPos);
-		
-		//Determines the offset needed to center the head
-		cannon = new Cannon(cannonAngle,xPos,yPos,color);
-		Point cannonCenter = getCenter(cannon);
-		Point tankCenter = getCenter(this);
-		cannon.setOffsetX(tankCenter.getX() - cannonCenter.getX());
-		cannon.setOffsetY(tankCenter.getY() - cannonCenter.getY());
-		cannon.setCenterX(xPos);
-		cannon.setCenterY(yPos);
-		
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				((Pane) getParent()).getChildren().add(cannon);
-			}
-		});
+		createTank(name,bodyAngle,cannonAngle,xPos,yPos,color);
 	}
 	
 	public Tank(String name, Client myself, String color) {
-		setImage(GUI_SETTINGS.getBodyImage(color));
-		cannon = new Cannon(0,getX(),getY(),color);
+		createTank(name,0,0,getX(),getY(),color);
 		
-		//Determines the offset needed to center the head
-		Point cannonCenter = getCenter(cannon);
-		Point tankCenter = getCenter(this);
-		cannon.setOffsetX(tankCenter.getX() - cannonCenter.getX());
-		cannon.setOffsetY(tankCenter.getY() - cannonCenter.getY());
-		cannon.setCenterX(getX());
-		cannon.setCenterY(getY());
-		
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				((Pane) getParent()).getChildren().add(cannon);
-			}
-		});
-		
-		this.name = name;
 		Timer t = new Timer();
 		t.schedule(new TimerTask() {
 			@Override
@@ -163,6 +131,9 @@ public class Tank extends ImageView {
 									setY(getY() + 1 * movementSpeedMultiplier);
 								}
 								
+								namePlate.setLayoutX(finalX + namePlateOffsetX);
+								namePlate.setLayoutY(finalY + namePlateOffsetY);
+								
 								cannon.setCenterX(finalX);
 								cannon.setCenterY(finalY);
 								Point cannonCenter = getCenter(cannon);
@@ -250,6 +221,43 @@ public class Tank extends ImageView {
 		});
 	}
 	
+	private void createTank(String name, double bodyAngle, double cannonAngle, double x, double y, String color) {
+		setImage(GUI_SETTINGS.getBodyImage(color));
+		this.name = name;
+		this.setRotate(bodyAngle);
+		this.setX(x);
+		this.setY(y);
+		
+		//Set up cannon
+		cannon = new Cannon(cannonAngle,x,y,color);
+		//Determines the offset needed to center the head
+		Point cannonCenter = getCenter(cannon);
+		Point tankCenter = getCenter(this);
+		cannon.setOffsetX(tankCenter.getX() - cannonCenter.getX());
+		cannon.setOffsetY(tankCenter.getY() - cannonCenter.getY());
+		cannon.setCenterX(x);
+		cannon.setCenterY(y);
+		
+		//Set up name plate
+		namePlate = new Label(name);
+		namePlate.setFont(GUI_SETTINGS.NAME_FONT);
+		namePlate.setTextFill(Color.BLACK);
+		
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				((Pane) getParent()).getChildren().addAll(cannon,namePlate);
+				
+				//Determines the offset needed to center the label
+				namePlate.applyCss();
+				namePlateOffsetX = tankCenter.getX() - (x + (namePlate.prefWidth(-1) / 2));
+				namePlateOffsetY = tankCenter.getY() - (y + (namePlate.prefHeight(-1) / 2));
+				namePlate.setLayoutX(x + namePlateOffsetX);
+				namePlate.setLayoutY(y + namePlateOffsetY);
+			}
+		});
+	}
+	
 	public double getAngle(double x1,double y1,double x2,double y2) {
 		double opposite = y2-y1;
 		double adjasant = x2-x1;
@@ -285,10 +293,16 @@ public class Tank extends ImageView {
 		cannon.setRotate(p.getCannonRotate());
 		cannon.setCenterX(p.getX());
 		cannon.setCenterY(p.getY());
+		namePlate.setLayoutX(p.getX() + namePlateOffsetX);
+		namePlate.setLayoutY(p.getY() + namePlateOffsetY);
 	}
 	
-	public Cannon getCannon() {
-		return cannon;
+	public Node[] getComponents() {
+		Node[] parts = new Node[3];
+		parts[0] = this;
+		parts[1] = cannon;
+		parts[2] = namePlate;
+		return parts;
 	}
 	
 	/**@return true if the tank has the same name, x and y pos, and rotation angle*/
@@ -335,7 +349,6 @@ public class Tank extends ImageView {
 			y = 0;
 		}
 		
-		@SuppressWarnings("unused")
 		public Point(double x,double y) {
 			this.x = x;
 			this.y = y;
