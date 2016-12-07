@@ -7,9 +7,16 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 class Client extends Application{
@@ -65,7 +72,12 @@ class Client extends Application{
 	/**Disconnects from the server and closes the GUI*/
 	public void stop() {
 		connectedToServer = false;
-		stage.close();
+		Platform.runLater(new Runnable(){
+			@Override
+			public void run() {
+				stage.close();
+			}
+		});
 	}
 	
 	/**Sends a Package to the Server*/
@@ -142,8 +154,11 @@ class Client extends Application{
 				while(connectedToServer){
 					if(!packagesIsEmpty()){//there's a package to get
 						Package currentP = getPackage();
+						if(currentP.getNewName()){
+							new NewNamePopUp();
+							stop();
+						}
 						if(currentP.isLeaving()){ //someone is leaving
-							System.out.println("someone left");
 							Tank removed = tanks.remove(currentP.getName());
 							//Take the take off of the pane
 							Platform.runLater(new Runnable(){
@@ -232,4 +247,52 @@ class Client extends Application{
 		});
 		stage = primaryStage; //Have a class reference to the stage
 	}
+	
+	private class NewNamePopUp extends Application{
+		private NewNamePopUp(){
+			Platform.runLater(new Runnable(){
+				@Override
+				public void run() {
+					try {
+						start(new Stage());
+					} catch (Exception e) {
+						System.out.println("New Name Pop Up window failed to start.");
+						e.printStackTrace();
+					}
+				}
+			});
+		}
+		
+		@Override
+		public void start(Stage stage) throws Exception {
+			Label topError = new Label("Someone on this server already has your name.");
+			topError.setFont(GUI_SETTINGS.FONT);
+			topError.setTextAlignment(TextAlignment.CENTER);
+			Label bottomError = new Label("Please go into settings and choose a new name.");
+			bottomError.setFont(GUI_SETTINGS.FONT);
+			bottomError.setTextAlignment(TextAlignment.CENTER);
+			VBox errors = new VBox();
+			errors.setAlignment(Pos.CENTER);
+			errors.getChildren().addAll(topError, bottomError);
+			
+			Button okBtn = new Button("OK");
+			okBtn.setPrefSize(GUI_SETTINGS.POPUP_BTN_WIDTH, GUI_SETTINGS.POPUP_BTN_HEIGHT);
+			okBtn.setOnAction(e -> {
+				stage.close();
+			});
+			
+			BorderPane pane = new BorderPane();
+			pane.setPrefSize(GUI_SETTINGS.POPUP_WIDTH, GUI_SETTINGS.POPUP_HEIGHT);
+			BorderPane.setMargin(okBtn, new Insets(GUI_SETTINGS.POPUP_MARGIN));
+			pane.setPadding(new Insets(GUI_SETTINGS.POPUP_PADDING));
+			pane.setCenter(errors);
+			pane.setBottom(okBtn);
+			BorderPane.setAlignment(errors, Pos.CENTER);
+			BorderPane.setAlignment(okBtn, Pos.CENTER);
+			stage.setScene(new Scene(pane));
+			stage.setTitle("ERROR");
+			stage.show();
+		}
+	}
+	
 }

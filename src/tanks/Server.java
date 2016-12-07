@@ -231,30 +231,43 @@ public class Server extends Application{
 				try( 	ObjectOutputStream write = new ObjectOutputStream(clientSocket.getOutputStream())
 						;ObjectInputStream read = new ObjectInputStream(clientSocket.getInputStream())
 					) {
-					writers.add(write);
 					boolean clientIsOnline = true;	// Determines whether the client is still active
-					updateNumberOfPlayers(1);
 					Package data;
 					boolean addedName = false;
+					boolean nameIsBad = false;
 					while(clientIsOnline && serverIsOnline) {
 						try{
-							data = (Package)read.readObject();
-							if(!addedName){
-								playersList.add(data.getName());
-								addedName = true;
+							if(!nameIsBad){
+								data = (Package) read.readObject();
+								if (!addedName) {
+									if (playersList.names.contains(data.getName())) {
+										write.writeObject(new Package(true));
+										nameIsBad = true;
+									}
+									else{
+										writers.add(write);
+										updateNumberOfPlayers(1);
+										playersList.add(data.getName());
+										addedName = true;
+									}
+								}
+								if (data.isLeaving()) {
+									clientIsOnline = false;
+									playersList.remove(data.getName());
+								}
+								// TODO Implement more checks in the Package
+								// class for the server
+								if(addedName){
+									addNextNode(new ClientPackageNode(write, data));
+									isSomethingToSend = true;
+								}
 							}
-							if(data.isLeaving()){
-								clientIsOnline = false;
-								playersList.remove(data.getName());
-							}
-							// TODO Implement more checks in the Package class for the server
-							addNextNode(new ClientPackageNode(write, data));
-							isSomethingToSend = true;
 						}catch(StreamCorruptedException streamEx){
 							System.out.println("Stream corrupted exception");
 						}
 					}
-					writers.remove(write); // Removes the client from the "mailing list" after their session has terminated
+					if(!nameIsBad)
+						writers.remove(write); // Removes the client from the "mailing list" after their session has terminated
 					updateNumberOfPlayers(-1);
 				}
 				catch(Exception ex) {
