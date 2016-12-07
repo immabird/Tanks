@@ -16,6 +16,7 @@ public class Package implements Serializable {
 	private double y = 0;
 	private double cannonRotate = 0;
 	private boolean isLeaving = false;
+	private boolean newName = false;
 	
 	/**Sends the name because Brad used a bad constructor and I had to fix his mess*/
 	public Package(String name){
@@ -28,6 +29,7 @@ public class Package implements Serializable {
 		this.isLeaving = isLeaving;
 	}
 	
+	
 	public void addTankData(double rotate, double x, double y, double cannonRotate) {
 		this.rotate = rotate;
 		this.x = x;
@@ -37,6 +39,18 @@ public class Package implements Serializable {
 	
 	public String getName() {
 		return name;
+	}
+	
+	public void setName(String name){
+		this.name = name;
+	}
+	
+	public void setNewName(boolean newName){
+		this.newName = newName;
+	}
+	
+	public boolean getNewName(){
+		return newName;
 	}
 	
 	public double getRotate() {

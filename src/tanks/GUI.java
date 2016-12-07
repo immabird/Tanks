@@ -16,7 +16,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -33,13 +32,13 @@ public class GUI extends Application {
 	private Stage stage;
 	
 	public void startClient() {
+		
 		new Client(ip, port, name, yourColor, opponentColor);
 	}
 	
 	public void startServer() {
 		new Server(port, stage.getX(), stage.getWidth(), stage.getY());
 	}
-	
 	
 	private Scene mainMenuScene;
 	private Scene settingsScene;

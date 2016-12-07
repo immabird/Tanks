@@ -3,6 +3,7 @@ package tanks;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.StreamCorruptedException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -112,7 +113,7 @@ public class Server extends Application{
 			public void run() {
 				while(serverIsOnline){
 					if(!sendingQueue.isEmpty() && isSomethingToSend){
-						ClientPackageNode node = sendingQueue.poll();
+						ClientPackageNode node = getNextNode();
 						Package clientsData = node.p;
 						ObjectOutputStream client = node.o;
 						try {
@@ -136,6 +137,14 @@ public class Server extends Application{
 			}
 		}).start();
 		
+	}
+	
+	private synchronized void addNextNode(ClientPackageNode c){
+		sendingQueue.add(c);
+	}
+	
+	private synchronized ClientPackageNode getNextNode(){
+		return sendingQueue.poll();
 	}
 
 	private void welcomeSocket() {
@@ -171,22 +180,29 @@ public class Server extends Application{
 					Package data;
 					boolean addedName = false;
 					while(clientIsOnline && serverIsOnline) {
-						data = (Package)read.readObject();
-						if(!addedName){
-							playersList.add(data.getName());
-							addedName = true;
+						try{
+							data = (Package)read.readObject();
+							if(!addedName){
+								playersList.add(data.getName());
+								addedName = true;
+							}
+							if(data.isLeaving()){
+								System.out.println("leave message");
+								clientIsOnline = false;
+								playersList.remove(data.getName());
+							}
+							// TODO Implement more checks in the Package class for the server
+							addNextNode(new ClientPackageNode(write, data));
+							isSomethingToSend = true;
+						}catch(StreamCorruptedException streamEx){
+							System.out.println("Stream corrupted exception");
 						}
-						if(data.isLeaving()){
-							clientIsOnline = false;
-							playersList.remove(data.getName());
-						}
-						// TODO Implement more checks in the Package class for the server
-						sendingQueue.add(new ClientPackageNode(write, data));
-						isSomethingToSend = true;
 					}
 					writers.remove(write); // Removes the client from the "mailing list" after their session has terminated
 					updateNumberOfPlayers(-1);
-				} catch(Exception ex) {
+					System.out.println("writer removed");
+				}
+				catch(Exception ex) {
 					System.out.println("One of the clients threads has crashed.");
 					ex.printStackTrace();
 					updateNumberOfPlayers(-1);
@@ -203,8 +219,8 @@ public class Server extends Application{
 	
 	/**Container to hold the writer for who sent the package and their package*/
 	private class ClientPackageNode{
-		private Package p;
-		private ObjectOutputStream o;
+		private volatile Package p;
+		private volatile ObjectOutputStream o;
 		
 		private ClientPackageNode(ObjectOutputStream client, Package pack){
 			p = pack;
