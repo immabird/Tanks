@@ -2,6 +2,8 @@ package tanks;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -13,21 +15,25 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 
 public class GUI extends Application {
 	private static int port = 25565;
 	private static String ip = "localhost";
 	private static String name = "Brad";
+	private static String yourColor = "Blue";
+	private static String opponentColor = "Red";
 	private Stage stage;
 	
 	public void startClient() {
-		new Client(ip,port,name);
+		new Client(ip, port, name, yourColor, opponentColor);
 	}
 	
 	public void startServer() {
@@ -119,21 +125,66 @@ public class GUI extends Application {
 		Label portLabel = new Label("Port:");
 		portLabel.setFont(GUI_SETTINGS.FONT);
 		
-		VBox vBox1 = new VBox(15 + GUI_SETTINGS.VERT_SPACING_BTN_ELEMENTS);
-		vBox1.setAlignment(Pos.CENTER);
-		vBox1.getChildren().addAll(nameLabel,ipLabel,portLabel);
+		VBox labelVBox = new VBox(15 + GUI_SETTINGS.VERT_SPACING_BTN_ELEMENTS);
+		labelVBox.setAlignment(Pos.CENTER);
+		labelVBox.getChildren().addAll(nameLabel,ipLabel,portLabel);
 		
-		VBox vBox2 = new VBox(GUI_SETTINGS.VERT_SPACING_BTN_ELEMENTS);
-		vBox2.setAlignment(Pos.CENTER);
-		vBox2.getChildren().addAll(nameField,ipField,portField);
+		VBox fieldVBox = new VBox(GUI_SETTINGS.VERT_SPACING_BTN_ELEMENTS);
+		fieldVBox.setAlignment(Pos.CENTER);
+		fieldVBox.getChildren().addAll(nameField,ipField,portField);
 		
-		HBox hBox = new HBox(GUI_SETTINGS.HOR_SPACING_BTN_ELEMENTS);
-		hBox.setAlignment(Pos.CENTER);
-		hBox.getChildren().addAll(vBox1,vBox2);
+		HBox textHBox = new HBox(GUI_SETTINGS.HOR_SPACING_BTN_ELEMENTS);
+		textHBox.setAlignment(Pos.CENTER);
+		textHBox.getChildren().addAll(labelVBox,fieldVBox);
+		
+		HBox yourTankSelection = new HBox(GUI_SETTINGS.HOR_SPACING_BTN_COLORS);
+		yourTankSelection.setAlignment(Pos.CENTER);
+		Label yourSelectTank = new Label("Select Your Tank:           ");
+		yourSelectTank.setFont(GUI_SETTINGS.FONT);
+		ArrayList<ImageView> yourImages = new ArrayList<>();
+		ArrayList<String> colors = new ArrayList<>(Arrays.asList("Red", "Blue"));
+		DropShadow shadow = new DropShadow(20, Color.BLACK);
+		for(String c : colors){
+			ImageView temp = new ImageView(new Image(getClass().getResource("Photoshop/" + c + "Tank.png").toExternalForm()));
+			temp.setOnMousePressed(e -> {
+				for(ImageView i : yourImages)
+					i.setEffect(null);
+				temp.setEffect(shadow);
+				yourColor = c;
+			});
+			yourImages.add(temp);
+		}
+		yourImages.get(colors.indexOf(yourColor)).setEffect(shadow);
+		yourTankSelection.getChildren().add(yourSelectTank);
+		yourTankSelection.getChildren().addAll(yourImages);
+		
+		HBox oppTankSelection = new HBox(GUI_SETTINGS.HOR_SPACING_BTN_COLORS);
+		oppTankSelection.setAlignment(Pos.CENTER);
+		Label oppSelectTank = new Label("Select Opponent's Tank:");
+		oppSelectTank.setFont(GUI_SETTINGS.FONT);
+		ArrayList<ImageView> oppImages = new ArrayList<>();
+		for(String c : colors){
+			ImageView temp = new ImageView(new Image(getClass().getResource("Photoshop/" + c + "Tank.png").toExternalForm()));
+			temp.setOnMousePressed(e -> {
+				for(ImageView i : oppImages){
+					i.setEffect(null);
+				}
+				temp.setEffect(shadow);
+				opponentColor = c;
+			});
+			oppImages.add(temp);
+		}
+		oppImages.get(colors.indexOf(opponentColor)).setEffect(shadow);
+		oppTankSelection.getChildren().add(oppSelectTank);
+		oppTankSelection.getChildren().addAll(oppImages);
+		
+		VBox tankSelection = new VBox(GUI_SETTINGS.VERT_SPACING_BTN_ELEMENTS + 10);
+		tankSelection.setAlignment(Pos.CENTER);
+		tankSelection.getChildren().addAll(yourTankSelection, oppTankSelection);
 		
 		VBox vBox3 = new VBox(GUI_SETTINGS.VERT_SPACING_BTN_ELEMENTS);
 		vBox3.setAlignment(Pos.CENTER);
-		vBox3.getChildren().addAll(title,hBox,newButton("Done"));
+		vBox3.getChildren().addAll(title, textHBox, tankSelection, newButton("Done"));
 		
 		// Puts the VBox in a StackPane and centers it
 		StackPane pane = new StackPane(vBox3);
@@ -149,6 +200,8 @@ public class GUI extends Application {
 			name = sc.nextLine();
 			ip = sc.nextLine();
 			port = Integer.parseInt(sc.nextLine());
+			yourColor = sc.nextLine();
+			opponentColor = sc.nextLine();
 		} catch(Exception ex) {}
 		
 		try {
@@ -163,6 +216,8 @@ public class GUI extends Application {
 					pr.println(name);
 					pr.println(ip);
 					pr.println(port);
+					pr.println(yourColor);
+					pr.println(opponentColor);
 				} catch(Exception ex) {}
 				System.exit(0);
 			});

@@ -1,5 +1,6 @@
 package tanks;
 
+import javafx.scene.image.Image;
 import javafx.scene.text.Font;
 
 public final class GUI_SETTINGS {
@@ -16,6 +17,8 @@ public final class GUI_SETTINGS {
 	final static public int VERT_SPACING_BTN_ELEMENTS = 20;
 	//How far away elements should be horizontally from the one another
 	final static public int HOR_SPACING_BTN_ELEMENTS = 7;
+	//How far away tank color choice should be horizontally
+	final static public int HOR_SPACING_BTN_COLORS = 15;
 	
 	final static public String MENU_TITLE = "Tanks";
 	
@@ -28,4 +31,12 @@ public final class GUI_SETTINGS {
 	//Stuff for the swerber
 	final static public int SERVER_HEIGHT = 100;
 	final static public int SERVER_WIDTH = 200;
+	
+	final public Image getBodyImage(String color){
+		return new Image(getClass().getResource("Photoshop/Tank Body "+color+".png").toExternalForm());
+	}
+	
+	final public Image getTopImage(String color){
+		return new Image(getClass().getResource("Photoshop/Top Tank "+color+".png").toExternalForm());
+	}
 }

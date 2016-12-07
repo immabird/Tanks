@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
@@ -20,8 +21,10 @@ class Client extends Application{
 	private String name;
 	//Hashmap of all other client tanks on the server
 	private volatile HashMap<String, Tank> tanks = new HashMap<>();
+	private String opponentColor;
 	//This Client's Tank
 	private volatile Tank myTank;
+	private String myColor;
 	// Keeps track of the connection with the server
 	private volatile boolean connectedToServer = false;
 	//Turns true to let everything know that the attempt to connect to the server failed
@@ -38,11 +41,13 @@ class Client extends Application{
 	 * @param anIp  The IP address of the Server
 	 * @param aPort  The Port that the server is using
 	 * @param name  The name of the Client*/
-	public Client(String anIp, int aPort, String name) {
+	public Client(String anIp, int aPort, String name, String myColor, String oppColor) {
 		//Connecting to the server
 		ip = anIp;
 		port = aPort;
 		this.name = name;
+		this.myColor = myColor;
+		this.opponentColor = oppColor;
 		connect();
 		
 		//Starting up GUI
@@ -152,7 +157,8 @@ class Client extends Application{
 						else if(!tanks.containsKey(currentP.getName())){ //Tank isn't in the hashmap yet
 							Platform.runLater(new Runnable(){
 								public void run(){
-									tanks.put(currentP.getName(), new Tank(currentP.getName(), currentP.getRotate(),currentP.getX(),currentP.getY()));
+									tanks.put(currentP.getName(), new Tank(currentP.getName(), currentP.getRotate(),currentP.getX(),
+																			currentP.getY(),currentP.getCannonRotate(),opponentColor));
 									pane.getChildren().add(tanks.get(currentP.getName()));
 								}
 							});
@@ -179,7 +185,7 @@ class Client extends Application{
 
 	/**Makes a new Tank for this client*/
 	private void makeNewTank(){
-		myTank = new Tank(name, this);
+		myTank = new Tank(name, this, myColor);
 		//Makes sure that your tank is the focus
 		Platform.runLater(new Runnable(){
 			@Override
