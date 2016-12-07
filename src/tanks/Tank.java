@@ -20,14 +20,25 @@ public class Tank extends ImageView {
 	private boolean a = false;
 	private boolean s = false;
 	private boolean d = false;
+	private boolean mouseMoved = false;
 	private int rotateSpeedMultiplier = 1;
 	private int movementSpeedMultiplier = 1;
-	
 	private Cannon cannon;
+	private Point mouse = new Point(0,0);
 	
 	public Tank(String name,double bodyAngle,double xPos,double yPos) {
 		setImage(new Image(getClass().getResource("Photoshop/TankBody.png").toExternalForm()));
 		cannon = new Cannon(0,xPos,yPos);
+		
+		//Determines the offset needed to center the head
+		Point cannonCenter = getCenter(cannon);
+		Point tankCenter = getCenter(this);
+		System.out.println(xPos + " " + yPos);
+		System.out.println(cannonCenter + " " + tankCenter);
+		cannon.setOffsetX(tankCenter.getX() - cannonCenter.getX());
+		cannon.setOffsetY(tankCenter.getY() - cannonCenter.getY());
+		cannon.setCenterX(xPos);
+		cannon.setCenterY(yPos);
 		
 		Platform.runLater(new Runnable() {
 			@Override
@@ -44,7 +55,15 @@ public class Tank extends ImageView {
 	
 	public Tank(String name, Client myself) {
 		setImage(new Image(getClass().getResource("Photoshop/TankBody.png").toExternalForm()));
-		cannon = new Cannon();
+		cannon = new Cannon(0,getX(),getY());
+		
+		//Determines the offset needed to center the head
+		Point cannonCenter = getCenter(cannon);
+		Point tankCenter = getCenter(this);
+		cannon.setOffsetX(tankCenter.getX() - cannonCenter.getX());
+		cannon.setOffsetY(tankCenter.getY() - cannonCenter.getY());
+		cannon.setCenterX(getX());
+		cannon.setCenterY(getY());
 		
 		Platform.runLater(new Runnable() {
 			@Override
@@ -107,15 +126,15 @@ public class Tank extends ImageView {
 							}
 							if(finalX != getX()) {
 								setX(finalX);
-								cannon.setX(finalX);
+								cannon.setCenterX(finalX);
 								hasChanged = true;
 							}
 							if(finalY != getY()) {
 								setY(finalY);
-								cannon.setY(finalY);
+								cannon.setCenterY(finalY);
 								hasChanged = true;
 							}
-						
+							
 							if(hasChanged) {
 								Bounds window = getParent().getParent().getBoundsInParent();
 								Bounds tank = getBoundsInParent();
@@ -130,8 +149,13 @@ public class Tank extends ImageView {
 								} else if(tank.getMinY() <= window.getMinY()) {
 									setY(getY() + 1);
 								}
-						
+								
+								Point cannonCenter = getCenter(cannon);
+								cannon.setRotate(getAngle(cannonCenter.getX(),cannonCenter.getY(),mouse.getX(),mouse.getY()));
+							}
+							if(hasChanged || mouseMoved) {
 								myself.writeTank();
+								mouseMoved = false;
 							}
 						}
 					});
@@ -185,17 +209,47 @@ public class Tank extends ImageView {
 				default:
 					break;
 				}
-				event.consume();
 			}
 		});
 		
-		setOnMouseClicked(new EventHandler<MouseEvent>() {
+		Platform.runLater(new Runnable() {
 			@Override
-			public void handle(MouseEvent event) {
-				event.consume();
+			public void run() {
+				getScene().setOnMouseMoved(new EventHandler<MouseEvent>() {
+					@Override
+					public void handle(MouseEvent event) {
+						Point cannonCenter = getCenter(cannon);
+						cannon.setRotate(getAngle(cannonCenter.getX(),cannonCenter.getY(),event.getX(),event.getY()));
+						mouseMoved = true;
+						mouse.setX(event.getX());
+						mouse.setY(event.getY());
+					}
+				});
+				
+				getScene().setOnMouseClicked(new EventHandler<MouseEvent>() {
+					@Override
+					public void handle(MouseEvent event) {
+					}
+				});
 			}
 		});
-		
+	}
+	
+	public double getAngle(double x1,double y1,double x2,double y2) {
+		double opposite = y2-y1;
+		double adjasant = x2-x1;
+		double angle = Math.toDegrees(Math.atan(opposite/adjasant));
+		if(x1 > x2) {
+			angle += 180;
+		}
+		return angle;
+	}
+	
+	private Point getCenter(ImageView image) {
+		Point center = new Point();
+		center.setX(image.getX() + (image.getBoundsInLocal().getWidth() / 2));
+		center.setY(image.getY() + (image.getBoundsInLocal().getHeight() / 2));
+		return center;
 	}
 	
 	public boolean colision(Node node) {
@@ -208,7 +262,7 @@ public class Tank extends ImageView {
 
 	public Package getPackage() {
 		Package data = new Package(name);
-		data.addTankData(getRotate(),getX(),getY());
+		data.addTankData(getRotate(),getX(),getY(),cannon.getRotate());
 		return data;
 	}
 
@@ -217,14 +271,23 @@ public class Tank extends ImageView {
 		setX(p.getX());
 		setY(p.getY());
 		setRotate(p.getRotate());
+		cannon.setRotate(p.getCannonRotate());
+		cannon.setCenterX(p.getX());
+		cannon.setCenterY(p.getY());
+	}
+	
+	public Cannon getCannon() {
+		return cannon;
 	}
 	
 	/**@return true if the tank has the same name, x and y pos, and rotation angle*/
 	public boolean equals(Tank t){
-		return t.getName().equals(this.getName()) &&t.getX() == this.getX() && t.getY() == this.getY() && t.getRotate() == this.getRotate();
+		return t.getName().equals(this.getName()) && t.getX() == this.getX() && t.getY() == this.getY() && t.getRotate() == this.getRotate();
 	}
 	
 	private class Cannon extends ImageView {
+		private double offsetX = 0;
+		private double offsetY = 0;
 		
 		public Cannon(double angle,double x,double y) {
 			setRotate(angle);
@@ -234,10 +297,64 @@ public class Tank extends ImageView {
 			setImage(new Image(getClass().getResource("Photoshop/TopTank.png").toExternalForm()));
 		}
 		
+		public void setOffsetY(double offset) {
+			offsetY = offset;
+		}
+
+		public void setOffsetX(double offset) {
+			offsetX = offset;
+		}
+		
+		public void setCenterX(double x) {
+			setX(x + offsetX);
+		}
+		
+		public void setCenterY(double y) {
+			setY(y + offsetY);
+		}
+
+		@SuppressWarnings("unused")
 		public Cannon() {
 			setImage(new Image(getClass().getResource("Photoshop/TopTank.png").toExternalForm()));
 		}
 		
 	}
 	
+	private class Point {
+		
+		double x;
+		double y;
+		
+		public Point() {
+			x = 0;
+			y = 0;
+		}
+		
+		@SuppressWarnings("unused")
+		public Point(double x,double y) {
+			this.x = x;
+			this.y = y;
+		}
+		
+		public double getX() {
+			return x;
+		}
+		
+		public double getY() {
+			return y;
+		}
+		
+		public void setX(double x) {
+			this.x = x;
+		}
+		
+		public void setY(double y) {
+			this.y = y;
+		}
+		
+		@Override
+		public String toString() {
+			return "X:" + x + " Y:" + y;
+		}
+	}
 }

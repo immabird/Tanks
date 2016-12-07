@@ -136,9 +136,6 @@ class Client extends Application{
 				
 				//Connected to the server, start reading through packets and updating
 				while(connectedToServer){
-					//Sleep the thread for a millisecond every cycle so it doesn't use 40% CPU Usage
-					try{Thread.sleep(1);}catch(Exception ex){}
-					
 					if(!packages.isEmpty()){//there's a package to get
 						Package currentP = packages.removeFirst();
 						if(currentP.isLeaving()){ //someone is leaving
@@ -152,24 +149,27 @@ class Client extends Application{
 							});
 						}
 						else if(!tanks.containsKey(currentP.getName())){ //Tank isn't in the hashmap yet
-							tanks.put(currentP.getName(), new Tank(currentP.getName(), currentP.getRotate(),currentP.getX(),currentP.getY()));
-							writeTank(); //Send out position once a new player joins
-							//Add the new tank to the pane
 							Platform.runLater(new Runnable(){
 								public void run(){
+									tanks.put(currentP.getName(), new Tank(currentP.getName(), currentP.getRotate(),currentP.getX(),currentP.getY()));
 									pane.getChildren().add(tanks.get(currentP.getName()));
 								}
 							});
+							writeTank(); //Send out position once a new player joins
+							//Add the new tank to the pane
+							
 						}
 						else{//just update the tank in the map
 							Platform.runLater(new Runnable(){
 								@Override
 								public void run() {
-									// TODO Auto-generated method stub
 									tanks.get(currentP.getName()).updateFromPackage(currentP);
 								}
 							});
 						}
+					} else {
+						//Sleep the thread for 10 milliseconds every cycle so it doesn't use 40% CPU Usage
+						try{Thread.sleep(10);}catch(Exception ex){}
 					}
 				}
 			}
