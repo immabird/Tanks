@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.StreamCorruptedException;
-import java.net.Inet4Address;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
+import java.util.Enumeration;
 import java.util.LinkedList;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -67,7 +68,14 @@ public class Server extends Application{
 		Label title = new Label("Server");
 		title.setFont(GUI_SETTINGS.TITLE_FONT);
 		
-		Label IPport = new Label("IP Address: " + Inet4Address.getLocalHost().getHostAddress() + "\nPort: " + port);
+		Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+		String nets = "";
+		while(interfaces.hasMoreElements()){
+			NetworkInterface net = interfaces.nextElement();
+			if(net.getInetAddresses().hasMoreElements() && net.getInetAddresses().nextElement().getHostAddress().length() < 20 && !net.getName().equals("lo"))
+				nets += net.getName() + " " + net.getInetAddresses().nextElement().getHostAddress() + "\n";
+		}
+		Label IPport = new Label("IP Addresses:\n" + nets + "Port: " + port);
 		IPport.setFont(GUI_SETTINGS.FONT);
 		IPport.setTextAlignment(TextAlignment.CENTER);
 		
