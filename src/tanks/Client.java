@@ -157,9 +157,11 @@ class Client extends Application{
 						else if(!tanks.containsKey(currentP.getName())){ //Tank isn't in the hashmap yet
 							Platform.runLater(new Runnable(){
 								public void run(){
-									tanks.put(currentP.getName(), new Tank(currentP.getName(), currentP.getRotate(),currentP.getX(),
+									if(!tanks.containsKey(currentP.getName())){
+										tanks.put(currentP.getName(), new Tank(currentP.getName(), currentP.getRotate(),currentP.getX(),
 																			currentP.getY(),currentP.getCannonRotate(),opponentColor));
-									pane.getChildren().add(tanks.get(currentP.getName()));
+										pane.getChildren().add(tanks.get(currentP.getName()));
+									}
 								}
 							});
 							writeTank(); //Send out position once a new player joins
