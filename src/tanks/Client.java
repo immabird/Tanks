@@ -69,7 +69,7 @@ class Client extends Application{
 	}
 	
 	/**Sends a Package to the Server*/
-	public void write(Package data) {
+	public synchronized void write(Package data) {
 		int i = 0;
 		while(!connectedToServer && i < 500) {
 			try {
