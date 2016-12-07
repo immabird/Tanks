@@ -6,6 +6,7 @@ import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -23,18 +24,20 @@ public class Tank extends ImageView {
 	private boolean mouseMoved = false;
 	private int rotateSpeedMultiplier = 1;
 	private int movementSpeedMultiplier = 1;
-	private Cannon cannon;
+	private volatile Cannon cannon;
 	private Point mouse = new Point(0,0);
 	
 	public Tank(String name,double bodyAngle,double xPos,double yPos) {
 		setImage(new Image(getClass().getResource("Photoshop/TankBody.png").toExternalForm()));
-		cannon = new Cannon(0,xPos,yPos);
+		this.name = name;
+		setRotate(bodyAngle);
+		setX(xPos);
+		setY(yPos);
 		
 		//Determines the offset needed to center the head
+		cannon = new Cannon(0,xPos,yPos);
 		Point cannonCenter = getCenter(cannon);
 		Point tankCenter = getCenter(this);
-		System.out.println(xPos + " " + yPos);
-		System.out.println(cannonCenter + " " + tankCenter);
 		cannon.setOffsetX(tankCenter.getX() - cannonCenter.getX());
 		cannon.setOffsetY(tankCenter.getY() - cannonCenter.getY());
 		cannon.setCenterX(xPos);
@@ -46,11 +49,6 @@ public class Tank extends ImageView {
 				((Pane) getParent()).getChildren().add(cannon);
 			}
 		});
-		
-		this.name = name;
-		setRotate(bodyAngle);
-		setX(xPos);
-		setY(yPos);
 	}
 	
 	public Tank(String name, Client myself) {
@@ -136,17 +134,17 @@ public class Tank extends ImageView {
 							}
 							
 							if(hasChanged) {
-								Bounds window = getParent().getParent().getBoundsInParent();
+								Scene window = getScene();
 								Bounds tank = getBoundsInParent();
-							
-								if(tank.getMaxX() >= window.getMaxX()) {
+								
+								if(tank.getMaxX() > window.getWidth()) {
 									setX(getX() - 1);
-								} else if(tank.getMinX() <= window.getMinX()) {
+								} else if(tank.getMinX() < 0) {
 									setX(getX() + 1);
 								}
-								if(tank.getMaxY() >= window.getMaxY()) {
+								if(tank.getMaxY() > window.getHeight()) {
 									setY(getY() - 1);
-								} else if(tank.getMinY() <= window.getMinY()) {
+								} else if(tank.getMinY() < 0) {
 									setY(getY() + 1);
 								}
 								
@@ -290,11 +288,11 @@ public class Tank extends ImageView {
 		private double offsetY = 0;
 		
 		public Cannon(double angle,double x,double y) {
+			setImage(new Image(getClass().getResource("Photoshop/TopTank.png").toExternalForm()));
+			System.out.println("Cannon: x:" + x + " y:" + y);
 			setRotate(angle);
 			setX(x);
 			setY(y);
-			
-			setImage(new Image(getClass().getResource("Photoshop/TopTank.png").toExternalForm()));
 		}
 		
 		public void setOffsetY(double offset) {
@@ -307,10 +305,12 @@ public class Tank extends ImageView {
 		
 		public void setCenterX(double x) {
 			setX(x + offsetX);
+			//System.out.println("X:" + x);
 		}
 		
 		public void setCenterY(double y) {
 			setY(y + offsetY);
+			//System.out.println("Y:" + y);
 		}
 
 		@SuppressWarnings("unused")
