@@ -87,7 +87,7 @@ public class GUI extends Application {
 	
 	private void createMainMenuScene() {
 		// Makes the title
-		ImageView title = new ImageView(new Image(getClass().getResource("Photoshop/Title.png").toExternalForm()));
+		ImageView title = new ImageView("imgs/Title.png");
 		
 		// Makes all the buttons and adds them to a VBox
 		VBox vBox = new VBox(GUI_SETTINGS.VERT_SPACING_BTN_ELEMENTS);
@@ -105,7 +105,7 @@ public class GUI extends Application {
 	
 	private void createSettingsScene() {
 		// Makes the title
-		ImageView title = new ImageView(new Image(getClass().getResource("Photoshop/SettingsTitle.png").toExternalForm()));
+		ImageView title = new ImageView("imgs/SettingsTitle.png");
 		
 		TextField nameField = new TextField(name);
 		nameField.setFont(GUI_SETTINGS.FONT);
@@ -145,7 +145,7 @@ public class GUI extends Application {
 		ArrayList<String> colors = new ArrayList<>(Arrays.asList("Red", "Blue"));
 		DropShadow shadow = new DropShadow(20, Color.BLACK);
 		for(String c : colors){
-			ImageView temp = new ImageView(new Image(getClass().getResource("Photoshop/" + c + "Tank.png").toExternalForm()));
+			ImageView temp = new ImageView("imgs/" + c + "Tank.png");
 			temp.setOnMousePressed(e -> {
 				for(ImageView i : yourImages)
 					i.setEffect(null);
@@ -164,7 +164,7 @@ public class GUI extends Application {
 		oppSelectTank.setFont(GUI_SETTINGS.FONT);
 		ArrayList<ImageView> oppImages = new ArrayList<>();
 		for(String c : colors){
-			ImageView temp = new ImageView(new Image(getClass().getResource("Photoshop/" + c + "Tank.png").toExternalForm()));
+			ImageView temp = new ImageView("imgs/" + c + "Tank.png");
 			temp.setOnMousePressed(e -> {
 				for(ImageView i : oppImages){
 					i.setEffect(null);

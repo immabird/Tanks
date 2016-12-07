@@ -1,3 +1,5 @@
 andrew
 localhost
 7777
+Blue
+Red

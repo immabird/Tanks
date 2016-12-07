@@ -32,11 +32,11 @@ public final class GUI_SETTINGS {
 	final static public int SERVER_HEIGHT = 100;
 	final static public int SERVER_WIDTH = 200;
 	
-	final public Image getBodyImage(String color){
-		return new Image(getClass().getResource("Photoshop/Tank Body "+color+".png").toExternalForm());
+	final public static Image getBodyImage(String color){
+		return new Image("imgs/Tank Body "+color+".png");
 	}
 	
-	final public Image getTopImage(String color){
-		return new Image(getClass().getResource("Photoshop/Top Tank "+color+".png").toExternalForm());
+	final public static Image getTopImage(String color){
+		return new Image("imgs/Top Tank "+color+".png");
 	}
 }
