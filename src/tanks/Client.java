@@ -145,7 +145,7 @@ class Client extends Application{
 								@Override
 								public void run() {
 									pane.getChildren().remove(removed);
-									/*********pane.getChildren().remove(removed.getCannon);*/
+									pane.getChildren().remove(removed.getCannon());
 								}
 							});
 						}
