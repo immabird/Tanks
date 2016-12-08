@@ -1,4 +1,4 @@
-Rainbow Machine
+Rainbow Machine2
 localhost
 7777
 Orange
