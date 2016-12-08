@@ -17,6 +17,7 @@ public class Package implements Serializable {
 	private double cannonRotate = 0;
 	private boolean isLeaving = false;
 	private boolean newName = false;
+	private boolean bulletShot = false;
 	
 	/**Sends the name because Brad used a bad constructor and I had to fix his mess*/
 	public Package(String name){
@@ -49,6 +50,10 @@ public class Package implements Serializable {
 		this.newName = newName;
 	}
 	
+	public void setBulletShot(boolean bulletShot) {
+		this.bulletShot = bulletShot;
+	}
+	
 	public boolean getNewName(){
 		return newName;
 	}
@@ -63,6 +68,10 @@ public class Package implements Serializable {
 	
 	public double getY() {
 		return y;
+	}
+	
+	public boolean bulletShot() {
+		return bulletShot;
 	}
 	
 	public boolean isLeaving(){

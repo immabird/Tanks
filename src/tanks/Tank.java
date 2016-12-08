@@ -31,7 +31,9 @@ public class Tank extends ImageView {
 	private volatile Label namePlate;
 	private double namePlateOffsetX = 0;
 	private double namePlateOffsetY = 0;
+	private String color = "";
 	private Point mouse = new Point(0,0);
+	private boolean mouseClicked = false;
 	
 	public Tank(String name,double bodyAngle,double xPos,double yPos, double cannonAngle, String color) {
 		createTank(name,bodyAngle,cannonAngle,xPos,yPos,color);
@@ -113,7 +115,7 @@ public class Tank extends ImageView {
 								}
 							}
 							if(colision) {
-								System.out.println("hi");
+								//System.out.println("hi");
 							}
 							
 							if(hasChanged) {
@@ -215,6 +217,15 @@ public class Tank extends ImageView {
 				getScene().setOnMouseClicked(new EventHandler<MouseEvent>() {
 					@Override
 					public void handle(MouseEvent event) {
+						mouseClicked = true;
+						Platform.runLater(new Runnable() {
+							@Override
+							public void run() {
+								Point cannonCenter = getCenter(cannon);
+								((Pane) getParent()).getChildren().add(new Bullet(cannon.getRotate(),cannonCenter.getX(),cannonCenter.getY()));
+								myself.writeTank();
+							}
+						});
 					}
 				});
 			}
@@ -227,6 +238,7 @@ public class Tank extends ImageView {
 		this.setRotate(bodyAngle);
 		this.setX(x);
 		this.setY(y);
+		this.color = color;
 		
 		//Set up cannon
 		cannon = new Cannon(cannonAngle,x,y,color);
@@ -282,6 +294,8 @@ public class Tank extends ImageView {
 	public Package getPackage() {
 		Package data = new Package(name);
 		data.addTankData(getRotate(),getX(),getY(),cannon.getRotate());
+		data.setBulletShot(mouseClicked);
+		mouseClicked = false;
 		return data;
 	}
 
@@ -295,6 +309,16 @@ public class Tank extends ImageView {
 		cannon.setCenterY(p.getY());
 		namePlate.setLayoutX(p.getX() + namePlateOffsetX);
 		namePlate.setLayoutY(p.getY() + namePlateOffsetY);
+		
+		if(p.bulletShot()) {
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					Point cannonCenter = getCenter(cannon);
+					((Pane) getParent()).getChildren().add(new Bullet(cannon.getRotate(),cannonCenter.getX(),cannonCenter.getY()));
+				}
+			});
+		}
 	}
 	
 	public Node[] getComponents() {
@@ -308,6 +332,58 @@ public class Tank extends ImageView {
 	/**@return true if the tank has the same name, x and y pos, and rotation angle*/
 	public boolean equals(Tank t){
 		return t.getName().equals(this.getName()) && t.getX() == this.getX() && t.getY() == this.getY() && t.getRotate() == this.getRotate();
+	}
+	
+	private class Bullet extends ImageView {
+		
+		private volatile boolean stillGoing = true;
+		private volatile Bullet This;
+		
+		Bullet(double angle, double x, double y) {
+			setImage(new Image("imgs/Pistol Bullet " + color + ".png"));
+			
+			//Center Bullet
+			Point bulletCenter = getCenter(this);
+			setX(x - bulletCenter.getX());
+			setY(y - bulletCenter.getY());
+			setRotate(angle);
+			
+			//Move bullet ahead of the tank
+			setX(getX() + (Math.cos(Math.toRadians(getRotate()))) * ((cannon.getBoundsInLocal().getWidth()/2) + 25));
+			setY(getY() + (Math.sin(Math.toRadians(getRotate()))) * ((cannon.getBoundsInLocal().getWidth()/2) + 25));
+			
+			This = this;
+			
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					while(stillGoing) {
+						final double newX = getX() + (Math.cos(Math.toRadians(getRotate()))) * 2;
+						final double newY = getY() + (Math.sin(Math.toRadians(getRotate()))) * 2;
+						Platform.runLater(new Runnable() {
+							@Override
+							public void run() {
+								setX(newX);
+								setY(newY);
+								Scene window = getScene();
+								Bounds bullet = getBoundsInParent();
+								try {
+									if(bullet.getMaxX() > window.getWidth() || bullet.getMinX() < 0 || bullet.getMaxY() > window.getHeight() || bullet.getMinY() < 0) {
+										((Pane) getParent()).getChildren().remove(This);
+										stillGoing = false;
+									}
+								} catch(Exception ex) {
+									stillGoing = false;
+								}
+							}
+						});
+						try {
+							Thread.sleep(10);
+						} catch(Exception ex) {}
+					}
+				}
+			}).start();
+		}
 	}
 	
 	private class Cannon extends ImageView {
