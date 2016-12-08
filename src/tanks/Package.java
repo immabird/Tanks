@@ -93,6 +93,14 @@ public class Package implements Serializable {
 		return isLeaving;
 	}
 
+	public boolean isDead(){
+		return isDead;
+	}
+	
+	public String getColor(){
+		return color;
+	}
+	
 	public double getCannonRotate() {
 		return cannonRotate;
 	}
