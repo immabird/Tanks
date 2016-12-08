@@ -43,6 +43,8 @@ public final class GUI_SETTINGS {
 	final static public int POPUP_BTN_WIDTH = 80;
 	final static public int POPUP_BTN_HEIGHT = 20;
 	
+	final static public int PLAYER_MAX_LIFE = 3;
+	
 	//Tanks name plate
 	final static public Font NAME_FONT = new Font(24);
 	
