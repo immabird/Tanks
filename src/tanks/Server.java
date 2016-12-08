@@ -110,6 +110,13 @@ public class Server extends Application{
 		//TODO Start button
 		startBtn.setPrefSize(GUI_SETTINGS.BUTTON_WIDTH - 20, GUI_SETTINGS.BUTTON_HEIGHT);
 		startBtn.setFont(GUI_SETTINGS.FONT);
+		startBtn.setOnAction(e -> {
+			Package p = new Package("");
+			p.setStart();
+			addNextNode(new ClientPackageNode(null, p));
+			
+			//TODO: Close welcome socket.
+		});
 		Button restartBtn = new Button("Restart");
 		restartBtn.setPrefSize(GUI_SETTINGS.BUTTON_WIDTH - 20, GUI_SETTINGS.BUTTON_HEIGHT);
 		restartBtn.setFont(GUI_SETTINGS.FONT);

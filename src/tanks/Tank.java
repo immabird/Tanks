@@ -17,7 +17,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
-public class Tank extends ImageView {
+public class Tank extends ImageView implements Comparable<Tank> {
 	
 	private String name = "Player";
 	private boolean w = false;
@@ -32,12 +32,20 @@ public class Tank extends ImageView {
 	private double namePlateOffsetX = 0;
 	private double namePlateOffsetY = 0;
 	private String color = "";
+	
+	// fast move cannon
 	private Point mouse = new Point(0,0);
+	
 	private boolean mouseClicked = false;
 	private int health = GUI_SETTINGS.PLAYER_MAX_LIFE;
 	private boolean isDead = false;
 	private Client myself;
 	private boolean canShoot = true;
+	
+	// slow move cannon
+	//private boolean cannonRotateLeft = false;
+	//private boolean cannonRotateRight = false;
+	//private double targetCannonRotate = 0;
 	
 	public Tank(String name,double bodyAngle,double xPos,double yPos, double cannonAngle, String color, Client myself) {
 		createTank(name,bodyAngle,cannonAngle,xPos,yPos,color,myself);
@@ -52,7 +60,12 @@ public class Tank extends ImageView {
 			public void run() {
 				if(!isFocused() && isDead) {
 					w = a = s = d = false;
+					
+					//slow move cannon
+					//cannonRotateLeft = cannonRotateRight = false;
 				} else {
+					// slow move cannon
+					//double newCannonRotate = cannon.getRotate();
 					
 					double newRotate = getRotate();
 					double newX = getX();
@@ -84,6 +97,25 @@ public class Tank extends ImageView {
 							newRotate = (Math.floorMod((int) (getRotate() + 1),360)) * rotateSpeedMultiplier;
 						}
 					}
+					
+					// slow move cannon
+					/*
+					if(cannonRotateLeft) {
+						newCannonRotate = (Math.floorMod((int) (cannon.getRotate() - 1),360));
+						if(newCannonRotate > targetCannonRotate - 2 && newCannonRotate < targetCannonRotate + 2) {
+							newCannonRotate = targetCannonRotate;
+							cannonRotateLeft = false;
+						}
+					}
+					if(cannonRotateRight) {
+						newCannonRotate = (Math.floorMod((int) (cannon.getRotate() + 1),360));
+						if(newCannonRotate > targetCannonRotate - 2 && newCannonRotate < targetCannonRotate + 2) {
+							newCannonRotate = targetCannonRotate;
+							cannonRotateRight = false;
+						}
+					}
+					final double finalCannonRotate = newCannonRotate;
+					*/
 					
 					final double finalRotate = newRotate;
 					final double finalX = newX;
@@ -123,6 +155,12 @@ public class Tank extends ImageView {
 								}
 							}
 							
+							// slow move cannon
+							//if(finalCannonRotate != cannon.getRotate()) {
+							//	cannon.setRotate(finalCannonRotate);
+							//	hasChanged = true;
+							//}
+							
 							if(hasChanged) {
 								Scene window = getScene();
 								Bounds tank = getBoundsInParent();
@@ -138,13 +176,14 @@ public class Tank extends ImageView {
 									setY(getY() + 1 * movementSpeedMultiplier);
 								}
 								
-								namePlate.setLayoutX(finalX + namePlateOffsetX);
-								namePlate.setLayoutY(finalY + namePlateOffsetY);
 								
-								cannon.setCenterX(finalX);
-								cannon.setCenterY(finalY);
+								snapComponents();
+								
+								
+								//fast move cannon
 								Point cannonCenter = getCenter(cannon);
 								cannon.setRotate(getAngle(cannonCenter.getX(),cannonCenter.getY(),mouse.getX(),mouse.getY()));
+								
 							}
 							if(hasChanged || mouseMoved) {
 								myself.writeTank();
@@ -216,6 +255,51 @@ public class Tank extends ImageView {
 					public void handle(MouseEvent event) {
 						if(!isDead) {
 							Point cannonCenter = getCenter(cannon);
+							
+							// slow move cannon
+							/*
+							targetCannonRotate = getAngle(cannonCenter.getX(),cannonCenter.getY(),event.getX(),event.getY());
+							if(Math.abs(targetCannonRotate - cannon.getRotate()) > (targetCannonRotate + (359 - cannon.getRotate()))) {
+								System.out.println("left");
+								cannonRotateLeft = true;
+								cannonRotateRight = false;
+							} else {
+								System.out.println("right");
+								cannonRotateRight = true;
+								cannonRotateLeft = false;
+							}
+							*/
+							
+							// fast move cannon
+							cannon.setRotate(getAngle(cannonCenter.getX(),cannonCenter.getY(),event.getX(),event.getY()));
+							mouseMoved = true;
+							mouse.setX(event.getX());
+							mouse.setY(event.getY());
+						}
+					}
+				});
+				
+				getScene().setOnMouseDragged(new EventHandler<MouseEvent>() {
+					@Override
+					public void handle(MouseEvent event) {
+						if(!isDead) {
+							Point cannonCenter = getCenter(cannon);
+							
+							// slow move cannon
+							/*
+							targetCannonRotate = getAngle(cannonCenter.getX(),cannonCenter.getY(),event.getX(),event.getY());
+							if(Math.abs(targetCannonRotate - cannon.getRotate()) > (targetCannonRotate + (359 - cannon.getRotate()))) {
+								System.out.println("left");
+								cannonRotateLeft = true;
+								cannonRotateRight = false;
+							} else {
+								System.out.println("right");
+								cannonRotateRight = true;
+								cannonRotateLeft = false;
+							}
+							*/
+							
+							// fast move cannon
 							cannon.setRotate(getAngle(cannonCenter.getX(),cannonCenter.getY(),event.getX(),event.getY()));
 							mouseMoved = true;
 							mouse.setX(event.getX());
@@ -434,9 +518,23 @@ public class Tank extends ImageView {
 		return parts;
 	}
 	
+	public void snapComponents() {
+		if(Platform.isFxApplicationThread()) {
+			namePlate.setLayoutX(getX() + namePlateOffsetX);
+			namePlate.setLayoutY(getY() + namePlateOffsetY);
+			cannon.setCenterX(getX());
+			cannon.setCenterY(getY());
+		}
+	}
+	
 	/**@return true if the tank has the same name, x and y pos, and rotation angle*/
 	public boolean equals(Tank t){
 		return t.getName().equals(this.getName()) && t.getX() == this.getX() && t.getY() == this.getY() && t.getRotate() == this.getRotate();
+	}
+	
+	@Override
+	public int compareTo(Tank tank) {
+		return this.name.compareTo(tank.getName());
 	}
 	
 	private class Bullet extends ImageView {

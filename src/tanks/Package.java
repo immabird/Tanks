@@ -21,6 +21,7 @@ public class Package implements Serializable {
 	private boolean isDead = false;
 	private String color = "";
 	private boolean restart = false;
+	private boolean start = false;
 	
 	/**Sends the name because Brad used a bad constructor and I had to fix his mess*/
 	public Package(String name){
@@ -107,5 +108,13 @@ public class Package implements Serializable {
 
 	public void setIsDead() {
 		isDead = true;
+	}
+
+	public void setStart() {
+		start = true;
+	}
+	
+	public boolean getStart() {
+		return start;
 	}
 }

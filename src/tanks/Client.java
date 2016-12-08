@@ -4,12 +4,15 @@ import java.io.EOFException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -181,6 +184,48 @@ class Client extends Application{
 									hearts = new Hearts();
 									pane.getChildren().add(hearts);
 									stage.requestFocus();
+								}
+							});
+							continue;
+						}
+						if(currentP.getStart()) {
+							Platform.runLater(new Runnable(){
+								@Override
+								public void run() {
+									ArrayList<Tank> tanks = new ArrayList<Tank>();
+									for(Node node : pane.getChildren()) {
+										if(node instanceof Tank) {
+											tanks.add((Tank) node);
+										}
+									}
+									Collections.sort(tanks);
+									//int numberOfTanks = tanks.size();
+									int count = 0;
+									int i = 5;
+									int j = 5;
+									for(Tank tank : tanks) {
+										if(count % 4 == 0) {
+											tank.setRotate(0);
+											tank.setX(i);
+											tank.setY(j);
+										} else if(count % 4 == 1) {
+											tank.setRotate(180);
+											tank.setX(pane.getWidth() - GUI_SETTINGS.TANK_WIDTH - i);
+											tank.setY(pane.getHeight() - GUI_SETTINGS.TANK_HEIGHT - j);
+										} else if(count % 4 == 2) {
+											tank.setRotate(0);
+											tank.setX(i);
+											tank.setY(pane.getHeight() - GUI_SETTINGS.TANK_HEIGHT - j);
+										} else if(count % 4 == 3) {
+											tank.setRotate(180);
+											tank.setX(pane.getWidth() - GUI_SETTINGS.TANK_WIDTH - i);
+											tank.setY(j);
+											j += GUI_SETTINGS.TANK_HEIGHT + 5;
+											i += GUI_SETTINGS.TANK_WIDTH + 5;
+										}
+										count++;
+										tank.snapComponents();
+									}
 								}
 							});
 							continue;
