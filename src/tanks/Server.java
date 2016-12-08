@@ -83,8 +83,7 @@ public class Server extends Application{
 			}	
 		}
 		Label IP = new Label("IP Addresses:");
-		IP.setFont(GUI_SETTINGS.FONT);
-		IP.setStyle("-fx-font-weight: bold;");
+		IP.setFont(GUI_SETTINGS.BOLD_FONT);
 		IP.setTextAlignment(TextAlignment.CENTER);
 		
 		Label ipAddresses = new Label(nets);
@@ -92,8 +91,7 @@ public class Server extends Application{
 		ipAddresses.setTextAlignment(TextAlignment.CENTER);
 		
 		Label portLbl = new Label("Port: ");
-		portLbl.setFont(GUI_SETTINGS.FONT);
-		portLbl.setStyle("-fx-font-weight: bold;");
+		portLbl.setFont(GUI_SETTINGS.BOLD_FONT);
 		portLbl.setTextAlignment(TextAlignment.CENTER);
 		Label portNumLbl = new Label(""+port);
 		portNumLbl.setFont(GUI_SETTINGS.FONT);
@@ -107,8 +105,7 @@ public class Server extends Application{
 		ipAndPort.getChildren().addAll(IP, ipAddresses, portBox);
 		
 		numOfPlayersLbl = new Label("Players: ");
-		numOfPlayersLbl.setFont(GUI_SETTINGS.FONT);
-		numOfPlayersLbl.setStyle("-fx-font-weight: bold");
+		numOfPlayersLbl.setFont(GUI_SETTINGS.BOLD_FONT);
 		numberOfPlayers = new Label("0");
 		numberOfPlayers.setFont(GUI_SETTINGS.FONT);
 		HBox numPlayersBox = new HBox();
@@ -315,8 +312,7 @@ public class Server extends Application{
 			
 			title = new Label("Connected Players: ");
 			title.setTextAlignment(TextAlignment.CENTER);
-			title.setFont(GUI_SETTINGS.FONT);
-			title.setStyle("-fx-font-weight: bold");
+			title.setFont(GUI_SETTINGS.BOLD_FONT);
 			title.setManaged(false);
 			title.setVisible(false);
 			

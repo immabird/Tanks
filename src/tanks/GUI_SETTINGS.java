@@ -1,11 +1,15 @@
 package tanks;
 
+import java.io.File;
+import java.io.FileInputStream;
+
 import javafx.scene.image.Image;
 import javafx.scene.text.Font;
 
 public final class GUI_SETTINGS {
 	final static public Font TITLE_FONT = new Font(46);
-	final static public Font FONT = new Font("Calibri", 18);
+	final static public Font FONT = getFont("fonts/RobotoCondensed-Regular.ttf", 18);
+	final static public Font BOLD_FONT = getFont("fonts/RobotoCondensed-Bold.ttf", 18);
 	
 	final static public int WINDOW_HEIGHT = 600;
 	final static public int WINDOW_WIDTH = 800;
@@ -48,5 +52,14 @@ public final class GUI_SETTINGS {
 	
 	final public static Image getTopImage(String color){
 		return new Image("imgs/Top Tank "+color+".png");
+	}
+	
+	final private static Font getFont(String name, double size){
+		try{
+			return Font.loadFont(new FileInputStream(new File(name)), size);
+		}
+		catch(Exception ex){
+			return null;
+		}
 	}
 }
