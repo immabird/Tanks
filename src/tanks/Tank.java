@@ -84,7 +84,7 @@ public class Tank extends ImageView {
 							newRotate = (Math.floorMod((int) (getRotate() + 1),360)) * rotateSpeedMultiplier;
 						}
 					}
-				
+					
 					final double finalRotate = newRotate;
 					final double finalX = newX;
 					final double finalY = newY;
@@ -416,9 +416,6 @@ public class Tank extends ImageView {
 		cannon.setCenterY(p.getY());
 		namePlate.setLayoutX(p.getX() + namePlateOffsetX);
 		namePlate.setLayoutY(p.getY() + namePlateOffsetY);
-		if(p.getRestart()) {
-			isDead = false;
-		}
 		if(p.bulletShot()) {
 			Platform.runLater(new Runnable() {
 				@Override
@@ -428,6 +425,10 @@ public class Tank extends ImageView {
 				}
 			});
 		}
+	}
+	
+	public void setIsDead(boolean isDead) {
+		this.isDead = isDead;
 	}
 	
 	public Node[] getComponents() {
