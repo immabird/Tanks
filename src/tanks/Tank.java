@@ -36,6 +36,7 @@ public class Tank extends ImageView {
 	private Point mouse = new Point(0,0);
 	private boolean mouseClicked = false;
 	private int health = GUI_SETTINGS.PLAYER_MAX_LIFE;
+	private boolean isDead = false;
 	
 	public Tank(String name,double bodyAngle,double xPos,double yPos, double cannonAngle, String color) {
 		createTank(name,bodyAngle,cannonAngle,xPos,yPos,color);
@@ -49,7 +50,7 @@ public class Tank extends ImageView {
 		t.schedule(new TimerTask() {
 			@Override
 			public void run() {
-				if(!isFocused()) {
+				if(!isFocused() && !isDead) {
 					w = a = s = d = false;
 				} else {
 					
@@ -95,6 +96,10 @@ public class Tank extends ImageView {
 							
 							if(health == 0) {
 								((Pane) getParent()).getChildren().removeAll(getComponents());
+								isDead = true;
+								myself.writeTank();
+								health = GUI_SETTINGS.PLAYER_MAX_LIFE;
+								return;
 							}
 							
 							if(finalRotate != getRotate()) {
@@ -171,15 +176,17 @@ public class Tank extends ImageView {
 					d = true;
 					break;
 				case"Space":
-					mouseClicked = true;
-					Platform.runLater(new Runnable() {
-						@Override
-						public void run() {
-							Point cannonCenter = getCenter(cannon);
-							((Pane) getParent()).getChildren().add(new Bullet(cannon.getRotate(),cannonCenter.getX(),cannonCenter.getY()));
-							myself.writeTank();
-						}
-					});
+					if(!isDead) {
+						mouseClicked = true;
+						Platform.runLater(new Runnable() {
+							@Override
+							public void run() {
+								Point cannonCenter = getCenter(cannon);
+								((Pane) getParent()).getChildren().add(new Bullet(cannon.getRotate(),cannonCenter.getX(),cannonCenter.getY()));
+								myself.writeTank();
+							}
+						});
+					}
 					break;
 				default:
 					break;
@@ -218,26 +225,30 @@ public class Tank extends ImageView {
 				getScene().setOnMouseMoved(new EventHandler<MouseEvent>() {
 					@Override
 					public void handle(MouseEvent event) {
-						Point cannonCenter = getCenter(cannon);
-						cannon.setRotate(getAngle(cannonCenter.getX(),cannonCenter.getY(),event.getX(),event.getY()));
-						mouseMoved = true;
-						mouse.setX(event.getX());
-						mouse.setY(event.getY());
+						if(!isDead) {
+							Point cannonCenter = getCenter(cannon);
+							cannon.setRotate(getAngle(cannonCenter.getX(),cannonCenter.getY(),event.getX(),event.getY()));
+							mouseMoved = true;
+							mouse.setX(event.getX());
+							mouse.setY(event.getY());
+						}
 					}
 				});
 				
 				getScene().setOnMousePressed(new EventHandler<MouseEvent>() {
 					@Override
 					public void handle(MouseEvent event) {
-						mouseClicked = true;
-						Platform.runLater(new Runnable() {
-							@Override
-							public void run() {
-								Point cannonCenter = getCenter(cannon);
-								((Pane) getParent()).getChildren().add(new Bullet(cannon.getRotate(),cannonCenter.getX(),cannonCenter.getY()));
-								myself.writeTank();
-							}
-						});
+						if(!isDead) {
+							mouseClicked = true;
+							Platform.runLater(new Runnable() {
+								@Override
+								public void run() {
+									Point cannonCenter = getCenter(cannon);
+									((Pane) getParent()).getChildren().add(new Bullet(cannon.getRotate(),cannonCenter.getX(),cannonCenter.getY()));
+									myself.writeTank();
+								}
+							});
+						}
 					}
 				});
 			}
@@ -358,7 +369,7 @@ public class Tank extends ImageView {
 
 	public Package getPackage() {
 		Package data = new Package(name);
-		if(health == 0) {
+		if(isDead) {
 			mouseClicked = false;
 			data.setIsDead();
 		}
@@ -379,7 +390,9 @@ public class Tank extends ImageView {
 		cannon.setCenterY(p.getY());
 		namePlate.setLayoutX(p.getX() + namePlateOffsetX);
 		namePlate.setLayoutY(p.getY() + namePlateOffsetY);
-		
+		if(p.getRestart()) {
+			isDead = false;
+		}
 		if(p.bulletShot()) {
 			Platform.runLater(new Runnable() {
 				@Override
@@ -410,6 +423,7 @@ public class Tank extends ImageView {
 		private volatile Bullet This;
 		
 		Bullet(double angle, double x, double y) {
+			System.out.println(name);
 			setImage(new Image("imgs/Pistol Bullet " + color + ".png"));
 			
 			//Center Bullet
@@ -449,7 +463,9 @@ public class Tank extends ImageView {
 									for(Node tank : children) {
 										if(tank != null && tank instanceof Tank && !((Tank) tank).getName().equals(name)) {
 											if(colision(This, (ImageView) tank)) {
+												System.out.println(((Tank) tank).getName() + " " + name);
 												if(((Tank) tank).getName().equals(name)) {
+													System.out.println("hi");
 													health--;
 												}
 												stillGoing = false;

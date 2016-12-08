@@ -20,6 +20,7 @@ public class Package implements Serializable {
 	private boolean bulletShot = false;
 	private boolean isDead = false;
 	private String color = "";
+	private boolean restart = false;
 	
 	/**Sends the name because Brad used a bad constructor and I had to fix his mess*/
 	public Package(String name){
@@ -36,6 +37,13 @@ public class Package implements Serializable {
 		this.newName = newName;
 	}
 	
+	public boolean getRestart() {
+		return restart;
+	}
+	
+	public void setRestart() {
+		restart = true;
+	}
 	
 	public void addTankData(double rotate, double x, double y, double cannonRotate, String color) {
 		this.color = color;
