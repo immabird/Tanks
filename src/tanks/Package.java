@@ -30,6 +30,10 @@ public class Package implements Serializable {
 		this.isLeaving = isLeaving;
 	}
 	
+	public Package(boolean newName){
+		this.newName = newName;
+	}
+	
 	
 	public void addTankData(double rotate, double x, double y, double cannonRotate) {
 		this.rotate = rotate;
