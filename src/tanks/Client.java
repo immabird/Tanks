@@ -52,7 +52,12 @@ class Client extends Application{
 		ip = anIp;
 		port = aPort;
 		this.name = name;
-		this.myColor = myColor;
+		if(name.toLowerCase().contains("rainbow") || name.toLowerCase().contains("unicorn"))
+			this.myColor = "Rainbow";
+		else if(name.toLowerCase().contains("merica") || (name.toLowerCase().contains("chuck") && name.toLowerCase().contains("norris")) )
+			this.myColor = "America";
+		else
+			this.myColor = myColor;
 		this.opponentColor = oppColor;
 		connect();
 		
@@ -169,6 +174,7 @@ class Client extends Application{
 							});
 						}
 						else if(!tanks.containsKey(currentP.getName())){ //Tank isn't in the hashmap yet
+							//Add the new tank to the pane
 							Platform.runLater(new Runnable(){
 								public void run(){
 									if(!tanks.containsKey(currentP.getName())){
@@ -179,8 +185,6 @@ class Client extends Application{
 								}
 							});
 							writeTank(); //Send out position once a new player joins
-							//Add the new tank to the pane
-							
 						}
 						else{//just update the tank in the map
 							Platform.runLater(new Runnable(){
