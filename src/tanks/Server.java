@@ -14,8 +14,10 @@ import java.util.Enumeration;
 import java.util.LinkedList;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -104,6 +106,22 @@ public class Server extends Application{
 		ipAndPort.setAlignment(Pos.CENTER);
 		ipAndPort.getChildren().addAll(IP, ipAddresses, portBox);
 		
+		Button startBtn = new Button("Start");
+		//TODO Start button
+		startBtn.setPrefSize(GUI_SETTINGS.BUTTON_WIDTH - 20, GUI_SETTINGS.BUTTON_HEIGHT);
+		startBtn.setFont(GUI_SETTINGS.FONT);
+		Button restartBtn = new Button("Restart");
+		restartBtn.setPrefSize(GUI_SETTINGS.BUTTON_WIDTH - 20, GUI_SETTINGS.BUTTON_HEIGHT);
+		restartBtn.setFont(GUI_SETTINGS.FONT);
+		restartBtn.setOnAction(e -> {
+			Package p = new Package("");
+			p.setRestart();
+			addNextNode(new ClientPackageNode(null, p));
+		});
+		HBox buttons = new HBox(10);
+		buttons.setAlignment(Pos.CENTER);
+		buttons.getChildren().addAll(startBtn, restartBtn);
+		
 		numOfPlayersLbl = new Label("Players: ");
 		numOfPlayersLbl.setFont(GUI_SETTINGS.BOLD_FONT);
 		numberOfPlayers = new Label("0");
@@ -115,10 +133,11 @@ public class Server extends Application{
 		playersList = new PlayersList();
 		
 		VBox v1 = new VBox();
-		v1.getChildren().addAll(title,ipAndPort,numPlayersBox,playersList);
+		v1.getChildren().addAll(title,ipAndPort,buttons,numPlayersBox,playersList);
 		v1.setAlignment(Pos.TOP_CENTER);
 		
 		StackPane pane = new StackPane(v1);
+		pane.setPadding(new Insets(GUI_SETTINGS.POPUP_PADDING));
 		pane.setMinSize(GUI_SETTINGS.SERVER_WIDTH,GUI_SETTINGS.SERVER_HEIGHT);
 		StackPane.setAlignment(v1,Pos.TOP_CENTER);
 		

@@ -61,8 +61,8 @@ public class Package implements Serializable {
 		this.name = name;
 	}
 	
-	public void setNewName(boolean newName){
-		this.newName = newName;
+	public void setNewName(){
+		this.newName = true;
 	}
 	
 	public void setBulletShot(boolean bulletShot) {

@@ -167,13 +167,35 @@ class Client extends Application{
 							new NewNamePopUp();
 							stop();
 						}
+						if(currentP.getRestart()){
+							Platform.runLater(new Runnable(){
+								@Override
+								public void run() {
+									tanks.clear();
+									pane.getChildren().clear();
+									myTank = new Tank(name, This, myColor);
+									pane.getChildren().add(myTank);
+									myTank.requestFocus();
+									hearts = new Hearts();
+									pane.getChildren().add(hearts);
+									stage.requestFocus();
+								}
+							});
+							continue;
+						}
 						if(currentP.isLeaving() || currentP.isDead()){ //someone is leaving or they died
+							System.out.println("leaving: " + currentP.isLeaving() + " isDead: " + currentP.isDead());
 							Tank removed = tanks.remove(currentP.getName());
 							//Take the take off of the pane
 							Platform.runLater(new Runnable(){
 								@Override
 								public void run() {
-									pane.getChildren().removeAll(removed.getComponents());
+									if(removed.getComponents()[0] != null)
+										pane.getChildren().remove(removed.getComponents()[0]);
+									if(removed.getComponents()[1] != null)
+										pane.getChildren().remove(removed.getComponents()[1]);
+									if(removed.getComponents()[2] != null)
+										pane.getChildren().remove(removed.getComponents()[2]);
 								}
 							});
 						}
@@ -233,15 +255,17 @@ class Client extends Application{
 	
 	/**Makes a new Tank for this client*/
 	private void makeNewTank(){
-		myTank = new Tank(name, this, myColor);
+		Client This = this;
 		//Makes sure that your tank is the focus
 		Platform.runLater(new Runnable(){
 			@Override
 			public void run() {
+				myTank = new Tank(name, This, myColor);
+				pane.getChildren().add(myTank);
 				myTank.requestFocus();
+				writeTank();
 			}
 		});
-		writeTank();
 	}
 	
 	public Tank getTank() {
@@ -260,7 +284,6 @@ class Client extends Application{
 		pane.setPrefSize(GUI_SETTINGS.GAME_WINDOW_SIZE, GUI_SETTINGS.GAME_WINDOW_SIZE);
 		//Add the player's tank to the pane
 		makeNewTank();
-		pane.getChildren().add(myTank);
 		updateOtherPlayers();
 	
 		pane.getChildren().add(hearts);
@@ -342,3 +365,4 @@ class Client extends Application{
 		}
 	}
 }
+
