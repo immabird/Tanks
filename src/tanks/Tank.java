@@ -16,6 +16,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
 public class Tank extends ImageView {
 	
@@ -41,6 +42,7 @@ public class Tank extends ImageView {
 	
 	public Tank(String name, Client myself, String color) {
 		createTank(name,0,0,getX(),getY(),color);
+		final Tank This = this;
 		
 		Timer t = new Timer();
 		t.schedule(new TimerTask() {
@@ -107,15 +109,16 @@ public class Tank extends ImageView {
 							ObservableList<Node> children = ((Pane) getParent()).getChildren();
 							for(Node tank : children) {
 								if(tank instanceof Tank && !((Tank) tank).getName().equals(name)) {
-									Bounds it = tank.getBoundsInParent();
-									Bounds me = getBoundsInParent();
-									if(me.intersects(it)) {
+									if(colision(This, (ImageView) tank)) {
 										colision = true;
+									} else {
+										
 									}
 								}
 							}
 							if(colision) {
-								//System.out.println("hi");
+								System.out.println("We got a hit");
+								colision = false;
 							}
 							
 							if(hasChanged) {
@@ -270,6 +273,57 @@ public class Tank extends ImageView {
 		});
 	}
 	
+	public boolean colision(ImageView image1, ImageView image2) {
+		Line[] myLines = getEdges(image1);
+		Line[] theirLines = getEdges(image2);
+		for(Line myLine : myLines) {
+			for(Line theirLine : theirLines) {
+				Point intersection = myLine.intersection(theirLine);
+				if(intersection == null) {
+					continue;
+				} else if(intersection.getX() == myLine.getP1().getX() && intersection.getY() == myLine.getP1().getY()) {
+					System.out.println("=p1");
+					if(theirLine.contains(myLine.getP1()) || theirLine.contains(myLine.getP2())) {
+						return true;
+					}
+				} else {
+					if(myLine.contains(intersection) && theirLine.contains(intersection)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
+	public Line[] getEdges(ImageView image) {
+		Point center = getCenter(image);
+		double x = center.getX();
+		double y = center.getY();
+		double angle = image.getRotate();
+		double height = image.getBoundsInLocal().getHeight();
+		double width = image.getBoundsInLocal().getWidth();
+		
+		Line[] lines = new Line[4];
+		Point topRight = new Point(x + (Math.cos(Math.toRadians(angle)) * (width / 2)) + (Math.sin(Math.toRadians(angle)) * (height / 2)),
+								y + (Math.sin(Math.toRadians(angle)) * (width / 2)) - (Math.cos(Math.toRadians(angle)) * (height / 2)));
+		
+		Point topLeft = new Point(x - (Math.cos(Math.toRadians(angle)) * (width / 2)) + (Math.sin(Math.toRadians(angle)) * (height / 2)),
+								y - (Math.sin(Math.toRadians(angle)) * (width / 2)) - (Math.cos(Math.toRadians(angle)) * (height / 2)));
+		
+		Point bottomRight = new Point(x + (Math.cos(Math.toRadians(angle)) * (width / 2)) - (Math.sin(Math.toRadians(angle)) * (height / 2)),
+								y + (Math.sin(Math.toRadians(angle)) * (width / 2)) + (Math.cos(Math.toRadians(angle)) * (height / 2)));
+		
+		Point bottomLeft = new Point(x - (Math.cos(Math.toRadians(angle)) * (width / 2)) - (Math.sin(Math.toRadians(angle)) * (height / 2)),
+								y - (Math.sin(Math.toRadians(angle)) * (width / 2)) + (Math.cos(Math.toRadians(angle)) * (height / 2)));
+		
+		lines[0] = new Line(topRight,topLeft);
+		lines[1] = new Line(topRight,bottomRight);
+		lines[2] = new Line(bottomRight,bottomLeft);
+		lines[3] = new Line(bottomLeft,topLeft);
+		return lines;
+	}
+	
 	public double getAngle(double x1,double y1,double x2,double y2) {
 		double opposite = y2-y1;
 		double adjasant = x2-x1;
@@ -383,6 +437,82 @@ public class Tank extends ImageView {
 					}
 				}
 			}).start();
+		}
+	}
+	
+	private class Line {
+		
+		private Point p1;
+		private Point p2;
+		private boolean slope;
+		private double m;
+		private double b;
+		
+		public Line(Point p1,Point p2) {
+			this.p1 = p1;
+			this.p2 = p2;
+			if(p1.getX() - p2.getX() == 0) {
+				slope = false;
+			} else {
+				slope = true;
+				m = (p1.getY() - p2.getY()) / (p1.getX() - p2.getX());
+				b = p1.getY() - (m * p1.getX());
+			}
+		}
+		
+		public boolean contains(Point intersection) {
+			double maxX = Math.max(p1.getX(), p2.getX());
+			double minX = Math.min(p1.getX(), p2.getX());
+			double maxY = Math.max(p1.getY(), p2.getY());
+			double minY = Math.min(p1.getY(), p2.getY());
+			return intersection.getX() <= maxX && intersection.getX() >= minX && intersection.getY() <= maxY && intersection.getY() >= minY;
+		}
+
+		public Point intersection(Line line) {
+			Point intersection = new Point();
+			if(slope) {
+				if(m - line.getM() == 0) {
+					if(b - line.getB() == 0) {
+						//Same line
+						intersection = p1;
+					} else {
+						return null;
+					}
+				} else {
+					intersection.setX((line.getB() - b) / (m - line.getM()));
+					intersection.setY((m * intersection.getX()) + b);
+				}
+			} else if(line.hasSlope()) {
+				intersection.setX(p1.getX());
+				intersection.setY((line.getM() * intersection.getX()) + line.getB());
+			} else {
+				if(p1.getY() == line.getP1().getY()) {
+					//Same line
+					intersection = p1;
+				} else {
+					return null;
+				}
+			}
+			return intersection;
+		}
+		
+		public boolean hasSlope() {
+			return slope;
+		}
+		public Point getP1() {
+			return p1;
+		}
+		
+		public Point getP2() {
+			return p2;
+		}
+		
+		public double getM() {
+			return m;
+		}
+		
+		public double getB() {
+			return b;
 		}
 	}
 	
