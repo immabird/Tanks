@@ -104,15 +104,12 @@ public class Tank extends ImageView {
 								setRotate(finalRotate);
 								setX(finalX);
 								setY(finalY);
-								
-								System.out.println("finalX: " +finalX);
 								Tank me = This();
 							
 								ObservableList<Node> children = ((Pane) getParent()).getChildren();
 								for(Node tank : children) {
 									if(tank instanceof Tank && !((Tank) tank).getName().equals(name)) {
 										if(colision(me, (ImageView) tank)) {
-											System.out.println("we got a hit");
 											colision = true;
 										}
 									}
@@ -297,8 +294,6 @@ public class Tank extends ImageView {
 	}
 	
 	private Tank This() {
-		System.out.println("ThisX: " + this.getX());
-		System.out.println();
 		return this;
 	}
 	
@@ -309,15 +304,12 @@ public class Tank extends ImageView {
 			for(Line theirLine : theirLines) {
 				Point intersection = myLine.intersection(theirLine);
 				if(intersection == null) {
-					if(image1 instanceof Bullet)
 					continue;
 				} else if(intersection.getX() == myLine.getP1().getX() && intersection.getY() == myLine.getP1().getY()) {
-					if(image1 instanceof Bullet)
 					if(theirLine.contains(myLine.getP1()) || theirLine.contains(myLine.getP2())) {
 						return true;
 					}
 				} else {
-					if(image1 instanceof Bullet)
 					if(myLine.contains(intersection) && theirLine.contains(intersection)) {
 						return true;
 					}
@@ -334,7 +326,6 @@ public class Tank extends ImageView {
 		double angle = image.getRotate();
 		double height = image.getBoundsInLocal().getHeight();
 		double width = image.getBoundsInLocal().getWidth();
-		
 		Line[] lines = new Line[4];
 		Point topRight = new Point(x + (Math.cos(Math.toRadians(angle)) * (width / 2)) + (Math.sin(Math.toRadians(angle)) * (height / 2)),
 								y + (Math.sin(Math.toRadians(angle)) * (width / 2)) - (Math.cos(Math.toRadians(angle)) * (height / 2)));

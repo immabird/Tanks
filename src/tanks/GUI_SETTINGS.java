@@ -49,7 +49,12 @@ public final class GUI_SETTINGS {
 	final static public Font NAME_FONT = new Font(24);
 	
 	final public static Image getBodyImage(String color){
-		return new Image("imgs/Tank Body "+color+".png");
+		try {
+			return new Image("imgs/Tank Body "+color+".png");
+		} catch(Exception ex) {
+			System.out.println("Failed to get image, or tried to open client with same name.");
+			return null;
+		}
 	}
 	
 	final public static Image getTopImage(String color){
