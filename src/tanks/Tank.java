@@ -37,13 +37,14 @@ public class Tank extends ImageView {
 	private boolean mouseClicked = false;
 	private int health = GUI_SETTINGS.PLAYER_MAX_LIFE;
 	private boolean isDead = false;
+	private Client myself;
 	
-	public Tank(String name,double bodyAngle,double xPos,double yPos, double cannonAngle, String color) {
-		createTank(name,bodyAngle,cannonAngle,xPos,yPos,color);
+	public Tank(String name,double bodyAngle,double xPos,double yPos, double cannonAngle, String color, Client myself) {
+		createTank(name,bodyAngle,cannonAngle,xPos,yPos,color,myself);
 	}
 	
 	public Tank(String name, Client myself, String color) {
-		createTank(name,0,0,getX(),getY(),color);
+		createTank(name,0,0,getX(),getY(),color,myself);
 		final Tank This = this;
 		
 		Timer t = new Timer();
@@ -93,14 +94,6 @@ public class Tank extends ImageView {
 						@Override
 						public void run() {
 							boolean hasChanged = false;
-							
-							if(health == 0) {
-								((Pane) getParent()).getChildren().removeAll(getComponents());
-								isDead = true;
-								myself.writeTank();
-								health = GUI_SETTINGS.PLAYER_MAX_LIFE;
-								return;
-							}
 							
 							if(finalRotate != getRotate()) {
 								setRotate(finalRotate);
@@ -255,9 +248,10 @@ public class Tank extends ImageView {
 		});
 	}
 	
-	private void createTank(String name, double bodyAngle, double cannonAngle, double x, double y, String color) {
+	private void createTank(String name, double bodyAngle, double cannonAngle, double x, double y, String color, Client myself) {
 		setImage(GUI_SETTINGS.getBodyImage(color));
 		this.name = name;
+		this.myself = myself;
 		this.setRotate(bodyAngle);
 		this.setX(x);
 		this.setY(y);
@@ -363,6 +357,22 @@ public class Tank extends ImageView {
 		return center;
 	}
 	
+	public void kill() {
+		if(health != 0) {
+			health--;
+		} else {
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					((Pane) getParent()).getChildren().removeAll(getComponents());
+					isDead = true;
+					myself.writeTank();
+					health = GUI_SETTINGS.PLAYER_MAX_LIFE;
+				}
+			});
+		}
+	}
+	
 	public String getName() {
 		return name;
 	}
@@ -373,7 +383,6 @@ public class Tank extends ImageView {
 			mouseClicked = false;
 			data.setIsDead();
 		}
-		
 		data.addTankData(getRotate(),getX(),getY(),cannon.getRotate(),color);
 		data.setBulletShot(mouseClicked);
 		mouseClicked = false;
@@ -423,7 +432,6 @@ public class Tank extends ImageView {
 		private volatile Bullet This;
 		
 		Bullet(double angle, double x, double y) {
-			System.out.println(name);
 			setImage(new Image("imgs/Pistol Bullet " + color + ".png"));
 			
 			//Center Bullet
@@ -461,11 +469,11 @@ public class Tank extends ImageView {
 								if(getParent() != null) {
 									ObservableList<Node> children = ((Pane) getParent()).getChildren();
 									for(Node tank : children) {
-										if(tank != null && tank instanceof Tank && !((Tank) tank).getName().equals(name)) {
+										if(tank != null && tank instanceof Tank) {
 											if(colision(This, (ImageView) tank)) {
-												System.out.println(((Tank) tank).getName() + " " + name);
-												System.out.println("hi");
-												health--;
+												if(((Tank) tank).getName().equals(myself.getTank().getName())) {
+													myself.getTank().kill();
+												}
 												stillGoing = false;
 											}
 										}

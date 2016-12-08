@@ -12,6 +12,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
@@ -149,6 +150,7 @@ class Client extends Application{
 	
 	/**Make a thread to update all of the other player's info*/
 	private void updateOtherPlayers(){
+		Client This = this;
 		new Thread(new Runnable(){
 			@Override
 			public void run() {	
@@ -179,7 +181,7 @@ class Client extends Application{
 								public void run(){
 									if(!tanks.containsKey(currentP.getName())){
 										tanks.put(currentP.getName(), new Tank(currentP.getName(), currentP.getRotate(),currentP.getX(),
-																			currentP.getY(),currentP.getCannonRotate(),opponentColor));
+																			currentP.getY(),currentP.getCannonRotate(),opponentColor,This));
 										pane.getChildren().add(tanks.get(currentP.getName()));
 									}
 								}
@@ -297,6 +299,14 @@ class Client extends Application{
 			stage.setTitle("ERROR");
 			stage.show();
 		}
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public Tank getTank() {
+		return myTank;
 	}
 	
 }
