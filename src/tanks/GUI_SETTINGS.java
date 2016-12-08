@@ -47,6 +47,7 @@ public final class GUI_SETTINGS {
 	
 	//Tanks name plate
 	final static public Font NAME_FONT = new Font(24);
+	public static final long SHOOT_DELAY = 500;
 	
 	final public static Image getBodyImage(String color){
 		try {

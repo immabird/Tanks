@@ -38,6 +38,7 @@ public class Tank extends ImageView {
 	private int health = GUI_SETTINGS.PLAYER_MAX_LIFE;
 	private boolean isDead = false;
 	private Client myself;
+	private boolean canShoot = true;
 	
 	public Tank(String name,double bodyAngle,double xPos,double yPos, double cannonAngle, String color, Client myself) {
 		createTank(name,bodyAngle,cannonAngle,xPos,yPos,color,myself);
@@ -175,17 +176,7 @@ public class Tank extends ImageView {
 					d = true;
 					break;
 				case"Space":
-					if(!isDead) {
-						mouseClicked = true;
-						Platform.runLater(new Runnable() {
-							@Override
-							public void run() {
-								Point cannonCenter = getCenter(cannon);
-								((Pane) getParent()).getChildren().add(new Bullet(cannon.getRotate(),cannonCenter.getX(),cannonCenter.getY()));
-								myself.writeTank();
-							}
-						});
-					}
+					shoot();
 					break;
 				default:
 					break;
@@ -237,17 +228,7 @@ public class Tank extends ImageView {
 				getScene().setOnMousePressed(new EventHandler<MouseEvent>() {
 					@Override
 					public void handle(MouseEvent event) {
-						if(!isDead) {
-							mouseClicked = true;
-							Platform.runLater(new Runnable() {
-								@Override
-								public void run() {
-									Point cannonCenter = getCenter(cannon);
-									((Pane) getParent()).getChildren().add(new Bullet(cannon.getRotate(),cannonCenter.getX(),cannonCenter.getY()));
-									myself.writeTank();
-								}
-							});
-						}
+						shoot();
 					}
 				});
 			}
@@ -295,6 +276,30 @@ public class Tank extends ImageView {
 	
 	private Tank This() {
 		return this;
+	}
+	
+	private void shoot() {
+		if(!isDead && canShoot) {
+			canShoot = false;
+			
+			mouseClicked = true;
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					Point cannonCenter = getCenter(cannon);
+					((Pane) getParent()).getChildren().add(new Bullet(cannon.getRotate(),cannonCenter.getX(),cannonCenter.getY()));
+					myself.writeTank();
+				}
+			});
+			
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try{Thread.sleep(GUI_SETTINGS.SHOOT_DELAY);}catch(Exception ex){}
+					canShoot = true;
+				}
+			}).start();
+		}
 	}
 	
 	public boolean colision(ImageView image1, ImageView image2) {
