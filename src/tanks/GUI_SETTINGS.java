@@ -32,6 +32,13 @@ public final class GUI_SETTINGS {
 	final static public int SERVER_HEIGHT = 100;
 	final static public int SERVER_WIDTH = 200;
 	
+	final static public int POPUP_HEIGHT = 75;
+	final static public int POPUP_WIDTH = 400;
+	final static public int POPUP_PADDING = 10;
+	final static public int POPUP_MARGIN = 5;
+	final static public int POPUP_BTN_WIDTH = 80;
+	final static public int POPUP_BTN_HEIGHT = 20;
+	
 	//Tanks name plate
 	final static public Font NAME_FONT = new Font(24);
 	

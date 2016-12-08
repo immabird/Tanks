@@ -29,6 +29,10 @@ public class Package implements Serializable {
 		this.isLeaving = isLeaving;
 	}
 	
+	public Package(boolean newName){
+		this.newName = newName;
+	}
+	
 	
 	public void addTankData(double rotate, double x, double y, double cannonRotate) {
 		this.rotate = rotate;
@@ -43,10 +47,6 @@ public class Package implements Serializable {
 	
 	public void setName(String name){
 		this.name = name;
-	}
-	
-	public void setNewName(boolean newName){
-		this.newName = newName;
 	}
 	
 	public boolean getNewName(){
