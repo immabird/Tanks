@@ -464,10 +464,8 @@ public class Tank extends ImageView {
 										if(tank != null && tank instanceof Tank && !((Tank) tank).getName().equals(name)) {
 											if(colision(This, (ImageView) tank)) {
 												System.out.println(((Tank) tank).getName() + " " + name);
-												if(((Tank) tank).getName().equals(name)) {
-													System.out.println("hi");
-													health--;
-												}
+												System.out.println("hi");
+												health--;
 												stillGoing = false;
 											}
 										}
