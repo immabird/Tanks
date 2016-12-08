@@ -373,9 +373,11 @@ public class Tank extends ImageView {
 	}
 	
 	public void kill() {
-		health--;
-		myself.decrementHeart();
 		if(health != 0) {
+			health--;
+			myself.decrementHeart();
+		}
+		if(health == 0) {
 			Platform.runLater(new Runnable() {
 				@Override
 				public void run() {
