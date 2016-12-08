@@ -30,14 +30,14 @@ public class GUI extends Application {
 	private static String yourColor = "Blue";
 	private static String opponentColor = "Red";
 	private Stage stage;
+	private Server server = null;
 	
 	public void startClient() {
-		
 		new Client(ip, port, name, yourColor, opponentColor);
 	}
 	
 	public void startServer() {
-		new Server(port, stage.getX(), stage.getWidth(), stage.getY());
+		server = new Server(port, stage.getX(), stage.getWidth(), stage.getY());
 	}
 	
 	private Scene mainMenuScene;
@@ -59,7 +59,8 @@ public class GUI extends Application {
 						startClient();
 						break;
 					case"Start Server":
-						startServer();
+						if(server == null || !server.isOn()) //don't allow multiple servers
+							startServer();
 						break;
 					case"Settings":
 						stage.setScene(settingsScene);
@@ -141,7 +142,7 @@ public class GUI extends Application {
 		Label yourSelectTank = new Label("Select Your Tank:           ");
 		yourSelectTank.setFont(GUI_SETTINGS.FONT);
 		ArrayList<ImageView> yourImages = new ArrayList<>();
-		ArrayList<String> colors = new ArrayList<>(Arrays.asList("Red", "Blue"));
+		ArrayList<String> colors = new ArrayList<>(Arrays.asList("Red", "Blue", "Yellow", "Green", "Orange", "Purple", "Black", "Pink"));
 		DropShadow shadow = new DropShadow(20, Color.BLACK);
 		for(String c : colors){
 			ImageView temp = new ImageView("imgs/" + c + "Tank.png");
