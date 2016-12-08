@@ -1,5 +1,6 @@
 package tanks;
 
+import java.io.EOFException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -9,7 +10,6 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -134,11 +134,13 @@ class Client extends Application{
 						data = (Package)read.readObject();
 						addPackage(data);
 					}
-				} catch(Exception ex) {
+				} catch(EOFException ex1) {
+					System.out.println("Client closed");
+				} catch(Exception ex2) {
 					connectedToServer = false;
 					connectionTimedOut = true;
 					System.out.println(name + "'s connection the the server has failed.");
-					ex.printStackTrace();
+					ex2.printStackTrace();
 					Platform.runLater(new Runnable(){ //close the window
 						@Override
 						public void run() {

@@ -237,8 +237,7 @@ public class Server extends Application{
 					}
 				} catch(Exception ex) { // What to do if an exception happens
 					serverIsOnline = false; // Signals that the server has shutdown
-					System.out.println("The welcome socket has failed.");
-					ex.printStackTrace();
+					System.out.println("The welcome socket has closed.");
 				}
 			}
 		}).start();

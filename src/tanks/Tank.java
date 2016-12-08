@@ -16,7 +16,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 
 public class Tank extends ImageView {
 	
@@ -455,8 +454,8 @@ public class Tank extends ImageView {
 			setRotate(angle);
 			
 			//Move bullet ahead of the tank
-			setX(getX() + (Math.cos(Math.toRadians(getRotate()))) * ((cannon.getBoundsInLocal().getWidth()/2) + 25));
-			setY(getY() + (Math.sin(Math.toRadians(getRotate()))) * ((cannon.getBoundsInLocal().getWidth()/2) + 25));
+			setX(getX() + (Math.cos(Math.toRadians(getRotate()))) * ((cannon.getBoundsInLocal().getWidth()/2) + 20));
+			setY(getY() + (Math.sin(Math.toRadians(getRotate()))) * ((cannon.getBoundsInLocal().getWidth()/2) + 20));
 			
 			This = this;
 			
