@@ -18,6 +18,8 @@ public class Package implements Serializable {
 	private boolean isLeaving = false;
 	private boolean newName = false;
 	private boolean bulletShot = false;
+	private boolean isDead = false;
+	private String color = "";
 	
 	/**Sends the name because Brad used a bad constructor and I had to fix his mess*/
 	public Package(String name){
@@ -35,7 +37,8 @@ public class Package implements Serializable {
 	}
 	
 	
-	public void addTankData(double rotate, double x, double y, double cannonRotate) {
+	public void addTankData(double rotate, double x, double y, double cannonRotate, String color) {
+		this.color = color;
 		this.rotate = rotate;
 		this.x = x;
 		this.y = y;
@@ -84,5 +87,9 @@ public class Package implements Serializable {
 
 	public double getCannonRotate() {
 		return cannonRotate;
+	}
+
+	public void setIsDead() {
+		isDead = true;
 	}
 }

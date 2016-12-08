@@ -91,8 +91,11 @@ public class Tank extends ImageView {
 					Platform.runLater(new Runnable() {
 						@Override
 						public void run() {
-							boolean colision = false;
 							boolean hasChanged = false;
+							
+							if(health == 0) {
+								((Pane) getParent()).getChildren().removeAll(getComponents());
+							}
 							
 							if(finalRotate != getRotate()) {
 								setRotate(finalRotate);
@@ -111,13 +114,9 @@ public class Tank extends ImageView {
 							for(Node tank : children) {
 								if(tank instanceof Tank && !((Tank) tank).getName().equals(name)) {
 									if(colision(This, (ImageView) tank)) {
-										colision = true;
+										
 									}
 								}
-							}
-							if(colision) {
-								//System.out.println("We got a hit");
-								colision = false;
 							}
 							
 							if(hasChanged) {
@@ -291,17 +290,14 @@ public class Tank extends ImageView {
 				Point intersection = myLine.intersection(theirLine);
 				if(intersection == null) {
 					if(image1 instanceof Bullet)
-						System.out.println("null");
 					continue;
 				} else if(intersection.getX() == myLine.getP1().getX() && intersection.getY() == myLine.getP1().getY()) {
 					if(image1 instanceof Bullet)
-						System.out.println("=p1");
 					if(theirLine.contains(myLine.getP1()) || theirLine.contains(myLine.getP2())) {
 						return true;
 					}
 				} else {
 					if(image1 instanceof Bullet)
-						System.out.println("good");
 					if(myLine.contains(intersection) && theirLine.contains(intersection)) {
 						return true;
 					}
@@ -362,7 +358,12 @@ public class Tank extends ImageView {
 
 	public Package getPackage() {
 		Package data = new Package(name);
-		data.addTankData(getRotate(),getX(),getY(),cannon.getRotate());
+		if(health == 0) {
+			mouseClicked = false;
+			data.setIsDead();
+		}
+		
+		data.addTankData(getRotate(),getX(),getY(),cannon.getRotate(),color);
 		data.setBulletShot(mouseClicked);
 		mouseClicked = false;
 		return data;
@@ -448,7 +449,9 @@ public class Tank extends ImageView {
 									for(Node tank : children) {
 										if(tank != null && tank instanceof Tank && !((Tank) tank).getName().equals(name)) {
 											if(colision(This, (ImageView) tank)) {
-												System.out.println("bullet found tank");
+												if(((Tank) tank).getName().equals(name)) {
+													health--;
+												}
 												stillGoing = false;
 											}
 										}

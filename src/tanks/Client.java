@@ -195,8 +195,8 @@ class Client extends Application{
 							});
 						}
 					} else {
-						//Sleep the thread for 10 milliseconds every cycle so it doesn't use 40% CPU Usage
-						try{Thread.sleep(10);}catch(Exception ex){}
+						//Sleep the thread for a millisecond every cycle so it doesn't use 40% CPU Usage
+						try{Thread.sleep(1);}catch(Exception ex){}
 					}
 				}
 			}
