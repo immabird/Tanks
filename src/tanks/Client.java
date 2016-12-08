@@ -9,11 +9,14 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
@@ -27,9 +30,10 @@ class Client extends Application{
 	private String name;
 	//Hashmap of all other client tanks on the server
 	private volatile HashMap<String, Tank> tanks = new HashMap<>();
-	private String opponentColor;
 	//This Client's Tank
 	private volatile Tank myTank;
+	//The heart pictures for life
+	private Hearts hearts = new Hearts();
 	private String myColor;
 	// Keeps track of the connection with the server
 	private volatile boolean connectedToServer = false;
@@ -47,7 +51,7 @@ class Client extends Application{
 	 * @param anIp  The IP address of the Server
 	 * @param aPort  The Port that the server is using
 	 * @param name  The name of the Client*/
-	public Client(String anIp, int aPort, String name, String myColor, String oppColor) {
+	public Client(String anIp, int aPort, String name, String myColor) {
 		//Connecting to the server
 		ip = anIp;
 		port = aPort;
@@ -58,7 +62,6 @@ class Client extends Application{
 			this.myColor = "America";
 		else
 			this.myColor = myColor;
-		this.opponentColor = oppColor;
 		connect();
 		
 		//Starting up GUI
@@ -163,7 +166,7 @@ class Client extends Application{
 							new NewNamePopUp();
 							stop();
 						}
-						if(currentP.isLeaving()){ //someone is leaving
+						if(currentP.isLeaving() || currentP.isDead()){ //someone is leaving or they died
 							Tank removed = tanks.remove(currentP.getName());
 							//Take the take off of the pane
 							Platform.runLater(new Runnable(){
@@ -179,7 +182,7 @@ class Client extends Application{
 								public void run(){
 									if(!tanks.containsKey(currentP.getName())){
 										tanks.put(currentP.getName(), new Tank(currentP.getName(), currentP.getRotate(),currentP.getX(),
-																			currentP.getY(),currentP.getCannonRotate(),opponentColor));
+																			currentP.getY(),currentP.getCannonRotate(),currentP.getColor()));
 										pane.getChildren().add(tanks.get(currentP.getName()));
 									}
 								}
@@ -194,7 +197,9 @@ class Client extends Application{
 								}
 							});
 						}
+						putHeartsOnFront();
 					} else {
+						putHeartsOnFront();
 						//Sleep the thread for a millisecond every cycle so it doesn't use 40% CPU Usage
 						try{Thread.sleep(1);}catch(Exception ex){}
 					}
@@ -214,7 +219,16 @@ class Client extends Application{
 	private synchronized boolean packagesIsEmpty(){
 		return packages.isEmpty();
 	}
-
+	
+	private void putHeartsOnFront(){
+		Platform.runLater(new Runnable(){
+			@Override
+			public void run() {
+				hearts.toFront();
+			}
+		});
+	}
+	
 	/**Makes a new Tank for this client*/
 	private void makeNewTank(){
 		myTank = new Tank(name, this, myColor);
@@ -238,6 +252,9 @@ class Client extends Application{
 		makeNewTank();
 		pane.getChildren().add(myTank);
 		updateOtherPlayers();
+	
+		pane.getChildren().add(hearts);
+		hearts.toFront();
 		
 		//Show the pane
 		Scene scene = new Scene(new AnchorPane(pane));
@@ -250,6 +267,22 @@ class Client extends Application{
 			primaryStage.close();
 		});
 		stage = primaryStage; //Have a class reference to the stage
+	}
+	
+	private class Hearts extends HBox{
+		ImageView[] images = new ImageView[GUI_SETTINGS.PLAYER_MAX_LIFE];
+		
+		private Hearts(){
+			super(10);
+			for(int x = 0; x < GUI_SETTINGS.PLAYER_MAX_LIFE; x++){
+				images[x] = new ImageView("imgs/Heart.png");
+				getChildren().add(images[x]);
+			}
+		}
+		
+		private void removeAHeart(){
+			getChildren().remove(getChildren().size() - 1);
+		}
 	}
 	
 	private class NewNamePopUp extends Application{
@@ -298,5 +331,4 @@ class Client extends Application{
 			stage.show();
 		}
 	}
-	
 }
