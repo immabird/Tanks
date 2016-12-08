@@ -35,6 +35,7 @@ public class Tank extends ImageView {
 	private String color = "";
 	private Point mouse = new Point(0,0);
 	private boolean mouseClicked = false;
+	private int health = GUI_SETTINGS.PLAYER_MAX_LIFE;
 	
 	public Tank(String name,double bodyAngle,double xPos,double yPos, double cannonAngle, String color) {
 		createTank(name,bodyAngle,cannonAngle,xPos,yPos,color);
@@ -111,13 +112,11 @@ public class Tank extends ImageView {
 								if(tank instanceof Tank && !((Tank) tank).getName().equals(name)) {
 									if(colision(This, (ImageView) tank)) {
 										colision = true;
-									} else {
-										
 									}
 								}
 							}
 							if(colision) {
-								System.out.println("We got a hit");
+								//System.out.println("We got a hit");
 								colision = false;
 							}
 							
@@ -172,6 +171,17 @@ public class Tank extends ImageView {
 				case"D":
 					d = true;
 					break;
+				case"Space":
+					mouseClicked = true;
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							Point cannonCenter = getCenter(cannon);
+							((Pane) getParent()).getChildren().add(new Bullet(cannon.getRotate(),cannonCenter.getX(),cannonCenter.getY()));
+							myself.writeTank();
+						}
+					});
+					break;
 				default:
 					break;
 				}
@@ -217,7 +227,7 @@ public class Tank extends ImageView {
 					}
 				});
 				
-				getScene().setOnMouseClicked(new EventHandler<MouseEvent>() {
+				getScene().setOnMousePressed(new EventHandler<MouseEvent>() {
 					@Override
 					public void handle(MouseEvent event) {
 						mouseClicked = true;
@@ -280,13 +290,18 @@ public class Tank extends ImageView {
 			for(Line theirLine : theirLines) {
 				Point intersection = myLine.intersection(theirLine);
 				if(intersection == null) {
+					if(image1 instanceof Bullet)
+						System.out.println("null");
 					continue;
 				} else if(intersection.getX() == myLine.getP1().getX() && intersection.getY() == myLine.getP1().getY()) {
-					System.out.println("=p1");
+					if(image1 instanceof Bullet)
+						System.out.println("=p1");
 					if(theirLine.contains(myLine.getP1()) || theirLine.contains(myLine.getP2())) {
 						return true;
 					}
 				} else {
+					if(image1 instanceof Bullet)
+						System.out.println("good");
 					if(myLine.contains(intersection) && theirLine.contains(intersection)) {
 						return true;
 					}
@@ -422,12 +437,25 @@ public class Tank extends ImageView {
 								Scene window = getScene();
 								Bounds bullet = getBoundsInParent();
 								try {
-									if(bullet.getMaxX() > window.getWidth() || bullet.getMinX() < 0 || bullet.getMaxY() > window.getHeight() || bullet.getMinY() < 0) {
-										((Pane) getParent()).getChildren().remove(This);
+									if(bullet.getMaxX() > window.getWidth() || bullet.getMinX() < 0 || bullet.getMaxY() > window.getHeight() || bullet.getMinY() < 0 || !stillGoing) {
 										stillGoing = false;
 									}
 								} catch(Exception ex) {
 									stillGoing = false;
+								}
+								if(getParent() != null) {
+									ObservableList<Node> children = ((Pane) getParent()).getChildren();
+									for(Node tank : children) {
+										if(tank != null && tank instanceof Tank && !((Tank) tank).getName().equals(name)) {
+											if(colision(This, (ImageView) tank)) {
+												System.out.println("bullet found tank");
+												stillGoing = false;
+											}
+										}
+									}
+								}
+								if(!stillGoing && getParent() != null) {
+									((Pane) getParent()).getChildren().remove(This);
 								}
 							}
 						});
@@ -471,7 +499,10 @@ public class Tank extends ImageView {
 		public Point intersection(Line line) {
 			Point intersection = new Point();
 			if(slope) {
-				if(m - line.getM() == 0) {
+				if(!line.hasSlope()) {
+					intersection.setX(line.getP1().getX());
+					intersection.setY(m * intersection.getX() + b);
+				} else if(m - line.getM() == 0) {
 					if(b - line.getB() == 0) {
 						//Same line
 						intersection = p1;
