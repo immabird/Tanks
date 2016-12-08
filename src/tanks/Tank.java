@@ -96,7 +96,6 @@ public class Tank extends ImageView {
 							boolean colision = false;
 							
 							if(finalRotate != getRotate() || finalX != getX() || finalY != getY()) {
-								System.out.println("moving");
 								hasChanged = true;
 								double oldRotate = getRotate();
 								double oldX = getX();
@@ -105,12 +104,14 @@ public class Tank extends ImageView {
 								setRotate(finalRotate);
 								setX(finalX);
 								setY(finalY);
+								
+								System.out.println("finalX: " +finalX);
+								Tank me = This();
 							
 								ObservableList<Node> children = ((Pane) getParent()).getChildren();
 								for(Node tank : children) {
 									if(tank instanceof Tank && !((Tank) tank).getName().equals(name)) {
-										System.out.println("checking");
-										if(colision(This(), (ImageView) tank)) {
+										if(colision(me, (ImageView) tank)) {
 											System.out.println("we got a hit");
 											colision = true;
 										}
@@ -296,6 +297,8 @@ public class Tank extends ImageView {
 	}
 	
 	private Tank This() {
+		System.out.println("ThisX: " + this.getX());
+		System.out.println();
 		return this;
 	}
 	
@@ -370,10 +373,9 @@ public class Tank extends ImageView {
 	}
 	
 	public void kill() {
+		health--;
+		myself.decrementHeart();
 		if(health != 0) {
-			health--;
-			myself.decrementHeart();
-		} else {
 			Platform.runLater(new Runnable() {
 				@Override
 				public void run() {
