@@ -152,6 +152,7 @@ class Client extends Application{
 	
 	/**Make a thread to update all of the other player's info*/
 	private void updateOtherPlayers(){
+		Client This = this;
 		new Thread(new Runnable(){
 			@Override
 			public void run() {	
@@ -182,7 +183,7 @@ class Client extends Application{
 								public void run(){
 									if(!tanks.containsKey(currentP.getName())){
 										tanks.put(currentP.getName(), new Tank(currentP.getName(), currentP.getRotate(),currentP.getX(),
-																			currentP.getY(),currentP.getCannonRotate(),currentP.getColor()));
+																			currentP.getY(),currentP.getCannonRotate(),currentP.getColor(), This));
 										pane.getChildren().add(tanks.get(currentP.getName()));
 									}
 								}
@@ -240,6 +241,14 @@ class Client extends Application{
 			}
 		});
 		writeTank();
+	}
+	
+	public Tank getTank() {
+		return myTank;
+	}
+	
+	public void decrementHeart(){
+		hearts.removeAHeart();
 	}
 	
 	@Override
