@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.StreamCorruptedException;
+import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -74,12 +75,16 @@ public class Server extends Application{
 		String nets = "";
 		while(interfaces.hasMoreElements()){
 			NetworkInterface net = interfaces.nextElement();
-			if(net.getInetAddresses().hasMoreElements() && net.getInetAddresses().nextElement().getHostAddress().length() <= 15 && !net.getName().equals("lo"))
-				nets += net.getName() + " " + net.getInetAddresses().nextElement().getHostAddress() + "\n";
+			Enumeration<InetAddress> inet = net.getInetAddresses();
+			while(inet.hasMoreElements()){
+				InetAddress i = inet.nextElement();
+				if(i.getHostAddress().length() <= 15 && i.getHostAddress().contains(".") && !(net.getName().equals("lo") || net.getName().equals("lo0")) )
+					nets += net.getName() + " " + i.getHostAddress() + "\n";
+			}	
 		}
 		Label IP = new Label("IP Addresses:");
 		IP.setFont(GUI_SETTINGS.FONT);
-		IP.setStyle("-fx-font-weight: bold");
+		IP.setStyle("-fx-font-weight: bold;");
 		IP.setTextAlignment(TextAlignment.CENTER);
 		
 		Label ipAddresses = new Label(nets);
@@ -88,7 +93,7 @@ public class Server extends Application{
 		
 		Label portLbl = new Label("Port: ");
 		portLbl.setFont(GUI_SETTINGS.FONT);
-		portLbl.setStyle("-fx-font-weight: bold");
+		portLbl.setStyle("-fx-font-weight: bold;");
 		portLbl.setTextAlignment(TextAlignment.CENTER);
 		Label portNumLbl = new Label(""+port);
 		portNumLbl.setFont(GUI_SETTINGS.FONT);

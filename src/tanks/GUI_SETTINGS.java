@@ -5,7 +5,7 @@ import javafx.scene.text.Font;
 
 public final class GUI_SETTINGS {
 	final static public Font TITLE_FONT = new Font(46);
-	final static public Font FONT = new Font(16);
+	final static public Font FONT = new Font("Calibri", 16);
 	
 	final static public int WINDOW_HEIGHT = 600;
 	final static public int WINDOW_WIDTH = 800;
