@@ -45,7 +45,6 @@ public class Tank extends ImageView {
 	
 	public Tank(String name, Client myself, String color) {
 		createTank(name,0,0,getX(),getY(),color,myself);
-		final Tank This = this;
 		
 		Timer t = new Timer();
 		t.schedule(new TimerTask() {
@@ -94,26 +93,35 @@ public class Tank extends ImageView {
 						@Override
 						public void run() {
 							boolean hasChanged = false;
+							boolean colision = false;
 							
-							if(finalRotate != getRotate()) {
+							if(finalRotate != getRotate() || finalX != getX() || finalY != getY()) {
+								System.out.println("moving");
+								hasChanged = true;
+								double oldRotate = getRotate();
+								double oldX = getX();
+								double oldY = getY();
+								
 								setRotate(finalRotate);
-								hasChanged = true;
-							}
-							if(finalX != getX()) {
 								setX(finalX);
-								hasChanged = true;
-							}
-							if(finalY != getY()) {
 								setY(finalY);
-								hasChanged = true;
-							}
 							
-							ObservableList<Node> children = ((Pane) getParent()).getChildren();
-							for(Node tank : children) {
-								if(tank instanceof Tank && !((Tank) tank).getName().equals(name)) {
-									if(colision(This, (ImageView) tank)) {
-										
+								ObservableList<Node> children = ((Pane) getParent()).getChildren();
+								for(Node tank : children) {
+									if(tank instanceof Tank && !((Tank) tank).getName().equals(name)) {
+										System.out.println("checking");
+										if(colision(This(), (ImageView) tank)) {
+											System.out.println("we got a hit");
+											colision = true;
+										}
 									}
+								}
+								
+								if(colision) {
+									setRotate(oldRotate);
+									setX(oldX);
+									setY(oldY);
+									hasChanged = false;
 								}
 							}
 							
@@ -285,6 +293,10 @@ public class Tank extends ImageView {
 				namePlate.setLayoutY(y + namePlateOffsetY);
 			}
 		});
+	}
+	
+	private Tank This() {
+		return this;
 	}
 	
 	public boolean colision(ImageView image1, ImageView image2) {
