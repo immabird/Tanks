@@ -51,7 +51,7 @@ public class Tank extends ImageView {
 		t.schedule(new TimerTask() {
 			@Override
 			public void run() {
-				if(!isFocused() && !isDead) {
+				if(!isFocused() && isDead) {
 					w = a = s = d = false;
 				} else {
 					
@@ -360,6 +360,7 @@ public class Tank extends ImageView {
 	public void kill() {
 		if(health != 0) {
 			health--;
+			myself.decrementHeart();
 		} else {
 			Platform.runLater(new Runnable() {
 				@Override

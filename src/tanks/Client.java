@@ -194,7 +194,8 @@ class Client extends Application{
 							Platform.runLater(new Runnable(){
 								@Override
 								public void run() {
-									tanks.get(currentP.getName()).updateFromPackage(currentP);
+									if(tanks.containsKey(currentP.getName()))
+										tanks.get(currentP.getName()).updateFromPackage(currentP);
 								}
 							});
 						}
