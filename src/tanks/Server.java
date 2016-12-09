@@ -117,7 +117,6 @@ public class Server extends Application{
 		ipAndPort.getChildren().addAll(IP, ipAddresses, portBox);
 		
 		Button startBtn = new Button("Start");
-		//TODO Start button
 		startBtn.setPrefSize(GUI_SETTINGS.BUTTON_WIDTH - 20, GUI_SETTINGS.BUTTON_HEIGHT);
 		startBtn.setFont(GUI_SETTINGS.FONT);
 		startBtn.setOnAction(e -> {
@@ -130,7 +129,6 @@ public class Server extends Application{
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
-			//TODO: Close welcome socket.
 		});
 		Button restartBtn = new Button("Restart");
 		restartBtn.setPrefSize(GUI_SETTINGS.BUTTON_WIDTH - 20, GUI_SETTINGS.BUTTON_HEIGHT);
@@ -139,7 +137,7 @@ public class Server extends Application{
 			Package p = new Package("");
 			p.setRestart();
 			addNextNode(new ClientPackageNode(null, p));
-			if(playerCount > 8) {
+			if(playerCount < 8) {
 				welcomeSocket();
 			}
 		});

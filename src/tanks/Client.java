@@ -16,6 +16,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
@@ -24,6 +25,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
@@ -40,6 +42,10 @@ class Client extends Application{
 	private volatile Tank myTank;
 	//The heart pictures for life
 	private Hearts hearts = new Hearts();
+	//Label to show when restarting a game
+	private ImageView restartLabel;
+	private ImageView startLabel;
+	//Color of my tank
 	private String myColor;
 	// Keeps track of the connection with the server
 	private volatile boolean connectedToServer = false;
@@ -182,7 +188,7 @@ class Client extends Application{
 							new NewNamePopUp();
 							stop();
 						}
-						if(currentP.getRestart()){
+						if(currentP.getRestart()){ //game is restarting
 							Platform.runLater(new Runnable(){
 								@Override
 								public void run() {
@@ -191,15 +197,30 @@ class Client extends Application{
 										pane.getChildren().addAll(myTank.getComponents());
 									writeTank();
 									hearts.reset();
+									startLabel.setVisible(false); //Make sure startLabel isn't showing
+									restartLabel.setVisible(true);
+									restartLabel.toFront();
+									new Thread(new Runnable(){
+										@Override
+										public void run() {
+											try{Thread.sleep(1250);}catch(Exception e){}
+											restartLabel.setVisible(false);
+										}
+									}).start();
 									myTank.requestFocus();
 								}
 							});
 							continue;
 						}
-						if(currentP.getStart()) {
+						if(currentP.getStart()) { //Game is starting
 							Platform.runLater(new Runnable(){
 								@Override
 								public void run() {
+									myTank.reset(pane);
+									if(!pane.getChildren().contains(myTank))
+										pane.getChildren().addAll(myTank.getComponents());
+									writeTank();
+									hearts.reset();
 									ArrayList<Tank> tanks = new ArrayList<Tank>();
 									for(Node node : pane.getChildren()) {
 										if(node instanceof Tank) {
@@ -207,7 +228,6 @@ class Client extends Application{
 										}
 									}
 									Collections.sort(tanks);
-									//int numberOfTanks = tanks.size();
 									int count = 0;
 									int i = 5;
 									int j = 5;
@@ -234,6 +254,16 @@ class Client extends Application{
 										count++;
 										tank.snapComponents();
 									}
+									restartLabel.setVisible(false); //Make sure restartLabel isn't showing
+									startLabel.setVisible(true);
+									startLabel.toFront();
+									new Thread(new Runnable(){
+										@Override
+										public void run() {
+											try{Thread.sleep(1250);}catch(Exception e){}
+											startLabel.setVisible(false);
+										}
+									}).start();
 								}
 							});
 							continue;
@@ -302,6 +332,7 @@ class Client extends Application{
 		Platform.runLater(new Runnable(){
 			@Override
 			public void run() {
+				restartLabel.toFront();
 				hearts.toFront();
 			}
 		});
@@ -339,6 +370,21 @@ class Client extends Application{
 		pane.setPrefSize(GUI_SETTINGS.GAME_WINDOW_WIDTH, GUI_SETTINGS.GAME_WINDOW_HEIGHT);
 		
 		pane.setBackground(new Background(new BackgroundImage(new Image("imgs/metal scratch cartoon.jpg"), null, null, null, null)));
+		
+		//Start and Restart Labels
+		DropShadow textDS = new DropShadow(20, Color.BLACK);
+		startLabel = new ImageView("imgs/GameStart.png");
+		pane.getChildren().add(startLabel);
+		startLabel.setX(GUI_SETTINGS.GAME_WINDOW_WIDTH / 2 - startLabel.getImage().getWidth()/2);
+		startLabel.setY(GUI_SETTINGS.GAME_WINDOW_HEIGHT / 2 - startLabel.getImage().getHeight()/2);
+		startLabel.setEffect(textDS);
+		startLabel.setVisible(false);
+		restartLabel = new ImageView("imgs/GameRestart.png");
+		pane.getChildren().add(restartLabel);
+		restartLabel.setX(GUI_SETTINGS.GAME_WINDOW_WIDTH / 2 - restartLabel.getImage().getWidth()/2);
+		restartLabel.setY(GUI_SETTINGS.GAME_WINDOW_HEIGHT / 2 - 100);
+		restartLabel.setEffect(textDS);
+		restartLabel.setVisible(false);
 		
 		//Add the player's tank to the pane
 		makeNewTank();
