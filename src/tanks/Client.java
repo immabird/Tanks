@@ -338,7 +338,7 @@ class Client extends Application{
 		pane.setPrefSize(GUI_SETTINGS.GAME_WINDOW_WIDTH, GUI_SETTINGS.GAME_WINDOW_HEIGHT);
 		pane.setPrefSize(GUI_SETTINGS.GAME_WINDOW_WIDTH, GUI_SETTINGS.GAME_WINDOW_HEIGHT);
 		
-		pane.setBackground(new Background(new BackgroundImage(new Image("imgs/metal scratch.jpg"), null, null, null, null)));
+		pane.setBackground(new Background(new BackgroundImage(new Image("imgs/metal scratch cartoon.jpg"), null, null, null, null)));
 		
 		//Add the player's tank to the pane
 		makeNewTank();
@@ -346,12 +346,6 @@ class Client extends Application{
 	
 		pane.getChildren().add(hearts);
 		hearts.toFront();
-		
-		//Add Scaling
-		Scale scale = new Scale(1, 1, 0, 0);
-		scale.xProperty().bind(pane.widthProperty().divide(GUI_SETTINGS.GAME_WINDOW_WIDTH));
-		scale.yProperty().bind(pane.heightProperty().divide(GUI_SETTINGS.GAME_WINDOW_HEIGHT));
-		pane.getTransforms().add(scale);
 		
 		//Show the pane
 		Scene scene = new Scene(pane);

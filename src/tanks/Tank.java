@@ -128,8 +128,6 @@ public class Tank extends ImageView implements Comparable<Tank> {
 							boolean hasChanged = false;
 							boolean colision = false;
 							
-							System.out.println(getParent().getScaleX() + getParent().getScaleY());
-							
 							if(finalRotate != getRotate() || finalX != getX() || finalY != getY()) {
 								hasChanged = true;
 								double oldRotate = getRotate();
@@ -479,8 +477,8 @@ public class Tank extends ImageView implements Comparable<Tank> {
 			
 			w = a = s = d = false;
 			mouseMoved = false;
-			setX(0);
-			setY(0);
+			setX(GUI_SETTINGS.GAME_WINDOW_WIDTH/2 - (getImage().getWidth()/2));
+			setY(GUI_SETTINGS.GAME_WINDOW_HEIGHT/2 - (getImage().getHeight()/2));
 			setRotate(0);
 			snapComponents();
 			mouseClicked = false;
@@ -634,9 +632,11 @@ public class Tank extends ImageView implements Comparable<Tank> {
 											}
 										} else if(tank != null && tank instanceof Bullet) {
 											if(tank != This) {
-												if(tank != null && colision(This, (ImageView) tank)) {
-													stillGoing = false;
-													nodes.add(tank);
+												if(Math.abs(This.getX() - ((Bullet)tank).getX()) <= 18 && Math.abs(This.getY() - ((Bullet)tank).getY()) <= 18){
+													if(tank != null && colision(This, (ImageView) tank)) {
+														stillGoing = false;
+														nodes.add(tank);
+													}
 												}
 											}
 										}
