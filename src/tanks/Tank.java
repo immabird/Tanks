@@ -548,6 +548,10 @@ public class Tank extends ImageView implements Comparable<Tank> {
 		return parts;
 	}
 	
+	public int getHealth(){
+		return health;
+	}
+	
 	public void snapComponents() {
 		if(Platform.isFxApplicationThread()) {
 			namePlate.setLayoutX(getX() + namePlateOffsetX);

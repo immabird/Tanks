@@ -181,13 +181,11 @@ class Client extends Application{
 							Platform.runLater(new Runnable(){
 								@Override
 								public void run() {
-									tanks.clear();
-									pane.getChildren().clear();
-									myTank = new Tank(name, This, myColor);
-									pane.getChildren().add(myTank);
-									myTank.requestFocus();
-									hearts = new Hearts();
-									pane.getChildren().add(hearts);
+									System.out.println("restarting");
+									myTank.reset();
+									if(!pane.getChildren().contains(myTank))
+										pane.getChildren().addAll(myTank.getComponents());
+									hearts.reset();
 									stage.requestFocus();
 								}
 							});
@@ -366,7 +364,13 @@ class Client extends Application{
 		}
 		
 		private void removeAHeart(){
-			getChildren().remove(getChildren().size() - 1);
+			getChildren().get(myTank.getHealth()).setVisible(false);
+		}
+	
+		private void reset(){
+			for(Node n : getChildren()){
+				n.setVisible(true);
+			}
 		}
 	}
 	
