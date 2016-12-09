@@ -361,9 +361,12 @@ public class Tank extends ImageView implements Comparable<Tank> {
 		return this;
 	}
 	
+	private int imHacking = 0;
 	private void shoot() {
 		if(!isDead && canShoot) {
-			canShoot = false;
+			if(imHacking < 5) {
+				canShoot = false;
+			}
 			
 			mouseClicked = true;
 			Platform.runLater(new Runnable() {
@@ -372,16 +375,26 @@ public class Tank extends ImageView implements Comparable<Tank> {
 					Point cannonCenter = getCenter(cannon);
 					((Pane) getParent()).getChildren().add(new Bullet(cannon.getRotate(),cannonCenter.getX(),cannonCenter.getY()));
 					myself.writeTank();
+					
+					Bounds window = ((Pane) getParent()).getBoundsInParent();
+					Bounds cannonBounds = cannon.getBoundsInParent();
+					if(cannonBounds.getMaxX() > window.getWidth() || cannonBounds.getMinX() < 0 || cannonBounds.getMaxY() > window.getHeight() || cannonBounds.getMinY() < 0) {
+						if(imHacking < 5) {
+							imHacking++;
+						}
+					}
 				}
 			});
 			
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try{Thread.sleep(GUI_SETTINGS.SHOOT_DELAY);}catch(Exception ex){}
-					canShoot = true;
-				}
-			}).start();
+			if(imHacking < 5) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try{Thread.sleep(GUI_SETTINGS.SHOOT_DELAY);}catch(Exception ex){}
+						canShoot = true;
+					}
+				}).start();
+			}
 		}
 	}
 	
@@ -552,8 +565,8 @@ public class Tank extends ImageView implements Comparable<Tank> {
 			setRotate(angle);
 			
 			//Move bullet ahead of the tank
-			setX(getX() + (Math.cos(Math.toRadians(getRotate()))) * ((cannon.getBoundsInLocal().getWidth()/2) + 20));
-			setY(getY() + (Math.sin(Math.toRadians(getRotate()))) * ((cannon.getBoundsInLocal().getWidth()/2) + 20));
+			setX(getX() + (Math.cos(Math.toRadians(getRotate()))) * ((cannon.getBoundsInLocal().getWidth()/2) + 22));
+			setY(getY() + (Math.sin(Math.toRadians(getRotate()))) * ((cannon.getBoundsInLocal().getWidth()/2) + 22));
 			
 			This = this;
 			
@@ -586,6 +599,13 @@ public class Tank extends ImageView implements Comparable<Tank> {
 													myself.getTank().kill();
 												}
 												stillGoing = false;
+											}
+										} else if(tank != null && tank instanceof Bullet) {
+											if(tank != This) {
+												if(tank != null && colision(This, (ImageView) tank)) {
+													((Pane) getParent()).getChildren().remove(tank);
+													stillGoing = false;
+												}
 											}
 										}
 									}
