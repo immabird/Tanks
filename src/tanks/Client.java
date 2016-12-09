@@ -70,10 +70,12 @@ class Client extends Application{
 			this.myColor = "Rainbow";
 		else if(n.contains("merica") || (n.contains("chuck") && n.contains("norris")) )
 			this.myColor = "America";
-		else if(n.contains("shrek") || n.contains("farquaad"))
+		else if(n.contains("shrek"))
 			this.myColor = "Shrek";
 		else if(n.contains("donkey"))
 			this.myColor = "Donkey";
+		else if(n.contains("farquaad"))
+			this.myColor = "farquaad";
 		else
 			this.myColor = myColor;
 		connect();
@@ -336,7 +338,19 @@ class Client extends Application{
 	public void start(Stage primaryStage) throws Exception {
 		//Setup the pane
 		pane = new Pane();
+<<<<<<< HEAD
 		pane.setPrefSize(GUI_SETTINGS.GAME_WINDOW_WIDTH, GUI_SETTINGS.GAME_WINDOW_HEIGHT);
+=======
+<<<<<<< HEAD
+		pane.setPrefSize(GUI_SETTINGS.GAME_WINDOW_WIDTH, GUI_SETTINGS.GAME_WINDOW_HEIGHT);
+		//pane.setScaleX(1);
+		//pane.setScaleY(1);
+		
+=======
+		pane.setMinSize(GUI_SETTINGS.GAME_WINDOW_WIDTH, GUI_SETTINGS.GAME_WINDOW_HEIGHT);
+		pane.setMaxSize(GUI_SETTINGS.GAME_WINDOW_WIDTH, GUI_SETTINGS.GAME_WINDOW_HEIGHT);
+>>>>>>> origin/master
+>>>>>>> branch 'master' of https://github.com/ImmaBird/Tanks
 		pane.setBackground(new Background(new BackgroundImage(new Image("imgs/metal scratch.jpg"), null, null, null, null)));
 		
 		//Add the player's tank to the pane
