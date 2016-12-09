@@ -603,7 +603,6 @@ public class Tank extends ImageView implements Comparable<Tank> {
 										} else if(tank != null && tank instanceof Bullet) {
 											if(tank != This) {
 												if(tank != null && colision(This, (ImageView) tank)) {
-													((Pane) getParent()).getChildren().remove(tank);
 													stillGoing = false;
 												}
 											}
