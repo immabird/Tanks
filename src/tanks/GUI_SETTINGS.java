@@ -27,7 +27,8 @@ public final class GUI_SETTINGS {
 	final static public String MENU_TITLE = "Tanks";
 	
 	//Game window should be square, height and width size
-	final static public int GAME_WINDOW_SIZE = 1000;
+	final static public int GAME_WINDOW_WIDTH = 1920;
+	final static public int GAME_WINDOW_HEIGHT = 1080;
 	//The size of the tank
 	final static public int TANK_WIDTH = 108;
 	final static public int TANK_HEIGHT = 72;
@@ -53,13 +54,18 @@ public final class GUI_SETTINGS {
 		try {
 			return new Image("imgs/Tank Body "+color+".png");
 		} catch(Exception ex) {
-			System.out.println("Failed to get image, or tried to open client with same name.");
+			System.out.println("Failed to get body image, or tried to open client with same name.");
 			return null;
 		}
 	}
 	
 	final public static Image getTopImage(String color){
-		return new Image("imgs/Top Tank "+color+".png");
+		try {
+			return new Image("imgs/Top Tank "+color+".png");
+		} catch(Exception ex) {
+			System.out.println("Failed to get top image, or tried to open client with same name.");
+			return null;
+		}
 	}
 	
 	final private static Font getFont(String name, double size){
