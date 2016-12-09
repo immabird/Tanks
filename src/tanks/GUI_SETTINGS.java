@@ -2,10 +2,8 @@ package tanks;
 
 import java.io.File;
 import java.io.FileInputStream;
-
 import javafx.scene.image.Image;
 import javafx.scene.text.Font;
-import javafx.stage.Screen;
 
 public final class GUI_SETTINGS {
 	final static public Font TITLE_FONT = new Font(46);
@@ -44,6 +42,8 @@ public final class GUI_SETTINGS {
 	final static public int POPUP_MARGIN = 5;
 	final static public int POPUP_BTN_WIDTH = 80;
 	final static public int POPUP_BTN_HEIGHT = 20;
+	
+	final static public int MAX_PLAYERS = 8;
 	
 	final static public int PLAYER_MAX_LIFE = 3;
 	
