@@ -64,8 +64,10 @@ class Client extends Application{
 			this.myColor = "Rainbow";
 		else if(n.contains("merica") || (n.contains("chuck") && n.contains("norris")) )
 			this.myColor = "America";
-		else if(n.contains("shrek") || n.contains("donkey") || n.contains("farquaad"))
+		else if(n.contains("shrek") || n.contains("farquaad"))
 			this.myColor = "Shrek";
+		else if(n.contains("donkey"))
+			this.myColor = "Donkey";
 		else
 			this.myColor = myColor;
 		connect();
