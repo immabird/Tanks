@@ -10,8 +10,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -20,18 +18,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Scale;
-import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
 
 class Client extends Application{
@@ -341,17 +335,23 @@ class Client extends Application{
 	public void start(Stage primaryStage) throws Exception {
 		//Setup the pane
 		pane = new Pane();
-		pane.setMinSize(GUI_SETTINGS.GAME_WINDOW_WIDTH, GUI_SETTINGS.GAME_WINDOW_HEIGHT);
-		pane.setMaxSize(GUI_SETTINGS.GAME_WINDOW_WIDTH, GUI_SETTINGS.GAME_WINDOW_HEIGHT);
-
+		pane.setPrefSize(GUI_SETTINGS.GAME_WINDOW_WIDTH, GUI_SETTINGS.GAME_WINDOW_HEIGHT);
+		pane.setPrefSize(GUI_SETTINGS.GAME_WINDOW_WIDTH, GUI_SETTINGS.GAME_WINDOW_HEIGHT);
 		
 		pane.setBackground(new Background(new BackgroundImage(new Image("imgs/metal scratch.jpg"), null, null, null, null)));
+		
 		//Add the player's tank to the pane
 		makeNewTank();
 		updateOtherPlayers();
 	
 		pane.getChildren().add(hearts);
 		hearts.toFront();
+		
+		//Add Scaling
+		Scale scale = new Scale(1, 1, 0, 0);
+		scale.xProperty().bind(pane.widthProperty().divide(GUI_SETTINGS.GAME_WINDOW_WIDTH));
+		scale.yProperty().bind(pane.heightProperty().divide(GUI_SETTINGS.GAME_WINDOW_HEIGHT));
+		pane.getTransforms().add(scale);
 		
 		//Show the pane
 		Scene scene = new Scene(pane);
@@ -363,6 +363,7 @@ class Client extends Application{
 			stop();
 			primaryStage.close();
 		});
+		stage = primaryStage;
 	}
 	
 	private class Hearts extends HBox{
