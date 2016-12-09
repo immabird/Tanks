@@ -36,6 +36,7 @@ public class Server extends Application{
 	private double GUIWidth;
 	private double GUIYPos;
 	private ServerSocket welcomeSocket;
+	private Thread messageAllThread = null;
 	
 	private int port; // Stores the port number that the server will start on.
 	public Server(int thePort, double GUIX, double GUIWidth, double GUIY) {
@@ -114,7 +115,12 @@ public class Server extends Application{
 			Package p = new Package("");
 			p.setStart();
 			addNextNode(new ClientPackageNode(null, p));
-			
+			try {
+				if(!welcomeSocket.isClosed())
+					welcomeSocket.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 			//TODO: Close welcome socket.
 		});
 		Button restartBtn = new Button("Restart");
@@ -124,6 +130,7 @@ public class Server extends Application{
 			Package p = new Package("");
 			p.setRestart();
 			addNextNode(new ClientPackageNode(null, p));
+			welcomeSocket();
 		});
 		HBox buttons = new HBox(10);
 		buttons.setAlignment(Pos.CENTER);
@@ -178,7 +185,7 @@ public class Server extends Application{
 	
 	private volatile LinkedList<ObjectOutputStream> writers = new LinkedList<ObjectOutputStream>(); // Stores the PrintWriters of all the clients
 	private void messageAllClients() {
-		new Thread(new Runnable() {
+		messageAllThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				while(serverIsOnline){
@@ -196,8 +203,8 @@ public class Server extends Application{
 					}
 				}
 			}
-		}).start();
-		
+		});
+		messageAllThread.start();
 	}
 	
 	/**Synchronized method to add a new node to the sending queue*/
@@ -238,13 +245,13 @@ public class Server extends Application{
 				try { 
 					welcomeSocket = new ServerSocket(port); // Creates welcome socket
 					serverIsOnline = true; // Server has officially started
-					messageAllClients();
+					if(messageAllThread == null)
+						messageAllClients();
 					while(serverIsOnline) {
 						clientSockets(welcomeSocket.accept()); // Accepts new clients
 					}
 				} catch(Exception ex) { // What to do if an exception happens
-					serverIsOnline = false; // Signals that the server has shutdown
-					System.out.println("The welcome socket has closed.");
+					System.out.println("Welcome socket closed.");
 				}
 			}
 		}).start();

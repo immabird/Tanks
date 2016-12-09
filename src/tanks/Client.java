@@ -237,7 +237,6 @@ class Client extends Application{
 							continue;
 						}
 						if(currentP.isLeaving() || currentP.isDead()){ //someone is leaving or they died
-							System.out.println("leaving: " + currentP.isLeaving() + " isDead: " + currentP.isDead());
 							Tank removed = tanks.remove(currentP.getName());
 							//Take the take off of the pane
 							Platform.runLater(new Runnable(){
