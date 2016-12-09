@@ -465,8 +465,16 @@ public class Tank extends ImageView implements Comparable<Tank> {
 		return center;
 	}
 	
-	public void reset() {
+	public void reset(Pane pane) {
 		if(Platform.isFxApplicationThread()) {
+			ArrayList<Node> nodes = new ArrayList<Node>();
+			for(Node node : pane.getChildren()) {
+				if(node instanceof Bullet) {
+					nodes.add(node);
+				}
+			}
+			pane.getChildren().removeAll(nodes);
+			
 			w = a = s = d = false;
 			mouseMoved = false;
 			setX(0);
