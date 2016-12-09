@@ -181,12 +181,12 @@ class Client extends Application{
 							Platform.runLater(new Runnable(){
 								@Override
 								public void run() {
-									System.out.println("restarting");
-									myTank.reset();
+									myTank.reset(pane);
 									if(!pane.getChildren().contains(myTank))
 										pane.getChildren().addAll(myTank.getComponents());
+									writeTank();
 									hearts.reset();
-									stage.requestFocus();
+									myTank.requestFocus();
 								}
 							});
 							continue;
