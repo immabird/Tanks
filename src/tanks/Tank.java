@@ -1,5 +1,6 @@
 package tanks;
 
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import javafx.application.Platform;
@@ -464,6 +465,22 @@ public class Tank extends ImageView implements Comparable<Tank> {
 		return center;
 	}
 	
+	public void reset() {
+		if(Platform.isFxApplicationThread()) {
+			w = a = s = d = false;
+			mouseMoved = false;
+			setX(0);
+			setY(0);
+			setRotate(0);
+			snapComponents();
+			mouseClicked = false;
+			canShoot = true;
+			health = GUI_SETTINGS.PLAYER_MAX_LIFE;
+			isDead = false;
+			imHacking = 0;
+		}
+	}
+	
 	public void kill() {
 		if(health != 0) {
 			health--;
@@ -591,6 +608,7 @@ public class Tank extends ImageView implements Comparable<Tank> {
 									stillGoing = false;
 								}
 								if(getParent() != null) {
+									ArrayList<Node> nodes = new ArrayList<Node>();
 									ObservableList<Node> children = ((Pane) getParent()).getChildren();
 									for(Node tank : children) {
 										if(tank != null && tank instanceof Tank) {
@@ -604,11 +622,18 @@ public class Tank extends ImageView implements Comparable<Tank> {
 											if(tank != This) {
 												if(tank != null && colision(This, (ImageView) tank)) {
 													stillGoing = false;
+													nodes.add(tank);
 												}
 											}
 										}
 									}
+									for(Node node : nodes) {
+										if(node != null) {
+											((Pane) getParent()).getChildren().remove(node);
+										}
+									}
 								}
+								
 								if(!stillGoing && getParent() != null) {
 									((Pane) getParent()).getChildren().remove(This);
 								}
