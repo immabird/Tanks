@@ -12,6 +12,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -26,6 +27,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 class Client extends Application{
@@ -334,6 +336,8 @@ class Client extends Application{
 		//Setup the pane
 		pane = new Pane();
 		pane.setPrefSize(GUI_SETTINGS.GAME_WINDOW_WIDTH, GUI_SETTINGS.GAME_WINDOW_HEIGHT);
+		pane.setScaleX(1);
+		pane.setScaleY(1);
 		pane.setBackground(new Background(new BackgroundImage(new Image("imgs/metal scratch.jpg"), null, null, null, null)));
 		//Add the player's tank to the pane
 		makeNewTank();

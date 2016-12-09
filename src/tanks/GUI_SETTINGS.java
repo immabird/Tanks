@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 
 import javafx.scene.image.Image;
 import javafx.scene.text.Font;
+import javafx.stage.Screen;
 
 public final class GUI_SETTINGS {
 	final static public Font TITLE_FONT = new Font(46);
@@ -27,8 +28,8 @@ public final class GUI_SETTINGS {
 	final static public String MENU_TITLE = "Tanks";
 	
 	//Game window should be square, height and width size
-	final static public int GAME_WINDOW_WIDTH = 1920;
-	final static public int GAME_WINDOW_HEIGHT = 1080;
+	final static public double GAME_WINDOW_WIDTH = 1920;
+	final static public double GAME_WINDOW_HEIGHT = 1080;
 	//The size of the tank
 	final static public int TANK_WIDTH = 108;
 	final static public int TANK_HEIGHT = 72;
