@@ -26,8 +26,12 @@ import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.TextAlignment;
+import javafx.scene.transform.Scale;
+import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
 
 class Client extends Application{
@@ -337,15 +341,10 @@ class Client extends Application{
 	public void start(Stage primaryStage) throws Exception {
 		//Setup the pane
 		pane = new Pane();
-<<<<<<< HEAD
-		pane.setPrefSize(GUI_SETTINGS.GAME_WINDOW_WIDTH, GUI_SETTINGS.GAME_WINDOW_HEIGHT);
-		//pane.setScaleX(1);
-		//pane.setScaleY(1);
-		
-=======
 		pane.setMinSize(GUI_SETTINGS.GAME_WINDOW_WIDTH, GUI_SETTINGS.GAME_WINDOW_HEIGHT);
 		pane.setMaxSize(GUI_SETTINGS.GAME_WINDOW_WIDTH, GUI_SETTINGS.GAME_WINDOW_HEIGHT);
->>>>>>> origin/master
+
+		
 		pane.setBackground(new Background(new BackgroundImage(new Image("imgs/metal scratch.jpg"), null, null, null, null)));
 		//Add the player's tank to the pane
 		makeNewTank();
@@ -363,29 +362,6 @@ class Client extends Application{
 			sendLeaveMessage();
 			stop();
 			primaryStage.close();
-		});
-		
-		//primaryStage.minWidthProperty().bind(scene.heightProperty().multiply(2));
-	    //primaryStage.minHeightProperty().bind(scene.widthProperty().divide(2));
-	    
-		stage = primaryStage; //Have a class reference to the stage
-		
-		primaryStage.widthProperty().addListener(new ChangeListener<Number>() {
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				pane.setScaleX(newValue.doubleValue() / GUI_SETTINGS.GAME_WINDOW_WIDTH);
-				System.out.println(newValue.doubleValue() + " " + GUI_SETTINGS.GAME_WINDOW_WIDTH);
-				stage.sizeToScene();
-			}
-		});
-		primaryStage.heightProperty().addListener(new ChangeListener<Number>() {
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				pane.setScaleY(newValue.doubleValue() / GUI_SETTINGS.GAME_WINDOW_HEIGHT);
-				System.out.println(newValue.doubleValue() + " " + GUI_SETTINGS.GAME_WINDOW_HEIGHT);
-				pane.getScene().set
-				stage.sizeToScene();
-			}
 		});
 	}
 	
