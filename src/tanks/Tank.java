@@ -128,6 +128,8 @@ public class Tank extends ImageView implements Comparable<Tank> {
 							boolean hasChanged = false;
 							boolean colision = false;
 							
+							System.out.println(getParent().getScaleX() + getParent().getScaleY());
+							
 							if(finalRotate != getRotate() || finalX != getX() || finalY != getY()) {
 								hasChanged = true;
 								double oldRotate = getRotate();

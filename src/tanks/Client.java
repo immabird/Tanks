@@ -28,6 +28,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
+import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 
 class Client extends Application{
@@ -335,15 +336,21 @@ class Client extends Application{
 	public void start(Stage primaryStage) throws Exception {
 		//Setup the pane
 		pane = new Pane();
-		pane.setMinSize(GUI_SETTINGS.GAME_WINDOW_WIDTH, GUI_SETTINGS.GAME_WINDOW_HEIGHT);
-		pane.setMaxSize(GUI_SETTINGS.GAME_WINDOW_WIDTH, GUI_SETTINGS.GAME_WINDOW_HEIGHT);
+		pane.setPrefSize(GUI_SETTINGS.GAME_WINDOW_WIDTH, GUI_SETTINGS.GAME_WINDOW_HEIGHT);
 		pane.setBackground(new Background(new BackgroundImage(new Image("imgs/metal scratch.jpg"), null, null, null, null)));
+		
 		//Add the player's tank to the pane
 		makeNewTank();
 		updateOtherPlayers();
 	
 		pane.getChildren().add(hearts);
 		hearts.toFront();
+		
+		//Add Scaling
+		Scale scale = new Scale(1, 1, 0, 0);
+		scale.xProperty().bind(pane.widthProperty().divide(GUI_SETTINGS.GAME_WINDOW_WIDTH));
+		scale.yProperty().bind(pane.heightProperty().divide(GUI_SETTINGS.GAME_WINDOW_HEIGHT));
+		pane.getTransforms().add(scale);
 		
 		//Show the pane
 		Scene scene = new Scene(pane);
@@ -355,29 +362,7 @@ class Client extends Application{
 			stop();
 			primaryStage.close();
 		});
-		
-		//primaryStage.minWidthProperty().bind(scene.heightProperty().multiply(2));
-	    //primaryStage.minHeightProperty().bind(scene.widthProperty().divide(2));
-	    
 		stage = primaryStage; //Have a class reference to the stage
-		
-		primaryStage.widthProperty().addListener(new ChangeListener<Number>() {
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				pane.setScaleX(newValue.doubleValue() / GUI_SETTINGS.GAME_WINDOW_WIDTH);
-				System.out.println(newValue.doubleValue() + " " + GUI_SETTINGS.GAME_WINDOW_WIDTH);
-				stage.sizeToScene();
-			}
-		});
-		primaryStage.heightProperty().addListener(new ChangeListener<Number>() {
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				pane.setScaleY(newValue.doubleValue() / GUI_SETTINGS.GAME_WINDOW_HEIGHT);
-				System.out.println(newValue.doubleValue() + " " + GUI_SETTINGS.GAME_WINDOW_HEIGHT);
-				pane.getScene().set
-				stage.sizeToScene();
-			}
-		});
 	}
 	
 	private class Hearts extends HBox{
