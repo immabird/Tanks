@@ -10,9 +10,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -27,7 +28,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 class Client extends Application{
@@ -335,9 +335,8 @@ class Client extends Application{
 	public void start(Stage primaryStage) throws Exception {
 		//Setup the pane
 		pane = new Pane();
-		pane.setPrefSize(GUI_SETTINGS.GAME_WINDOW_WIDTH, GUI_SETTINGS.GAME_WINDOW_HEIGHT);
-		pane.setScaleX(1);
-		pane.setScaleY(1);
+		pane.setMinSize(GUI_SETTINGS.GAME_WINDOW_WIDTH, GUI_SETTINGS.GAME_WINDOW_HEIGHT);
+		pane.setMaxSize(GUI_SETTINGS.GAME_WINDOW_WIDTH, GUI_SETTINGS.GAME_WINDOW_HEIGHT);
 		pane.setBackground(new Background(new BackgroundImage(new Image("imgs/metal scratch.jpg"), null, null, null, null)));
 		//Add the player's tank to the pane
 		makeNewTank();
@@ -347,7 +346,7 @@ class Client extends Application{
 		hearts.toFront();
 		
 		//Show the pane
-		Scene scene = new Scene(new AnchorPane(pane));
+		Scene scene = new Scene(pane);
 		primaryStage.setTitle(GUI_SETTINGS.MENU_TITLE + " | Player: " + name);
 		primaryStage.setScene(scene);
 		primaryStage.show();
@@ -356,7 +355,29 @@ class Client extends Application{
 			stop();
 			primaryStage.close();
 		});
+		
+		//primaryStage.minWidthProperty().bind(scene.heightProperty().multiply(2));
+	    //primaryStage.minHeightProperty().bind(scene.widthProperty().divide(2));
+	    
 		stage = primaryStage; //Have a class reference to the stage
+		
+		primaryStage.widthProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				pane.setScaleX(newValue.doubleValue() / GUI_SETTINGS.GAME_WINDOW_WIDTH);
+				System.out.println(newValue.doubleValue() + " " + GUI_SETTINGS.GAME_WINDOW_WIDTH);
+				stage.sizeToScene();
+			}
+		});
+		primaryStage.heightProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				pane.setScaleY(newValue.doubleValue() / GUI_SETTINGS.GAME_WINDOW_HEIGHT);
+				System.out.println(newValue.doubleValue() + " " + GUI_SETTINGS.GAME_WINDOW_HEIGHT);
+				pane.getScene().set
+				stage.sizeToScene();
+			}
+		});
 	}
 	
 	private class Hearts extends HBox{
@@ -422,6 +443,9 @@ class Client extends Application{
 			pane.setBottom(okBtn);
 			BorderPane.setAlignment(errors, Pos.CENTER);
 			BorderPane.setAlignment(okBtn, Pos.CENTER);
+			
+			
+			
 			stage.setScene(new Scene(pane));
 			stage.setTitle("ERROR");
 			stage.show();

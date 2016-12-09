@@ -61,12 +61,21 @@ public class Server extends Application{
 	private PlayersList playersList;
 	private int playerCount = 0;
 	private void updateNumberOfPlayers(int add) {
+		if(playerCount == 8 && add == -1) {
+			welcomeSocket();
+		}
 		playerCount += add;
+		if(playerCount == 8) {
+			try {
+				welcomeSocket.close();
+			} catch(Exception ex) {}
+		}
+	
 		Platform.runLater(new Runnable(){//change the label on the javafx thread
 			@Override
 			public void run() {
 				numberOfPlayers.setText("" + playerCount);
-			}	
+			}
 		});
 	}
 	@Override
@@ -130,7 +139,9 @@ public class Server extends Application{
 			Package p = new Package("");
 			p.setRestart();
 			addNextNode(new ClientPackageNode(null, p));
-			welcomeSocket();
+			if(playerCount > 8) {
+				welcomeSocket();
+			}
 		});
 		HBox buttons = new HBox(10);
 		buttons.setAlignment(Pos.CENTER);
