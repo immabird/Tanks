@@ -59,10 +59,13 @@ class Client extends Application{
 		ip = anIp;
 		port = aPort;
 		this.name = name;
-		if(name.toLowerCase().contains("rainbow") || name.toLowerCase().contains("unicorn"))
+		String n = name.toLowerCase();
+		if(n.contains("rainbow") || n.contains("unicorn"))
 			this.myColor = "Rainbow";
-		else if(name.toLowerCase().contains("merica") || (name.toLowerCase().contains("chuck") && name.toLowerCase().contains("norris")) )
+		else if(n.contains("merica") || (n.contains("chuck") && n.contains("norris")) )
 			this.myColor = "America";
+		else if(n.contains("shrek") || n.contains("donkey") || n.contains("farquaad"))
+			this.myColor = "Shrek";
 		else
 			this.myColor = myColor;
 		connect();
