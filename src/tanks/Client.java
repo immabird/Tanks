@@ -27,7 +27,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
-import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 
 class Client extends Application{
