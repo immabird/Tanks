@@ -25,11 +25,10 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 public class GUI extends Application {
-	private static int port = 25565;
+	private static int port = 7777;
 	private static String ip = "localhost";
-	private static String name = "Brad";
+	private static String name = "Player";
 	private static String yourColor = "Blue";
-	private static String opponentColor = "Red";
 	private Stage stage;
 	private Server server = null;
 	
@@ -177,12 +176,11 @@ public class GUI extends Application {
 	}
 	
 	public void start(Stage stage) {
-		try(Scanner sc = new Scanner(new File("/settings/settings.txt"))) {
+		try(Scanner sc = new Scanner(new File("settings.txt"))) {
 			name = sc.nextLine();
 			ip = sc.nextLine();
 			port = Integer.parseInt(sc.nextLine());
 			yourColor = sc.nextLine();
-			opponentColor = sc.nextLine();
 		} catch(Exception ex) {}
 		
 		try {
@@ -194,12 +192,11 @@ public class GUI extends Application {
 			this.stage = stage;
 			
 			stage.setOnCloseRequest(EventHandler -> {
-				try(PrintWriter pr = new PrintWriter(new File("/settings/settings.txt"))) {
+				try(PrintWriter pr = new PrintWriter(new File("settings.txt"))) {
 					pr.println(name);
 					pr.println(ip);
 					pr.println(port);
 					pr.println(yourColor);
-					pr.println(opponentColor);
 				} catch(Exception ex) {}
 				System.exit(0);
 			});

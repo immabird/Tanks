@@ -1,5 +1,0 @@
-Rainbow Machine2
-localhost
-7777
-Orange
-Pink
