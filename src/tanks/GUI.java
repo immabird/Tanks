@@ -16,6 +16,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -31,6 +32,10 @@ public class GUI extends Application {
 	private static String opponentColor = "Red";
 	private Stage stage;
 	private Server server = null;
+	
+	public static void main(String[] args) {
+		launch(args);
+	}
 	
 	public void startClient() {
 		new Client(ip, port, name, yourColor);
@@ -87,7 +92,7 @@ public class GUI extends Application {
 	
 	private void createMainMenuScene() {
 		// Makes the title
-		ImageView title = new ImageView("imgs/Title.png");
+		ImageView title = new ImageView(new Image(getClass().getResource("/imgs/Title.png").toExternalForm()));
 		
 		// Makes all the buttons and adds them to a VBox
 		VBox vBox = new VBox(GUI_SETTINGS.VERT_SPACING_BTN_ELEMENTS);
@@ -105,7 +110,7 @@ public class GUI extends Application {
 	
 	private void createSettingsScene() {
 		// Makes the title
-		ImageView title = new ImageView("imgs/SettingsTitle.png");
+		ImageView title = new ImageView(new Image(getClass().getResource("/imgs/SettingsTitle.png").toExternalForm()));
 		
 		TextField nameField = new TextField(name);
 		nameField.setFont(GUI_SETTINGS.FONT);
@@ -145,7 +150,7 @@ public class GUI extends Application {
 		ArrayList<String> colors = new ArrayList<>(Arrays.asList("Red", "Blue", "Yellow", "Green", "Orange", "Purple", "Black", "Pink"));
 		DropShadow shadow = new DropShadow(20, Color.BLACK);
 		for(String c : colors){
-			ImageView temp = new ImageView("imgs/" + c + "Tank.png");
+			ImageView temp = new ImageView(new Image(getClass().getResource("/imgs/" + c + "Tank.png").toExternalForm()));
 			temp.setOnMousePressed(e -> {
 				for(ImageView i : yourImages)
 					i.setEffect(null);
@@ -172,7 +177,7 @@ public class GUI extends Application {
 	}
 	
 	public void start(Stage stage) {
-		try(Scanner sc = new Scanner(new File("settings.txt"))) {
+		try(Scanner sc = new Scanner(new File("/settings/settings.txt"))) {
 			name = sc.nextLine();
 			ip = sc.nextLine();
 			port = Integer.parseInt(sc.nextLine());
@@ -189,7 +194,7 @@ public class GUI extends Application {
 			this.stage = stage;
 			
 			stage.setOnCloseRequest(EventHandler -> {
-				try(PrintWriter pr = new PrintWriter(new File("settings.txt"))) {
+				try(PrintWriter pr = new PrintWriter(new File("/settings/settings.txt"))) {
 					pr.println(name);
 					pr.println(ip);
 					pr.println(port);
@@ -201,10 +206,7 @@ public class GUI extends Application {
 		} catch(Exception ex) {
 			System.out.println("Something has gone wrong with the GUI.");
 			ex.printStackTrace();
+			System.exit(0);
 		}
-	}
-	
-	public static void main(String[] args) {
-		launch(args);
 	}
 }

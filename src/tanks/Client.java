@@ -392,6 +392,9 @@ class Client extends Application{
 		pane.getChildren().add(hearts);
 		hearts.toFront();
 		
+		//no resize
+		primaryStage.setResizable(false);
+		
 		//Show the pane
 		Scene scene = new Scene(pane);
 		primaryStage.setTitle(GUI_SETTINGS.MENU_TITLE + " | Player: " + name);
