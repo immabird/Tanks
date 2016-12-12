@@ -207,6 +207,7 @@ public class Tank extends ImageView implements Comparable<Tank> {
 			public void handle(KeyEvent event) {
 				KeyCode keyCode = event.getCode();
 				String key = keyCode.getName();
+				System.out.println(key);
 				switch(key) {
 				case"W":
 					w = true;
