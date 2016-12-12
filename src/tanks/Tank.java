@@ -365,6 +365,7 @@ public class Tank extends ImageView implements Comparable<Tank> {
 	private void shoot() {
 		if(!isDead && canShoot) {
 			mouseClicked = true;
+			canShoot = false;
 			Platform.runLater(new Runnable() {
 				@Override
 				public void run() {
