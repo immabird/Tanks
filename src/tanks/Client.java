@@ -279,12 +279,14 @@ class Client extends Application{
 							Platform.runLater(new Runnable(){
 								@Override
 								public void run() {
-									if(removed.getComponents()[0] != null)
-										pane.getChildren().remove(removed.getComponents()[0]);
-									if(removed.getComponents()[1] != null)
-										pane.getChildren().remove(removed.getComponents()[1]);
-									if(removed.getComponents()[2] != null)
-										pane.getChildren().remove(removed.getComponents()[2]);
+									if(removed != null) {
+										if(removed.getComponents()[0] != null)
+											pane.getChildren().remove(removed.getComponents()[0]);
+										if(removed.getComponents()[1] != null)
+											pane.getChildren().remove(removed.getComponents()[1]);
+										if(removed.getComponents()[2] != null)
+											pane.getChildren().remove(removed.getComponents()[2]);
+									}
 								}
 							});
 						}

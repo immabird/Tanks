@@ -53,7 +53,9 @@ public class Tank extends ImageView implements Comparable<Tank> {
 	}
 	
 	public Tank(String name, Client myself, String color) {
-		createTank(name,0,0,getX(),getY(),color,myself);
+		double xPos = (GUI_SETTINGS.GAME_WINDOW_WIDTH / 2) - (GUI_SETTINGS.TANK_WIDTH / 2);
+		double yPos = (GUI_SETTINGS.GAME_WINDOW_HEIGHT / 2) - (GUI_SETTINGS.TANK_HEIGHT / 2);
+		createTank(name,0,0,xPos,yPos,color,myself);
 		
 		Timer t = new Timer();
 		t.schedule(new TimerTask() {
@@ -139,13 +141,17 @@ public class Tank extends ImageView implements Comparable<Tank> {
 								setY(finalY);
 								Tank me = This();
 							
-								ObservableList<Node> children = ((Pane) getParent()).getChildren();
-								for(Node tank : children) {
-									if(tank instanceof Tank && !((Tank) tank).getName().equals(name)) {
-										if(colision(me, (ImageView) tank)) {
-											colision = true;
+								try {
+									ObservableList<Node> children = ((Pane) getParent()).getChildren();
+									for(Node tank : children) {
+										if(tank instanceof Tank && !((Tank) tank).getName().equals(name)) {
+											if(colision(me, (ImageView) tank)) {
+												colision = true;
+											}
 										}
 									}
+								}catch(Exception ex) {
+									//May be null if tank dies mid cycles
 								}
 								
 								if(colision) {
