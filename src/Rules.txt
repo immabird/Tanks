@@ -1,0 +1,11 @@
+Max Players: 8
+
+1. To play, start a server and then give your opponents the IP address and port that shows up in the Server window if you're playing locally.
+	-----If playing remotely, please look up how to port forward and give your client's your public IP.
+2. For clients, put that IP address and port in the settings menu, put your name in, pick a tank and then hit start game.
+	-----Note: No two players on the same server can have the same name.
+3. When everyone is ready, the server host can hit Start Game to start up a new game. (Note: no one else can join once a game has started)
+4. Shoot using either space bar or left click, and move using WASD.
+5. If you lose all of your hearts, you die/lose.
+6. Whoever survives at the end wins.
+7. To play again, the server host can restart (which allows for new people to join) and then start a new game.
