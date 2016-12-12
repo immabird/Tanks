@@ -362,13 +362,8 @@ public class Tank extends ImageView implements Comparable<Tank> {
 		return this;
 	}
 	
-	private int imHacking = 0;
 	private void shoot() {
 		if(!isDead && canShoot) {
-			if(imHacking < 5) {
-				canShoot = false;
-			}
-			
 			mouseClicked = true;
 			Platform.runLater(new Runnable() {
 				@Override
@@ -376,26 +371,15 @@ public class Tank extends ImageView implements Comparable<Tank> {
 					Point cannonCenter = getCenter(cannon);
 					((Pane) getParent()).getChildren().add(new Bullet(cannon.getRotate(),cannonCenter.getX(),cannonCenter.getY()));
 					myself.writeTank();
-					
-					Bounds window = ((Pane) getParent()).getBoundsInParent();
-					Bounds cannonBounds = cannon.getBoundsInParent();
-					if(cannonBounds.getMaxX() > window.getWidth() || cannonBounds.getMinX() < 0 || cannonBounds.getMaxY() > window.getHeight() || cannonBounds.getMinY() < 0) {
-						if(imHacking < 5) {
-							imHacking++;
-						}
-					}
 				}
 			});
-			
-			if(imHacking < 5) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						try{Thread.sleep(GUI_SETTINGS.SHOOT_DELAY);}catch(Exception ex){}
-						canShoot = true;
-					}
-				}).start();
-			}
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try{Thread.sleep(GUI_SETTINGS.SHOOT_DELAY);}catch(Exception ex){}
+					canShoot = true;
+				}
+			}).start();
 		}
 	}
 	
@@ -467,6 +451,7 @@ public class Tank extends ImageView implements Comparable<Tank> {
 	
 	public void reset(Pane pane) {
 		if(Platform.isFxApplicationThread()) {
+			isDead = true;
 			ArrayList<Node> nodes = new ArrayList<Node>();
 			for(Node node : pane.getChildren()) {
 				if(node instanceof Bullet) {
@@ -474,7 +459,6 @@ public class Tank extends ImageView implements Comparable<Tank> {
 				}
 			}
 			pane.getChildren().removeAll(nodes);
-			
 			w = a = s = d = false;
 			mouseMoved = false;
 			setX(GUI_SETTINGS.GAME_WINDOW_WIDTH/2 - (getImage().getWidth()/2));
@@ -485,7 +469,6 @@ public class Tank extends ImageView implements Comparable<Tank> {
 			canShoot = true;
 			health = GUI_SETTINGS.PLAYER_MAX_LIFE;
 			isDead = false;
-			imHacking = 0;
 		}
 	}
 	

@@ -219,6 +219,7 @@ class Client extends Application{
 							Platform.runLater(new Runnable(){
 								@Override
 								public void run() {
+									myTank.setIsDead(true);
 									if(!pane.getChildren().contains(myTank))
 										pane.getChildren().addAll(myTank.getComponents());
 									myTank.reset(pane);
