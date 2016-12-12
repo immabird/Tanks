@@ -68,6 +68,8 @@ class Client extends Application{
 		port = aPort;
 		this.name = name;
 		String n = name.toLowerCase();
+		
+		//Color easter eggs
 		if(n.contains("rainbow") || n.contains("unicorn"))
 			this.myColor = "Rainbow";
 		else if(n.contains("merica") || (n.contains("chuck") && n.contains("norris")) )
@@ -77,9 +79,10 @@ class Client extends Application{
 		else if(n.contains("donkey"))
 			this.myColor = "Donkey";
 		else if(n.contains("farquaad"))
-			this.myColor = "farquaad";
+			this.myColor = "Farquaad";
 		else
 			this.myColor = myColor;
+		
 		connect();
 		
 		//Starting up GUI
@@ -207,6 +210,7 @@ class Client extends Application{
 										}
 									}).start();
 									myTank.requestFocus();
+									writeTank();
 								}
 							});
 							continue;
@@ -215,10 +219,10 @@ class Client extends Application{
 							Platform.runLater(new Runnable(){
 								@Override
 								public void run() {
-									myTank.reset(pane);
 									if(!pane.getChildren().contains(myTank))
 										pane.getChildren().addAll(myTank.getComponents());
-									writeTank();
+									myTank.reset(pane);
+									writeTank(); //let everyone know that you're now alive
 									hearts.reset();
 									ArrayList<Tank> tanks = new ArrayList<Tank>();
 									for(Node node : pane.getChildren()) {
@@ -253,6 +257,7 @@ class Client extends Application{
 										count++;
 										tank.snapComponents();
 									}
+									writeTank(); //send out new position once corner has been determined
 									restartLabel.setVisible(false); //Make sure restartLabel isn't showing
 									startLabel.setVisible(true);
 									startLabel.toFront();

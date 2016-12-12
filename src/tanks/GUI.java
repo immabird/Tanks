@@ -1,6 +1,7 @@
 package tanks;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,17 +9,20 @@ import java.util.Scanner;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.stage.Stage;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -46,6 +50,7 @@ public class GUI extends Application {
 	
 	private Scene mainMenuScene;
 	private Scene settingsScene;
+	private Scene howToPlayScene;
 	
 	private Button newButton(String name) {
 		Button button = new Button(name);
@@ -68,6 +73,9 @@ public class GUI extends Application {
 						break;
 					case"Settings":
 						stage.setScene(settingsScene);
+						break;
+					case "How To Play":
+						stage.setScene(howToPlayScene);
 						break;
 					case"Done":
 						//Go up chain to get VBox of the fields
@@ -96,7 +104,7 @@ public class GUI extends Application {
 		// Makes all the buttons and adds them to a VBox
 		VBox vBox = new VBox(GUI_SETTINGS.VERT_SPACING_BTN_ELEMENTS);
 		vBox.setAlignment(Pos.CENTER);
-		vBox.getChildren().addAll(title,newButton("Start Game"),newButton("Start Server"),newButton("Settings"));
+		vBox.getChildren().addAll(title,newButton("Start Game"),newButton("Start Server"),newButton("Settings"),newButton("How To Play"));
 		
 		// Puts the VBox in a Pane and centers it
 		StackPane pane = new StackPane(vBox);
@@ -143,7 +151,7 @@ public class GUI extends Application {
 		
 		HBox yourTankSelection = new HBox(GUI_SETTINGS.HOR_SPACING_BTN_COLORS);
 		yourTankSelection.setAlignment(Pos.CENTER);
-		Label yourSelectTank = new Label("Select Your Tank:           ");
+		Label yourSelectTank = new Label("Select Your Tank:");
 		yourSelectTank.setFont(GUI_SETTINGS.FONT);
 		ArrayList<ImageView> yourImages = new ArrayList<>();
 		ArrayList<String> colors = new ArrayList<>(Arrays.asList("Red", "Blue", "Yellow", "Green", "Orange", "Purple", "Black", "Pink"));
@@ -175,6 +183,39 @@ public class GUI extends Application {
 		settingsScene = new Scene(new AnchorPane(pane));
 	}
 	
+	private void createHowToPlayScene(){
+		ImageView title = new ImageView(new Image(getClass().getResource("/imgs/HowToPlayTitle.png").toExternalForm()));
+		
+		//Reading in the rules file, works for jar file
+		TextArea text = new TextArea();
+		text.setEditable(false);
+		try(InputStream in = getClass().getResourceAsStream("/Rules.txt");
+			Scanner scan = new Scanner(in)){
+				while(scan.hasNextLine())
+					text.setText(text.getText() + scan.nextLine() + "\n");
+		}catch(Exception ex){ex.printStackTrace();}
+		
+		Button done = new Button("Done");
+		done.setOnAction(e -> {
+			stage.setScene(mainMenuScene);
+		});
+		done.setPrefSize(GUI_SETTINGS.BUTTON_WIDTH, GUI_SETTINGS.BUTTON_HEIGHT);
+		
+		BorderPane pane = new BorderPane();
+		pane.setTop(title);
+		pane.setCenter(text);
+		pane.setBottom(done);
+		
+		pane.setPadding(new Insets(GUI_SETTINGS.VERT_SPACING_BTN_ELEMENTS));
+		BorderPane.setMargin(title, new Insets(0,0,GUI_SETTINGS.VERT_SPACING_BTN_ELEMENTS,0));
+		BorderPane.setAlignment(title, Pos.CENTER);
+		BorderPane.setMargin(done, new Insets(GUI_SETTINGS.VERT_SPACING_BTN_ELEMENTS,0,0,0));
+		BorderPane.setAlignment(done, Pos.CENTER);
+		
+		pane.setPrefSize(GUI_SETTINGS.WINDOW_WIDTH,GUI_SETTINGS.WINDOW_HEIGHT);
+		howToPlayScene = new Scene(pane);
+	}
+	
 	public void start(Stage stage) {
 		try(Scanner sc = new Scanner(new File("settings.txt"))) {
 			name = sc.nextLine();
@@ -186,6 +227,7 @@ public class GUI extends Application {
 		try {
 			createMainMenuScene();
 			createSettingsScene();
+			createHowToPlayScene();
 			stage.setScene(mainMenuScene);
 			stage.setTitle(GUI_SETTINGS.MENU_TITLE);
 			stage.show();
