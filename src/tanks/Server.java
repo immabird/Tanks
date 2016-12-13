@@ -112,6 +112,10 @@ public class Server extends Application{
 		portBox.setAlignment(Pos.CENTER);
 		portBox.getChildren().addAll(portLbl, portNumLbl);
 		
+		Label serverOpen = new Label("Server is open");
+		serverOpen.setAlignment(Pos.CENTER);
+		serverOpen.setFont(GUI_SETTINGS.FONT);
+		
 		VBox ipAndPort = new VBox();
 		ipAndPort.setAlignment(Pos.CENTER);
 		ipAndPort.getChildren().addAll(IP, ipAddresses, portBox);
@@ -123,6 +127,7 @@ public class Server extends Application{
 			Package p = new Package("");
 			p.setStart();
 			addNextNode(new ClientPackageNode(null, p));
+			serverOpen.setText("Server is closed");
 			try {
 				if(!welcomeSocket.isClosed())
 					welcomeSocket.close();
@@ -139,6 +144,7 @@ public class Server extends Application{
 			addNextNode(new ClientPackageNode(null, p));
 			if(playerCount < 8) {
 				welcomeSocket();
+				serverOpen.setText("Server is open");
 			}
 		});
 		HBox buttons = new HBox(10);
@@ -156,7 +162,7 @@ public class Server extends Application{
 		playersList = new PlayersList();
 		
 		VBox v1 = new VBox();
-		v1.getChildren().addAll(title,ipAndPort,buttons,numPlayersBox,playersList);
+		v1.getChildren().addAll(title,ipAndPort,serverOpen,buttons,numPlayersBox,playersList);
 		v1.setAlignment(Pos.TOP_CENTER);
 		
 		StackPane pane = new StackPane(v1);
@@ -169,6 +175,7 @@ public class Server extends Application{
 		stage.setScene(serverScene);
 		stage.setX(GUIXPos + GUIWidth);
 		stage.setY(GUIYPos);
+		stage.setResizable(false);
 		stage.show();
 		stage.sizeToScene();
 		stage.setOnCloseRequest(e -> {
@@ -202,6 +209,7 @@ public class Server extends Application{
 						ClientPackageNode node = getNextNode();
 						Package clientsData = node.p;
 						ObjectOutputStream client = node.o;
+						clientsData.setNumOnServer(playerCount);
 						sendStuff(clientsData, client);
 					}
 					else{
@@ -211,6 +219,7 @@ public class Server extends Application{
 						}catch(Exception ex){}
 					}
 				}
+				//Abrahim fixed it don't worry;]
 			}
 		});
 		messageAllThread.start();
@@ -282,7 +291,7 @@ public class Server extends Application{
 						try{
 							if(!nameIsBad){
 								data = (Package) read.readObject();
-								if (!addedName) {
+								if (!addedName) { //haven't added the name yet
 									if (playersList.names.contains(data.getName())) {
 										write.writeObject(new Package(true));
 										nameIsBad = true;
@@ -298,8 +307,6 @@ public class Server extends Application{
 									clientIsOnline = false;
 									playersList.remove(data.getName());
 								}
-								// TODO Implement more checks in the Package
-								// class for the server
 								if(addedName){
 									addNextNode(new ClientPackageNode(write, data));
 									isSomethingToSend = true;

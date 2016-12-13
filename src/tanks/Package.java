@@ -22,6 +22,7 @@ public class Package implements Serializable {
 	private String color = "";
 	private boolean restart = false;
 	private boolean start = false;
+	private int numOnServer;
 	
 	/**Sends the name because Brad used a bad constructor and I had to fix his mess*/
 	public Package(String name){
@@ -116,5 +117,13 @@ public class Package implements Serializable {
 	
 	public boolean getStart() {
 		return start;
+	}
+	
+	public void setNumOnServer(int num){
+		numOnServer = num;
+	}
+	
+	public int getNumOnServer(){
+		return numOnServer;
 	}
 }

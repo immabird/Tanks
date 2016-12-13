@@ -44,6 +44,9 @@ class Client extends Application{
 	//Label to show when restarting a game
 	private ImageView restartLabel;
 	private ImageView startLabel;
+	private ImageView lobbyLabel;
+	private ImageView winLabel;
+	private ImageView loseLabel;
 	//Color of my tank
 	private String myColor;
 	// Keeps track of the connection with the server
@@ -67,7 +70,9 @@ class Client extends Application{
 		ip = anIp;
 		port = aPort;
 		this.name = name;
-		String n = name.toLowerCase();
+		if(name.length() > 20) //limit name to 20 characters
+			this.name = name.substring(0, 20);
+		String n = this.name.toLowerCase();
 		
 		//Color easter eggs
 		if(n.contains("rainbow") || n.contains("unicorn"))
@@ -170,7 +175,7 @@ class Client extends Application{
 					});
 				}
 			}
-		}).start();
+		}).start();	
 	}
 	
 	/**Make a thread to update all of the other player's info*/
@@ -181,97 +186,15 @@ class Client extends Application{
 			public void run() {	
 				//Wait for the server to connect, if timed out just quit
 				while(!connectedToServer && !connectionTimedOut) {}
+				boolean needMoreTanks = false; //used for starting up a game thread racing
 				
 				//Connected to the server, start reading through packets and updating
 				while(connectedToServer){
 					if(!packagesIsEmpty()){//there's a package to get
 						Package currentP = getPackage();
-						if(currentP.getNewName()){
+						if(currentP.getNewName()){ //someone on server has name already
 							new NewNamePopUp();
 							stop();
-						}
-						if(currentP.getRestart()){ //game is restarting
-							Platform.runLater(new Runnable(){
-								@Override
-								public void run() {
-									myTank.reset(pane);
-									if(!pane.getChildren().contains(myTank))
-										pane.getChildren().addAll(myTank.getComponents());
-									writeTank();
-									hearts.reset();
-									startLabel.setVisible(false); //Make sure startLabel isn't showing
-									restartLabel.setVisible(true);
-									restartLabel.toFront();
-									new Thread(new Runnable(){
-										@Override
-										public void run() {
-											try{Thread.sleep(1250);}catch(Exception e){}
-											restartLabel.setVisible(false);
-										}
-									}).start();
-									myTank.requestFocus();
-									writeTank();
-								}
-							});
-							continue;
-						}
-						if(currentP.getStart()) { //Game is starting
-							Platform.runLater(new Runnable(){
-								@Override
-								public void run() {
-									myTank.setIsDead(true);
-									if(!pane.getChildren().contains(myTank))
-										pane.getChildren().addAll(myTank.getComponents());
-									myTank.reset(pane);
-									writeTank(); //let everyone know that you're now alive
-									hearts.reset();
-									ArrayList<Tank> tanks = new ArrayList<Tank>();
-									for(Node node : pane.getChildren()) {
-										if(node instanceof Tank) {
-											tanks.add((Tank) node);
-										}
-									}
-									Collections.sort(tanks);
-									int count = 0;
-									int i = 5;
-									int j = 5;
-									for(Tank tank : tanks) {
-										if(count % 4 == 0) {
-											tank.setRotate(0);
-											tank.setX(i);
-											tank.setY(j);
-										} else if(count % 4 == 1) {
-											tank.setRotate(180);
-											tank.setX(pane.getWidth() - GUI_SETTINGS.TANK_WIDTH - i);
-											tank.setY(pane.getHeight() - GUI_SETTINGS.TANK_HEIGHT - j);
-										} else if(count % 4 == 2) {
-											tank.setRotate(0);
-											tank.setX(i);
-											tank.setY(pane.getHeight() - GUI_SETTINGS.TANK_HEIGHT - j);
-										} else if(count % 4 == 3) {
-											tank.setRotate(180);
-											tank.setX(pane.getWidth() - GUI_SETTINGS.TANK_WIDTH - i);
-											tank.setY(j);
-											j += GUI_SETTINGS.TANK_HEIGHT + 5;
-											i += GUI_SETTINGS.TANK_WIDTH + 5;
-										}
-										count++;
-										tank.snapComponents();
-									}
-									writeTank(); //send out new position once corner has been determined
-									restartLabel.setVisible(false); //Make sure restartLabel isn't showing
-									startLabel.setVisible(true);
-									startLabel.toFront();
-									new Thread(new Runnable(){
-										@Override
-										public void run() {
-											try{Thread.sleep(1250);}catch(Exception e){}
-											startLabel.setVisible(false);
-										}
-									}).start();
-								}
-							});
-							continue;
 						}
 						if(currentP.isLeaving() || currentP.isDead()){ //someone is leaving or they died
 							Tank removed = tanks.remove(currentP.getName());
@@ -289,8 +212,18 @@ class Client extends Application{
 									}
 								}
 							});
+							if(tanks.isEmpty()){ //you win
+								winLabel.setVisible(true);
+								new Thread(new Runnable(){
+									@Override
+									public void run() {
+										try{Thread.sleep(3000);}catch(Exception e){}
+										winLabel.setVisible(false);
+									}
+								}).start();
+							}
 						}
-						else if(!tanks.containsKey(currentP.getName())){ //Tank isn't in the hashmap yet
+						else if(!currentP.getRestart() && !currentP.getStart() && !tanks.containsKey(currentP.getName())){ //Tank isn't in the hashmap yet
 							//Add the new tank to the pane
 							Platform.runLater(new Runnable(){
 								public void run(){
@@ -304,17 +237,135 @@ class Client extends Application{
 							writeTank(); //Send out position once a new player joins
 						}
 						else{//just update the tank in the map
+							if(!currentP.getStart() && !currentP.getRestart()){
+								Platform.runLater(new Runnable(){
+									@Override
+									public void run() {
+										if(tanks.containsKey(currentP.getName()))
+											tanks.get(currentP.getName()).updateFromPackage(currentP);
+									}
+								});
+							}
+						}
+						
+						//Special messages from server
+						if(currentP.getRestart()){ //game is restarting
 							Platform.runLater(new Runnable(){
 								@Override
 								public void run() {
-									if(tanks.containsKey(currentP.getName()))
-										tanks.get(currentP.getName()).updateFromPackage(currentP);
+									myTank.reset(pane);
+									if(!pane.getChildren().contains(myTank))
+										pane.getChildren().addAll(myTank.getComponents());
+									writeTank();
+									hearts.reset();
+									startLabel.setVisible(false); //Make sure startLabel isn't showing
+									winLabel.setVisible(false); //Make sure winLabel isn't showing
+									loseLabel.setVisible(false); //Make sure loseLabel isn't showing
+									restartLabel.setVisible(true);
+									lobbyLabel.setVisible(true);
+									restartLabel.toFront();
+									new Thread(new Runnable(){
+										@Override
+										public void run() {
+											try{Thread.sleep(1250);}catch(Exception e){}
+											restartLabel.setVisible(false);
+										}
+									}).start();
+									myTank.requestFocus();
+									writeTank();
+								}
+							});
+							continue;
+						}
+						
+						if(currentP.getStart() || needMoreTanks) { //Game is starting
+							ArrayList<Tank> tanks = new ArrayList<Tank>();
+							if(!needMoreTanks){
+								Platform.runLater(new Runnable(){
+									@Override
+									public void run() {
+										myTank.setIsDead(true);
+										if(!pane.getChildren().contains(myTank))
+											pane.getChildren().addAll(myTank.getComponents());
+										myTank.reset(pane);
+										hearts.reset();
+										writeTank(); //let everyone know that you're now alive
+									}
+								});
+							}
+							Platform.runLater(new Runnable(){
+								@Override
+								public void run() {
+									for(Node node : pane.getChildren()) {
+										if(node instanceof Tank) {
+											if(!tanks.contains(node))
+												tanks.add((Tank) node);
+										}
+									}
+								}
+							});
+							
+							try{Thread.sleep(5);}catch(Exception e){}
+							if(tanks.size() != currentP.getNumOnServer()){ //wait until all players are added back
+								needMoreTanks = true;
+								continue;
+							}else{needMoreTanks = false;}
+							
+							Collections.sort(tanks);
+							
+							Platform.runLater(new Runnable(){
+								@Override
+								public void run() {
+									int count = 0;
+									int i = 5;
+									int j = 5;
+									for (Tank tank : tanks) {
+										if (count % 4 == 0) {
+											tank.setRotate(0);
+											tank.setX(i);
+											tank.setY(j);
+										} else if (count % 4 == 1) {
+											tank.setRotate(180);
+											tank.setX(pane.getWidth() - GUI_SETTINGS.TANK_WIDTH - i);
+											tank.setY(pane.getHeight() - GUI_SETTINGS.TANK_HEIGHT - j);
+										} else if (count % 4 == 2) {
+											tank.setRotate(0);
+											tank.setX(i);
+											tank.setY(pane.getHeight() - GUI_SETTINGS.TANK_HEIGHT - j);
+										} else if (count % 4 == 3) {
+											tank.setRotate(180);
+											tank.setX(pane.getWidth() - GUI_SETTINGS.TANK_WIDTH - i);
+											tank.setY(j);
+											j += GUI_SETTINGS.TANK_HEIGHT + 5;
+											i += GUI_SETTINGS.TANK_WIDTH + 5;
+										}
+										count++;
+										tank.snapComponents();
+									}
+									writeTank(); // send out new position once corner has been determined
+
+									restartLabel.setVisible(false); // Make sure restartLabel isn't showing
+									lobbyLabel.setVisible(false); // Turn lobbyLable off
+									winLabel.setVisible(false); // Make sure winLabel isn't showing
+									loseLabel.setVisible(false); // Make sure loseLabel isn't showing
+									startLabel.setVisible(true);
+									startLabel.toFront();
+									new Thread(new Runnable() {
+										@Override
+										public void run() {
+											try {
+												Thread.sleep(1250);
+											} catch (Exception e) {
+											}
+											startLabel.setVisible(false);
+										}
+									}).start();
 								}
 							});
 						}
-						putHeartsOnFront();
+						putStuffOnFront();
 					} else {
-						putHeartsOnFront();
+						putStuffOnFront();
 						//Sleep the thread for a millisecond every cycle so it doesn't use 40% CPU Usage
 						try{Thread.sleep(1);}catch(Exception ex){}
 					}
@@ -323,23 +374,34 @@ class Client extends Application{
 		}).start();
 	}
 	
+	/**Gets the next package from the queue (synchronized)*/
 	private synchronized Package getPackage(){
 		return packages.poll();
 	}
 	
+	/*Adds a new package to the queue (synchronized)*/ 
 	private synchronized void addPackage(Package p){
 		packages.add(p);
 	}
 	
+	/**@return true if the packages queue is empty (synchronized)*/
 	private synchronized boolean packagesIsEmpty(){
 		return packages.isEmpty();
 	}
 	
-	private void putHeartsOnFront(){
+	/**Puts everything that needs to be front on the pane on the front*/
+	private void putStuffOnFront(){
 		Platform.runLater(new Runnable(){
 			@Override
 			public void run() {
+				for(Node n : myTank.getComponents()){
+					n.toFront();
+				}
 				restartLabel.toFront();
+				startLabel.toFront();
+				lobbyLabel.toFront();
+				winLabel.toFront();
+				loseLabel.toFront();
 				hearts.toFront();
 			}
 		});
@@ -366,6 +428,16 @@ class Client extends Application{
 	
 	public void decrementHeart(){
 		hearts.removeAHeart();
+		if(myTank.getHealth() == 0){
+			loseLabel.setVisible(true);
+			new Thread(new Runnable(){
+				@Override
+				public void run() {
+					try{Thread.sleep(3000);}catch(Exception e){}
+					loseLabel.setVisible(false);
+				}
+			}).start();
+		}
 	}
 	
 	@Override
@@ -392,11 +464,28 @@ class Client extends Application{
 		restartLabel.setY(GUI_SETTINGS.GAME_WINDOW_HEIGHT / 2 - 100);
 		restartLabel.setEffect(textDS);
 		restartLabel.setVisible(false);
+		lobbyLabel = new ImageView("imgs/Lobby.png");
+		pane.getChildren().add(lobbyLabel);
+		lobbyLabel.setX(GUI_SETTINGS.GAME_WINDOW_WIDTH / 2 - lobbyLabel.getImage().getWidth()/2);
+		lobbyLabel.setEffect(textDS);
+		//Have lobbyLabel visible when joining a game
+		winLabel = new ImageView("imgs/Win.png");
+		pane.getChildren().add(winLabel);
+		winLabel.setX(GUI_SETTINGS.GAME_WINDOW_WIDTH / 2 - winLabel.getImage().getWidth()/2);
+		winLabel.setY(GUI_SETTINGS.GAME_WINDOW_HEIGHT / 2 - winLabel.getImage().getHeight()/2);
+		winLabel.setEffect(textDS);
+		winLabel.setVisible(false);
+		loseLabel = new ImageView("imgs/Lose.png");
+		pane.getChildren().add(loseLabel);
+		loseLabel.setX(GUI_SETTINGS.GAME_WINDOW_WIDTH / 2 - loseLabel.getImage().getWidth()/2);
+		loseLabel.setY(GUI_SETTINGS.GAME_WINDOW_HEIGHT / 2 - loseLabel.getImage().getHeight()/2);
+		loseLabel.setEffect(textDS);
+		loseLabel.setVisible(false);
 		
 		//Add the player's tank to the pane
 		makeNewTank();
 		updateOtherPlayers();
-	
+		
 		pane.getChildren().add(hearts);
 		hearts.toFront();
 		
@@ -416,6 +505,7 @@ class Client extends Application{
 		stage = primaryStage;
 	}
 	
+	/**Holds the heart images*/
 	private class Hearts extends HBox{
 		ImageView[] images = new ImageView[GUI_SETTINGS.PLAYER_MAX_LIFE];
 		
@@ -438,6 +528,7 @@ class Client extends Application{
 		}
 	}
 	
+	/**Popup window for having the same name as someone else on the server*/
 	private class NewNamePopUp extends Application{
 		private NewNamePopUp(){
 			Platform.runLater(new Runnable(){
