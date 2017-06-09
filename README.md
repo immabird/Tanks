@@ -4,7 +4,7 @@
 * Made Sophomore year 1st Semester for a Network Programming class.</br>
 </br>
 
-![alt text](https://github.com/ImmaBird/Tanks/blob/master/Code%20Screenshots/tanks%20screenshot.PNG)
+![alt text](https://github.com/ImmaBird/Tanks/blob/master/Code%20Screenshots/Game%20screenshot.PNG)
 
 ## Cool Features
 * Networked, play with friends anywhere. (Works best over lan due to latency)
